@@ -257,6 +257,174 @@ main {
     background-color: rgba(255, 255, 255, 0.02);
 }
 
+/* Collapsible Sections */
+.collapsible-section {
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--divider);
+    padding-bottom: 0;
+}
+
+.collapsible-section:last-child {
+    border-bottom: none;
+}
+
+.collapsible-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 16px 0;
+    user-select: none;
+}
+
+.collapsible-header h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-main);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.collapsible-header .section-arrow {
+    font-size: 1.2rem;
+    color: var(--text-tertiary);
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.collapsible-section.expanded .collapsible-header .section-arrow {
+    transform: rotate(180deg);
+    color: var(--accent);
+}
+
+.collapsible-content {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.5s ease, opacity 0.3s ease;
+    padding: 0 4px;
+    /* Prevent border clipping */
+}
+
+.collapsible-section.expanded .collapsible-content {
+    max-height: 2000px;
+    /* Large enough to fit content */
+    opacity: 1;
+    margin-top: 16px;
+    overflow: visible;
+    /* Allow shadows/borders to show */
+}
+
+.collapsible-section.expanded {
+    margin-bottom: 40px;
+    padding-bottom: 24px;
+}
+
+/* Experience List */
+.experience-item {
+    padding: 24px;
+    border: 1px solid transparent;
+    border-bottom: 1px solid var(--divider);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: -1px;
+}
+
+.experience-item:last-child {
+    border-bottom: none;
+}
+
+.experience-item:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="dark"] .experience-item:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.experience-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.exp-main-info {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    flex: 1;
+}
+
+.exp-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.exp-role {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 1rem;
+}
+
+.exp-company {
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.exp-period {
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    font-size: 0.85rem;
+}
+
+.experience-details {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease, margin-top 0.3s ease;
+    opacity: 0;
+    margin-top: 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.experience-item.expanded .experience-details {
+    max-height: 200px;
+    opacity: 1;
+    margin-top: 16px;
+}
+
+.experience-item.expanded .project-arrow {
+    transform: rotate(90deg);
+    color: var(--accent);
+}
+
+.experience-item.expanded .exp-role {
+    color: var(--accent);
+}
+
+@media (max-width: 768px) {
+    .experience-header {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .exp-main-info {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .exp-meta {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 8px;
+    }
+}
+
 .project-header {
     display: flex;
     justify-content: space-between;
