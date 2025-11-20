@@ -20,47 +20,146 @@
 
   <div class="container">
 
+    <!-- Sidebar / Header (Fixed on Desktop) -->
     <header>
       <span class="brand">Sudhir Singh</span>
-      <h1 id="profile-role">Machine Learning Engineer</h1>
-      <p class="intro">
-        Specializing in production-grade ML systems, efficiency, and scalability.
-        <span id="exp-years">5 years</span> of experience deploying models that drive real business impact.
-      </p>
+
+      <!-- View Toggle -->
+      <div class="view-toggle">
+        <button class="toggle-btn active" data-view="work">[ WORK ]</button>
+        <button class="toggle-btn" data-view="about">[ ABOUT ME ]</button>
+        <button class="toggle-btn" data-view="mentorship">[ CONSULTATION ]</button>
+      </div>
+
+
+
       <div style="margin-top: 24px;">
-        <a href="mailto:hire.sudhir.singh@icloud.com" style="margin-right: 20px;">hire.sudhir.singh@icloud.com</a>
-        <a href="#" id="cv-link">View CV</a>
+        <button class="btn-text" onclick="toggleTheme()">Dark Mode</button>
       </div>
     </header>
 
+    <!-- Main Content Area -->
     <main>
-      <section>
-        <h2>Selected Work</h2>
-        <div id="project-list">
-          <!-- Projects injected here -->
-        </div>
-      </section>
 
-      <section class="grid-2">
-        <div class="stat-block">
-          <h3>Technical Expertise</h3>
-          <div id="tech-list" style="display: flex; flex-wrap: wrap; gap: 8px;">
-            <!-- Tech tags injected here -->
+      <!-- WORK VIEW -->
+      <div id="view-work" class="view-section active">
+
+        <!-- Header & Stats -->
+        <div style="margin-bottom: 60px;">
+          <h2 id="profile-role" style="font-size: 2rem; margin-bottom: 40px;">Machine Learning Engineer</h2>
+
+          <div style="margin-top: 0;">
+            <div class="stat-block">
+              <h3>Technical Expertise</h3>
+              <div id="tech-list" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <!-- Tech tags injected here -->
+              </div>
+            </div>
           </div>
         </div>
-        <div class="stat-block">
-          <h3>Impact</h3>
-          <p id="impact-stat">Loading...</p>
-        </div>
-      </section>
-    </main>
 
-    <footer>
-      <div>&copy; <span id="year"></span> Sudhir Singh</div>
-      <div>
-        <button class="btn-text" onclick="toggleTheme()">Dark Mode</button>
+        <section>
+          <h2>Selected Work</h2>
+          <div id="project-list">
+            <!-- Projects injected here -->
+          </div>
+        </section>
+
+        <footer>
+          <div>&copy; <span id="year"></span> Sudhir Singh</div>
+        </footer>
       </div>
-    </footer>
+
+      <!-- ABOUT VIEW -->
+      <div id="view-about" class="view-section hidden">
+        <div class="about-grid">
+          <div class="about-text">
+            <h2>Beyond the Code</h2>
+            <p>
+              I'm not just an engineer; I'm a problem solver who loves the intersection of data and product.
+              When I'm not optimizing inference latency, I'm exploring new tech stacks or hiking.
+            </p>
+
+            <div style="margin-bottom: 32px;">
+              <a href="mailto:hire.sudhir.singh@icloud.com"
+                style="font-family: var(--font-mono); color: var(--accent); font-weight: 600;">hire.sudhir.singh@icloud.com</a>
+            </div>
+
+            <h3>Personality</h3>
+            <ul class="personality-list">
+              <li>> INTJ - Strategic Thinker</li>
+              <li>> Obsessed with Efficiency</li>
+              <li>> Continuous Learner</li>
+            </ul>
+
+            <h3 style="margin-top: 32px;">Philosophy</h3>
+            <p>
+              "Simple is better than complex. Complex is better than complicated."
+            </p>
+          </div>
+
+          <div class="about-photo">
+            <!-- Placeholder for user photo -->
+            <div class="photo-placeholder">
+              <span>[ INSERT PHOTO HERE ]</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MENTORSHIP VIEW -->
+      <div id="view-mentorship" class="view-section hidden">
+        <div style="max-width: 800px;">
+          <h2>Consultation</h2>
+          <p>
+            I offer personalized guidance on weekends for aspiring ML engineers and startups looking to scale their AI
+            infrastructure.
+          </p>
+
+          <div class="pricing-grid">
+            <!-- Card 1 -->
+            <div class="pricing-card">
+              <h3>1:1 Career Guidance</h3>
+              <div class="price">₹2,000 <small>/ 45 min</small></div>
+              <p>Resume review, roadmap planning, and industry insights.</p>
+              <button class="btn-outline">Book Session</button>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="pricing-card">
+              <h3>Mock Interview</h3>
+              <div class="price">₹3,500 <small>/ 60 min</small></div>
+              <p>System design or coding interview practice with detailed feedback.</p>
+              <button class="btn-outline">Book Session</button>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="pricing-card">
+              <h3>Code Review</h3>
+              <div class="price">₹5,000 <small>/ project</small></div>
+              <p>In-depth review of your ML pipeline, architecture, or codebase.</p>
+              <button class="btn-outline">Book Session</button>
+            </div>
+          </div>
+
+          <div class="upi-block">
+            <h3>Pay via UPI</h3>
+            <div class="qr-placeholder">
+              <span>[ QR CODE ]</span>
+            </div>
+            <div class="upi-id">
+              <span>sudhir.singh@upi</span>
+              <button class="btn-copy" onclick="navigator.clipboard.writeText('sudhir.singh@upi')">Copy</button>
+            </div>
+            <p style="font-size: 0.85rem; margin-top: 12px; color: var(--text-tertiary);">
+              Scan the QR code or use the VPA ID to make a payment. Please mention the session type in the remarks.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
 
   </div>
 

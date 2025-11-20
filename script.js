@@ -49,12 +49,12 @@ const PROJECTS = [
 
 // Render Functions
 function renderProfile() {
-  document.getElementById('exp-years').textContent = PROFILE.exp;
-  document.getElementById('impact-stat').textContent = PROFILE.impact;
+  // document.getElementById('exp-years').textContent = PROFILE.exp; // Removed
+  // document.getElementById('impact-stat').textContent = PROFILE.impact; // Removed
   document.getElementById('year').textContent = new Date().getFullYear();
 
   const techContainer = document.getElementById('tech-list');
-  techContainer.innerHTML = PROFILE.tech.map(t => `<span class="tech-tag" style="border:1px solid var(--divider); padding:2px 8px; border-radius:4px; font-size:0.75rem; color:var(--text-tertiary)">${t}</span>`).join(' ');
+  techContainer.innerHTML = PROFILE.tech.map(t => `<span class="tech-tag" style="border:1px solid var(--divider); padding:2px 8px; border-radius:4px; font-size:0.75rem; color:var(--text-tertiary); font-family:var(--font-mono)">${t}</span>`).join(' ');
 }
 
 function renderProjects() {
@@ -111,12 +111,37 @@ function renderProjects() {
 
 // Interaction Logic
 function toggleProject(element) {
-  // Close others if you want accordion style (optional, currently toggle style)
-  // document.querySelectorAll('.project-item').forEach(el => {
-  //   if(el !== element) el.classList.remove('expanded');
-  // });
-
   element.classList.toggle('expanded');
+}
+
+// View Toggle Logic
+function setupViewToggle() {
+  const buttons = document.querySelectorAll('.toggle-btn');
+  const views = document.querySelectorAll('.view-section');
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // 1. Deactivate all buttons
+      buttons.forEach(b => b.classList.remove('active'));
+      // 2. Activate clicked button
+      btn.classList.add('active');
+
+      const targetViewId = `view-${btn.getAttribute('data-view')}`;
+
+      // 3. Handle Views
+      views.forEach(view => {
+        if (view.id === targetViewId) {
+          view.classList.remove('hidden');
+          // Small delay to allow display:block to apply before opacity transition
+          setTimeout(() => view.classList.add('active'), 10);
+        } else {
+          view.classList.remove('active');
+          // Wait for fade out transition before hiding
+          setTimeout(() => view.classList.add('hidden'), 300);
+        }
+      });
+    });
+  });
 }
 
 // Theme Toggle
@@ -131,4 +156,5 @@ function toggleTheme() {
 document.addEventListener('DOMContentLoaded', () => {
   renderProfile();
   renderProjects();
+  setupViewToggle();
 });
