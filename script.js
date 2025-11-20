@@ -110,14 +110,14 @@ function renderExperience() {
 function renderProjects() {
   const container = document.getElementById('project-list');
 
-  const projectsHTML = PROJECTS.map(p => `
-    <article class="project-item expanded" onclick="toggleProject(this)">
+  const projectsHTML = PROJECTS.map((p, index) => `
+    <article class="project-item ${index === 0 ? 'expanded' : ''}" onclick="toggleProject(this)">
       <div class="project-header">
         <div>
           <span class="project-title">${p.title}</span>
           <div class="project-summary">${p.short}</div>
         </div>
-        <div class="project-arrow">↓</div>
+        <div class="project-arrow">→</div>
       </div>
 
       <div class="project-details" onclick="event.stopPropagation()">
@@ -175,32 +175,128 @@ function toggleSection(sectionId) {
 // View Toggle Logic
 function setupViewToggle() {
   const buttons = document.querySelectorAll('.toggle-btn');
-  const views = document.querySelectorAll('.view-section');
+  const sections = document.querySelectorAll('.view-section');
 
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
-      // 1. Deactivate all buttons
+      // Remove active class from all buttons
       buttons.forEach(b => b.classList.remove('active'));
-      // 2. Activate clicked button
+      // Add active class to clicked button
       btn.classList.add('active');
 
-      const targetViewId = `view-${btn.getAttribute('data-view')}`;
-
-      // 3. Handle Views
-      views.forEach(view => {
-        if (view.id === targetViewId) {
-          view.classList.remove('hidden');
-          // Small delay to allow display:block to apply before opacity transition
-          setTimeout(() => view.classList.add('active'), 10);
-        } else {
-          view.classList.remove('active');
-          // Wait for fade out transition before hiding
-          setTimeout(() => view.classList.add('hidden'), 300);
-        }
+      // Hide all sections
+      sections.forEach(section => {
+        section.classList.add('hidden');
+        section.classList.remove('active');
       });
+
+      // Show target section
+      const viewName = btn.getAttribute('data-view');
+      const targetId = `view-${viewName}`;
+      const targetSection = document.getElementById(targetId);
+
+      if (targetSection) {
+        targetSection.classList.remove('hidden');
+        // Small delay to allow display:block to apply before opacity transition
+        setTimeout(() => {
+          targetSection.classList.add('active');
+        }, 10);
+      }
     });
   });
 }
+
+// Booking Modal Logic
+let currentPlan = '';
+
+const QR_CODES = {
+  "1:1 Career Guidance": "./2000.jpeg",
+  "Mock Interview": "./1000.jpg",
+  "Code Review": "./1000.jpg"
+};
+
+function openBookingModal(planName) {
+  currentPlan = planName;
+  document.getElementById('modal-plan-name').textContent = `Selected: ${planName}`;
+
+  // Set QR Code Image
+  const qrImage = document.getElementById('modal-qr-image');
+  if (QR_CODES[planName]) {
+    qrImage.src = QR_CODES[planName];
+    qrImage.alt = `${planName} QR Code`;
+  } else {
+    qrImage.src = ""; // Fallback or empty
+    qrImage.alt = "QR Code not found";
+  }
+
+  document.getElementById('booking-modal').classList.add('active');
+  document.getElementById('booking-modal').classList.remove('hidden');
+
+  // Reset to Step 1
+  document.getElementById('modal-step-1').classList.remove('hidden');
+  document.getElementById('modal-step-2').classList.add('hidden');
+  document.getElementById('user-email').value = ''; // Clear email
+  document.getElementById('txn-id').value = ''; // Clear txn id
+  document.getElementById('btn-confirm').disabled = true; // Disable confirm button
+}
+
+function closeBookingModal() {
+  document.getElementById('booking-modal').classList.remove('active');
+  setTimeout(() => {
+    document.getElementById('booking-modal').classList.add('hidden');
+  }, 300);
+}
+
+function nextBookingStep() {
+  const email = document.getElementById('user-email').value;
+  if (!email || !email.includes('@')) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+
+  document.getElementById('modal-step-1').classList.add('hidden');
+  document.getElementById('modal-step-2').classList.remove('hidden');
+}
+
+function prevBookingStep() {
+  document.getElementById('modal-step-2').classList.add('hidden');
+  document.getElementById('modal-step-1').classList.remove('hidden');
+}
+
+function handleBookingSubmit() {
+  const email = document.getElementById('user-email').value;
+  const txnId = document.getElementById('txn-id').value;
+
+  if (!txnId) {
+    alert('Please enter the UPI Transaction ID to confirm your payment.');
+    return;
+  }
+
+  const subject = `Booking Request: ${currentPlan}`;
+  const body = `Hi Sudhir,\n\nI would like to book a session for ${currentPlan}.\n\nMy Email: ${email}\n\nI have made the payment.\nTransaction ID: ${txnId}\n\nRegards,`;
+
+  window.location.href = `mailto:sudhir.singh@upi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+  closeBookingModal();
+}
+
+// Transaction ID Validation
+document.addEventListener('DOMContentLoaded', () => {
+  const txnInput = document.getElementById('txn-id');
+  const confirmBtn = document.getElementById('btn-confirm');
+
+  if (txnInput && confirmBtn) {
+    txnInput.addEventListener('input', (e) => {
+      const value = e.target.value.trim();
+      // Basic validation: Check if length is at least 10 characters (typical UPI IDs are 12)
+      if (value.length >= 10) {
+        confirmBtn.disabled = false;
+      } else {
+        confirmBtn.disabled = true;
+      }
+    });
+  }
+});
 
 // Theme Toggle
 function toggleTheme() {
@@ -216,4 +312,14 @@ document.addEventListener('DOMContentLoaded', () => {
   renderExperience();
   renderProjects();
   setupViewToggle();
+
+  // Attach click handlers to "Book Session" buttons
+  const bookButtons = document.querySelectorAll('.btn-outline');
+  bookButtons.forEach(btn => {
+    if (btn.textContent.trim() === 'Book Session') {
+      const card = btn.closest('.pricing-card');
+      const planName = card.querySelector('h3').textContent;
+      btn.onclick = () => openBookingModal(planName);
+    }
+  });
 });

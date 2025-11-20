@@ -127,7 +127,7 @@
                 </div>
 
                 <div class="project-links">
-                  <a href="https://deepstatistics.co.in" target="_blank">Live Demo</a>
+                  <a href="https://deepstatistics.co.in" target="_blank">Live</a>
                   <a href="#" target="_blank">System Design</a>
                 </div>
               </div>
@@ -224,19 +224,7 @@
             </div>
           </div>
 
-          <div class="upi-block">
-            <h3>Pay via UPI</h3>
-            <div class="qr-placeholder">
-              <span>[ QR CODE ]</span>
-            </div>
-            <div class="upi-id">
-              <span>sudhir.singh@upi</span>
-              <button class="btn-copy" onclick="navigator.clipboard.writeText('sudhir.singh@upi')">Copy</button>
-            </div>
-            <p style="font-size: 0.85rem; margin-top: 12px; color: var(--text-tertiary);">
-              Scan the QR code or use the VPA ID to make a payment. Please mention the session type in the remarks.
-            </p>
-          </div>
+
 
         </div>
       </div>
@@ -246,6 +234,62 @@
   </div>
 
   <script src="script.js"></script>
+
+  <!-- Booking Modal -->
+  <div id="booking-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h3>Book Session</h3>
+      <p id="modal-plan-name" style="color: var(--accent); font-weight: 600; margin-bottom: 16px;"></p>
+
+      <!-- Step 1: Email -->
+      <div id="modal-step-1">
+        <p style="font-size: 0.9rem; margin-bottom: 24px;">
+          Please enter your email address to proceed with the booking.
+        </p>
+        <div class="form-group">
+          <label for="user-email">Your Email</label>
+          <input type="email" id="user-email" placeholder="name@example.com" required>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-outline" onclick="closeBookingModal()"
+            style="border-color: var(--divider); color: var(--text-secondary);">Cancel</button>
+          <button class="btn-outline" onclick="nextBookingStep()"
+            style="background: var(--accent); color: white; border-color: var(--accent);">Next</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Payment -->
+      <div id="modal-step-2" class="hidden">
+        <p style="font-size: 0.9rem; margin-bottom: 16px;">
+          Scan the QR code to pay. Once paid, click confirm to send the request.
+        </p>
+
+        <div class="qr-container" style="display: flex; justify-content: center; margin-bottom: 16px;">
+          <img id="modal-qr-image" src="" alt="Payment QR Code"
+            style="width: 150px; height: 150px; object-fit: contain; border: 1px solid var(--divider); border-radius: 4px;">
+        </div>
+
+        <p class="payment-status"
+          style="font-size: 0.85rem; color: var(--text-tertiary); text-align: center; margin-bottom: 24px; font-style: italic;">
+          Waiting for user to complete the payment and enter transaction details. Don't Panic if for anything goes
+          wrong, Just contact me.
+        </p>
+
+        <div class="form-group">
+          <label for="txn-id">UPI Transaction ID (Required)</label>
+          <input type="text" id="txn-id" placeholder="Enter Transaction ID / UTR" required>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-outline" onclick="prevBookingStep()"
+            style="border-color: var(--divider); color: var(--text-secondary);">Back</button>
+          <button id="btn-confirm" class="btn-outline" onclick="handleBookingSubmit()"
+            style="background: var(--accent); color: white; border-color: var(--accent);" disabled>Continue</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </body>
 
 </html>
