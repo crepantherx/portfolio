@@ -206,26 +206,62 @@ function setupViewToggle() {
   });
 }
 
-// Booking Modal Logic
-let currentPlan = '';
-
-const QR_CODES = {
-  "1:1 Career Guidance": "./2000.jpeg",
-  "Mock Interview": "./1000.jpg",
-  "Code Review": "./1000.jpg"
+// Consultation Configuration
+// Consultation Configuration
+const CONSULTATION_CONFIG = {
+  "Want To Learn Python From Me": {
+    qr: "./2000.jpeg",
+    link: "https://cal.com/sudhir-singh/want-to-learn-python-from-me-professional-student?overlayCalendar=true",
+    price: "₹500"
+  },
+  "Research Related Topic": {
+    qr: "./1000.jpg",
+    link: "https://cal.com/sudhir-singh/research-related-topic-for-scholars?overlayCalendar=true",
+    price: "₹500"
+  },
+  "ML/DE Technical Design Challenges": {
+    qr: "./1000.jpg",
+    link: "https://cal.com/sudhir-singh/ml-de-technical-design-challenges-for-professionals?overlayCalendar=true",
+    price: "₹500"
+  },
+  "Discuss Startup Ideas": {
+    qr: "./1000.jpg",
+    link: "https://cal.com/sudhir-singh/discuss-startup-ideas?overlayCalendar=true",
+    price: "₹500"
+  },
+  "Guidance": {
+    qr: "./1000.jpg",
+    link: "https://cal.com/sudhir-singh/guidence-for-students?overlayCalendar=true",
+    price: "₹500"
+  },
+  "Building Long Term Connection": {
+    qr: "./1000.jpg",
+    link: "https://cal.com/sudhir-singh/building-long-terms-connection?overlayCalendar=true",
+    price: "₹500"
+  }
 };
+
+let currentPlan = '';
 
 function openBookingModal(planName) {
   currentPlan = planName;
+  const config = CONSULTATION_CONFIG[planName];
+
   document.getElementById('modal-plan-name').textContent = `Selected: ${planName}`;
+
+  // Set Price if element exists
+  const priceEl = document.getElementById('modal-price');
+  if (priceEl && config) {
+    priceEl.textContent = `Amount to Pay: ${config.price}`;
+  }
 
   // Set QR Code Image
   const qrImage = document.getElementById('modal-qr-image');
-  if (QR_CODES[planName]) {
-    qrImage.src = QR_CODES[planName];
+  if (config && config.qr) {
+    qrImage.src = config.qr;
     qrImage.alt = `${planName} QR Code`;
   } else {
-    qrImage.src = ""; // Fallback or empty
+    qrImage.src = "";
     qrImage.alt = "QR Code not found";
   }
 
@@ -272,10 +308,14 @@ function handleBookingSubmit() {
     return;
   }
 
-  const subject = `Booking Request: ${currentPlan}`;
-  const body = `Hi Sudhir,\n\nI would like to book a session for ${currentPlan}.\n\nMy Email: ${email}\n\nI have made the payment.\nTransaction ID: ${txnId}\n\nRegards,`;
+  const config = CONSULTATION_CONFIG[currentPlan];
 
-  window.location.href = `mailto:sudhir.singh@upi?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  // Redirect to the specific booking link
+  if (config && config.link) {
+    window.open(config.link, '_blank');
+  } else {
+    alert('Booking link not found for this plan. Please contact me directly.');
+  }
 
   closeBookingModal();
 }

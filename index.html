@@ -22,13 +22,13 @@
 
     <!-- Sidebar / Header (Fixed on Desktop) -->
     <header>
-      <span class="brand">Sudhir Singh</span>
+      <span class="brand">SUDHIR SINGH</span>
 
       <!-- View Toggle -->
       <div class="view-toggle">
-        <button class="toggle-btn active" data-view="work">[ WORK ]</button>
-        <button class="toggle-btn" data-view="about">[ ABOUT ME ]</button>
-        <button class="toggle-btn" data-view="mentorship">[ CONSULTATION ]</button>
+        <button class="toggle-btn active" data-view="work">Work</button>
+        <button class="toggle-btn" data-view="about">About</button>
+        <button class="toggle-btn" data-view="mentorship">Appointment</button>
       </div>
 
 
@@ -159,7 +159,7 @@
             <h2>Beyond the Code</h2>
             <p>
               I love being around Rainy, Mountain, greenery, and the sound of a waterfall.
-              <br>I enjoy sharing newly learned things with my colleagues—and with myself as I keep refining them.
+              <br>I enjoy sharing newly learned things with my colleagues, and with myself as I keep refining them.
               <br>Learner inside me never dies.
 
             </p>
@@ -196,39 +196,71 @@
       <!-- MENTORSHIP VIEW -->
       <div id="view-mentorship" class="view-section hidden">
         <div style="max-width: 800px;">
-          <h2>Consultation</h2>
-          <p>
-            I offer personalized guidance on weekends for aspiring ML engineers and startups looking to scale their AI
-            infrastructure.
-          </p>
+          <h2>Appointment</h2>
+
+
 
           <div class="pricing-grid">
             <!-- Card 1 -->
             <div class="pricing-card">
-              <h3>1:1 Career Guidance</h3>
-              <div class="price">₹2,000 <small>/ 45 min</small></div>
-              <p>Resume review, roadmap planning, and industry insights.</p>
-              <button class="btn-outline">Book Session</button>
+              <h3>Want To Learn Python From Me</h3>
+              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student ]
+              </p>
+
+              <button class="btn-outline" onclick="openBookingModal('Want To Learn Python From Me')">Book
+                Session</button>
             </div>
 
             <!-- Card 2 -->
             <div class="pricing-card">
-              <h3>Mock Interview</h3>
-              <div class="price">₹3,500 <small>/ 60 min</small></div>
-              <p>System design or coding interview practice with detailed feedback.</p>
-              <button class="btn-outline">Book Session</button>
+              <h3>Research Related Topic</h3>
+              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Scholar ]
+              </p>
+              <button class="btn-outline" onclick="openBookingModal('Research Related Topic')">Book Session</button>
             </div>
 
             <!-- Card 3 -->
             <div class="pricing-card">
-              <h3>Code Review</h3>
-              <div class="price">₹5,000 <small>/ project</small></div>
-              <p>In-depth review of your ML pipeline, architecture, or codebase.</p>
-              <button class="btn-outline">Book Session</button>
+              <h3>ML/DE Technical Design Challenges</h3>
+              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student ]
+              </p>
+              <button class="btn-outline" onclick="openBookingModal('ML/DE Technical Design Challenges')">Book
+                Session</button>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="pricing-card">
+              <h3>Discuss Startup Ideas</h3>
+              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student ]
+              </p>
+              <button class="btn-outline" onclick="openBookingModal('Discuss Startup Ideas')">Book Session</button>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="pricing-card">
+
+              <h3>Guidance</h3>
+              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student ]
+              </p>
+              <button class="btn-outline" onclick="openBookingModal('Guidance')">Book Session</button>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="pricing-card">
+
+              <h3>Building Long Term Connection</h3>
+              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student ]
+              </p>
+              <button class="btn-outline" onclick="openBookingModal('Building Long Term Connection')">Book
+                Session</button>
             </div>
           </div>
 
-
+          <!-- <div style="margin-bottom: 32px;">
+            <a href="https://cal.com/sudhir-singh" target="_blank" class="btn-outline" style="text-decoration: none;">
+              (or) Schedule Short Discussion Session via Cal.com ↗
+            </a>
+          </div> -->
 
         </div>
       </div>
@@ -264,8 +296,12 @@
 
       <!-- Step 2: Payment -->
       <div id="modal-step-2" class="hidden">
-        <p style="font-size: 0.9rem; margin-bottom: 16px;">
+        <p style="font-size: 0.9rem; margin-bottom: 8px;">
           Scan the QR code to pay. Once paid, click confirm to send the request.
+        </p>
+        <p id="modal-price"
+          style="font-size: 1.1rem; font-weight: 700; color: var(--accent); text-align: center; margin-bottom: 16px;">
+          Amount to Pay: ₹500
         </p>
 
         <div class="qr-container" style="display: flex; justify-content: center; margin-bottom: 16px;">
