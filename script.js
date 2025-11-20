@@ -339,11 +339,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Theme Toggle
-function toggleTheme() {
+function toggleTheme(isDark) {
   const body = document.body;
-  const current = body.getAttribute('data-theme');
-  const next = current === 'dark' ? 'light' : 'dark';
-  body.setAttribute('data-theme', next);
+  // If isDark is provided, use it. Otherwise toggle.
+  if (typeof isDark === 'boolean') {
+    body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  } else {
+    const current = body.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    body.setAttribute('data-theme', next);
+  }
 }
 
 // Init

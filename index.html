@@ -13,10 +13,20 @@
     rel="stylesheet">
 </head>
 
-<body>
+<body data-theme="dark">
 
   <!-- Technical Grid Background -->
   <div class="grid-bg"></div>
+
+  <!-- Theme Toggle (Fixed Top Right) -->
+  <label class="theme-toggle">
+    <input type="checkbox" id="theme-checkbox" checked onchange="toggleTheme(this.checked)">
+    <div class="toggle-track">
+      <div class="toggle-knob">
+        <div class="toggle-indicator"></div>
+      </div>
+    </div>
+  </label>
 
   <div class="container">
 
@@ -33,9 +43,7 @@
 
 
 
-      <div style="margin-top: 24px;">
-        <button class="btn-text" onclick="toggleTheme()">Dark Mode</button>
-      </div>
+
     </header>
 
     <!-- Main Content Area -->
@@ -46,7 +54,8 @@
 
         <!-- Header & Stats -->
         <div style="margin-bottom: 60px;">
-          <h2 id="profile-role" style="font-size: 1.5rem; margin-bottom: 40px;">Full Stack Machine Learning Engineer</h2>
+          <h2 id="profile-role" style="font-size: 1.5rem; margin-bottom: 40px;">Full Stack Machine Learning Engineer
+          </h2>
 
           <div style="margin-top: 0;">
             <div class="stat-block">
