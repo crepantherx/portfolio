@@ -111,7 +111,7 @@ function renderProjects() {
   const container = document.getElementById('project-list');
 
   const projectsHTML = PROJECTS.map(p => `
-    <article class="project-item" onclick="toggleProject(this)">
+    <article class="project-item expanded" onclick="toggleProject(this)">
       <div class="project-header">
         <div>
           <span class="project-title">${p.title}</span>
