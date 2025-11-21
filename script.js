@@ -362,7 +362,7 @@ function closeBookingModal() {
 function nextBookingStep() {
   const email = document.getElementById('user-email').value;
   if (!email || !email.includes('@')) {
-    alert('Please enter a valid email address.');
+    console.warn('Please enter a valid email address.');
     return;
   }
 
@@ -380,7 +380,7 @@ function handleBookingSubmit() {
   const txnId = document.getElementById('txn-id').value;
 
   if (!txnId) {
-    alert('Please enter the UPI Transaction ID to confirm your payment.');
+    console.warn('Please enter the UPI Transaction ID to confirm your payment.');
     return;
   }
 
@@ -390,7 +390,7 @@ function handleBookingSubmit() {
   if (config && config.link) {
     window.open(config.link, '_blank');
   } else {
-    alert('Booking link not found for this plan. Please contact me directly.');
+    console.warn('Booking link not found for this plan. Please contact me directly.');
   }
 
   closeBookingModal();
@@ -496,21 +496,38 @@ function calculateYears(startDateStr) {
 let musicAudio = null;
 let isPlaying = false;
 const RADIO_STREAMS = [
-  // Continuous music-only streams (CORS enabled)
-  "https://stream.radioparadise.com/mp3-128", // Radio Paradise – eclectic English music
-  "https://icecast.omroep.nl/radio2-bb-mp3", // Radio 2 – classical & instrumental music
-  "https://listen.radioking.com/radio/1458/stream/128", // Smooth Jazz – nonstop instrumental jazz
-  "https://streaming.radio.co/s98c6b8e7c/listen" // Chillout Lounge – continuous ambient music
+  // English-language music streams (CORS enabled)
+  "https://stream.radioparadise.com/mp3-128", // Radio Paradise – English songs mix
+  "https://stream.live.vc.bbcmedia.co.uk/bbc_radio_one", // BBC Radio 1 – English pop/rock
+  "https://icecast.omroep.nl/radio2-bb-mp3" // Retained classical as fallback (instrumental)
 ];
 
 function startRandomMusic() {
   try {
-    // Choose a random radio stream each time music is turned on
-    const trackUrl = RADIO_STREAMS[Math.floor(Math.random() * RADIO_STREAMS.length)];
+    // Ensure any existing music is stopped before starting a new one
+    if (musicAudio) {
+      musicAudio.pause();
+      musicAudio = null;
+      isPlaying = false;
+    }
+    // Filter out any streams that may trigger authentication popups
+    const safeStreams = RADIO_STREAMS.filter(url => !url.includes('radioking.com'));
+    const pool = safeStreams.length > 0 ? safeStreams : RADIO_STREAMS;
+    // Choose a random instrumental radio stream each time music is turned on
+    const trackUrl = pool[Math.floor(Math.random() * pool.length)];
     musicAudio = new Audio(trackUrl);
     musicAudio.loop = true;
     musicAudio.volume = 0.2; // low background volume
     musicAudio.play();
+    // Add error handling to switch streams on failure
+    musicAudio.addEventListener('error', () => {
+      console.log('Music stream error, switching to another stream');
+      startRandomMusic();
+    });
+    musicAudio.addEventListener('ended', () => {
+      // Restart playback when stream ends
+      startRandomMusic();
+    });
     isPlaying = true;
   } catch (e) {
     console.log('Background music could not be started', e);
