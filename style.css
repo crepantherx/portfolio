@@ -804,6 +804,15 @@ footer {
     color: var(--text-tertiary);
     font-size: 0.85rem;
     font-family: var(--font-mono);
+    position: relative;
+    z-index: 0;
+}
+
+/* Hide footer in non-active views */
+.view-section:not(.active) footer {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
 
 [data-theme="dark"] footer {

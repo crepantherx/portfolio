@@ -225,12 +225,15 @@
             </div>
           </div>
         </div>
+        <footer>
+          <div>&copy; <span class="year-span"></span> Sudhir Singh</div>
+        </footer>
       </div>
 
       <!-- MENTORSHIP VIEW -->
       <div id="view-mentorship" class="view-section hidden">
 
-        <div style="max-width: 800px;">
+        <div>
           <div class="contact-block">
             <h4>Get in Touch</h4>
             <p>Have a question or want to work together? Drop me an email and I'll get back to you as soon as possible.
@@ -239,74 +242,85 @@
           </div>
         </div>
 
-        <div style="max-width: 800px;">
-          <h4 style="font-size: 1.2rem">Book a time in Calendar - Only For Weekends</h4>
+        <section class="collapsible-section" id="section-booking">
+          <div class="collapsible-header" onclick="toggleSection('section-booking')">
 
-          <div class="pricing-grid">
-            <!-- Card 1 -->
-            <div class="pricing-card">
-              <h3>Want To Learn Python From Me</h3>
-              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student ]
-              </p>
+            <h4>Book a time in Calendar - Only For Weekends</h4>
+            <div class="section-arrow">→</div>
+          </div>
+          <div class="collapsible-content">
+            <div class="pricing-grid">
+              <!-- Card 1 -->
+              <div class="pricing-card">
+                <h3>Want To Learn Python From Me</h3>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student
+                  ]
+                </p>
 
-              <button class="btn-outline" onclick="openBookingModal('Want To Learn Python From Me')">Get
-                Appointment</button>
-            </div>
+                <button class="btn-outline" onclick="openBookingModal('Want To Learn Python From Me')">Get
+                  Appointment</button>
+              </div>
 
-            <!-- Card 2 -->
-            <div class="pricing-card">
-              <h3>Research Related Topic</h3>
-              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Scholar ]
-              </p>
-              <button class="btn-outline" onclick="openBookingModal('Research Related Topic')">Get Appointment</button>
-            </div>
+              <!-- Card 2 -->
+              <div class="pricing-card">
+                <h3>Research Related Topic</h3>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Scholar ]
+                </p>
+                <button class="btn-outline" onclick="openBookingModal('Research Related Topic')">Get
+                  Appointment</button>
+              </div>
 
-            <!-- Card 3 -->
-            <div class="pricing-card">
-              <h3>ML/DE Technical Design Challenges</h3>
-              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student ]
-              </p>
-              <button class="btn-outline" onclick="openBookingModal('ML/DE Technical Design Challenges')">Get
-                Appointment</button>
-            </div>
+              <!-- Card 3 -->
+              <div class="pricing-card">
+                <h3>ML/DE Technical Design Challenges</h3>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student
+                  ]
+                </p>
+                <button class="btn-outline" onclick="openBookingModal('ML/DE Technical Design Challenges')">Get
+                  Appointment</button>
+              </div>
 
-            <!-- Card 4 -->
-            <div class="pricing-card">
-              <h3>Discuss Your Startup Idea</h3>
-              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student ]
-              </p>
-              <button class="btn-outline" onclick="openBookingModal('Discuss Startup Ideas')">Get Appointment</button>
-            </div>
+              <!-- Card 4 -->
+              <div class="pricing-card">
+                <h3>Discuss Your Startup Idea</h3>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student
+                  ]
+                </p>
+                <button class="btn-outline" onclick="openBookingModal('Discuss Startup Ideas')">Get Appointment</button>
+              </div>
 
-            <!-- Card 5 -->
-            <div class="pricing-card">
+              <!-- Card 5 -->
+              <div class="pricing-card">
 
-              <h3>Want Me To Mentor You</h3>
-              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student ]
-              </p>
-              <button class="btn-outline" onclick="openBookingModal('Guidance')">Get Appointment</button>
-            </div>
+                <h3>Want Me To Mentor You</h3>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student
+                  ]
+                </p>
+                <button class="btn-outline" onclick="openBookingModal('Guidance')">Get Appointment</button>
+              </div>
 
-            <!-- Card 6 -->
-            <div class="pricing-card">
+              <!-- Card 6 -->
+              <div class="pricing-card">
 
-              <h3>Building Long Term Connection</h3>
-              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student ]
-              </p>
-              <button class="btn-outline" onclick="openBookingModal('Building Long Term Connection')">Get
-                Appointment</button>
+                <h3>Building Long Term Connection</h3>
+                <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student
+                  ]
+                </p>
+                <button class="btn-outline" onclick="openBookingModal('Building Long Term Connection')">Get
+                  Appointment</button>
+              </div>
             </div>
           </div>
+        </section>
 
 
 
-          <!-- <div style="margin-bottom: 32px;">
+        <!-- <div style="margin-bottom: 32px;">
             <a href="https://cal.com/sudhir-singh" target="_blank" class="btn-outline" style="text-decoration: none;">
               (or) Schedule Short Discussion Session via Cal.com ↗
             </a>
           </div> -->
 
-        </div>
         <footer>
           <div>&copy; <span class="year-span"></span> Sudhir Singh</div>
         </footer>
