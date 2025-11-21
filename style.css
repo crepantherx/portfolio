@@ -7,7 +7,8 @@
     --accent: #2563eb;
     /* Tech Blue */
     --divider: #d4d0ca;
-    --font-sans: 'Inter', sans-serif;
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+    --font-heading: 'Outfit', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
     --max-width: 1300px;
     --spacing-unit: 24px;
@@ -97,7 +98,7 @@ h1,
 h2,
 h3,
 h4 {
-    font-family: var(--font-mono);
+    font-family: var(--font-heading);
     font-weight: 700;
     letter-spacing: -0.03em;
     color: var(--text-main);
@@ -193,12 +194,13 @@ header {
 }
 
 .brand {
-    font-family: var(--font-mono);
-    font-weight: 700;
+    font-family: 'Tourney', cursive;
+    font-weight: 800;
     font-size: 1.1rem;
-    display: block;
-    margin-bottom: 24px;
-    color: var(--accent);
+    letter-spacing: -0.5px;
+    color: var(--text-main);
+    text-decoration: none;
+    white-space: nowrap;
 }
 
 .brand::before {
