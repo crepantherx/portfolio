@@ -1238,7 +1238,7 @@ input:checked+.toggle-track .toggle-indicator {
 
 /* Light Mode State (Unchecked) */
 /* Modal Buttons */
-.btn-primary {
+.btn-primary { display: inline-block; text-decoration: none;
     background: var(--accent);
     color: white;
     border: 1px solid var(--accent);
@@ -1263,7 +1263,7 @@ input:checked+.toggle-track .toggle-indicator {
     box-shadow: none;
 }
 
-.btn-secondary {
+.btn-secondary { display: inline-block; text-decoration: none;
     background: transparent;
     color: var(--text-secondary);
     border: 1px solid var(--divider);
@@ -1287,4 +1287,16 @@ input:checked+.toggle-track .toggle-indicator {
 
 [data-theme="dark"] .btn-secondary:hover {
     background: rgba(255, 255, 255, 0.05);
+}
+/* Inset Panel (Below the page look) */
+.inset-panel {
+    padding: 24px;
+    border-radius: var(--radius-card);
+    background: var(--bg); /* Match background to look transparent/embedded */
+    box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.15), inset -4px -4px 8px rgba(255, 255, 255, 0.5);
+    margin-bottom: 40px;
+}
+
+[data-theme="dark"] .inset-panel {
+    box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.3), inset -4px -4px 8px rgba(255, 255, 255, 0.05);
 }
