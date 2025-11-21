@@ -952,10 +952,11 @@ footer {
     padding: 8px 20px;
     border-radius: 50px;
     box-shadow: 4px 4px 12px rgba(50, 44, 44, 0.78), -4px -4px 12px rgba(221, 220, 220, 0.37);
-    border-top: 1px solid white;
-    border-left: 1px solid white;
-    border-right: 1px solid black;
-    border-bottom: 1px solid black;
+    border: 1px solid;
+    border-top-color: white;
+    border-left-color: white;
+    border-right-color: black;
+    border-bottom-color: black;
     cursor: pointer;
     transition: all 0.15s ease;
     width: 100%;
@@ -965,38 +966,50 @@ footer {
 .btn-outline:hover {
     transform: translateY(-2px);
     box-shadow: 6px 6px 16px rgba(50, 44, 44, 0.85), -6px -6px 16px rgba(221, 220, 220, 0.45);
+    border-top-color: white !important;
+    border-left-color: white !important;
+    border-right-color: black !important;
+    border-bottom-color: black !important;
+    background: #42a778 !important;
+    color: white !important;
 }
 
 .btn-outline:active {
     transform: translateY(0);
     box-shadow: 4px 4px 12px rgba(50, 44, 44, 0.78), -4px -4px 12px rgba(221, 220, 220, 0.37);
-    border-top: 1px solid black;
-    border-left: 1px solid black;
-    border-right: 1px solid white;
-    border-bottom: 1px solid white;
+    border-top-color: black !important;
+    border-left-color: black !important;
+    border-right-color: white !important;
+    border-bottom-color: white !important;
 }
 
 [data-theme="light"] .btn-outline {
     background: #4a90e2;
     color: white;
     box-shadow: 4px 4px 12px rgba(74, 144, 226, 0.4), -4px -4px 12px rgba(255, 255, 255, 0.8);
-    border-top: 1px solid rgba(255, 255, 255, 0.8);
-    border-left: 1px solid rgba(255, 255, 255, 0.8);
-    border-right: 1px solid rgba(0, 0, 0, 0.15);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+    border-top-color: rgba(255, 255, 255, 0.8);
+    border-left-color: rgba(255, 255, 255, 0.8);
+    border-right-color: rgba(0, 0, 0, 0.15);
+    border-bottom-color: rgba(0, 0, 0, 0.15);
 }
 
 [data-theme="light"] .btn-outline:hover {
     transform: translateY(-2px);
     box-shadow: 6px 6px 16px rgba(74, 144, 226, 0.5), -6px -6px 16px rgba(255, 255, 255, 0.9);
+    background: #4a90e2 !important;
+    color: white !important;
+    border-top-color: rgba(255, 255, 255, 0.8) !important;
+    border-left-color: rgba(255, 255, 255, 0.8) !important;
+    border-right-color: rgba(0, 0, 0, 0.15) !important;
+    border-bottom-color: rgba(0, 0, 0, 0.15) !important;
 }
 
 [data-theme="light"] .btn-outline:active {
     box-shadow: 4px 4px 12px rgba(74, 144, 226, 0.4), -4px -4px 12px rgba(255, 255, 255, 0.8);
-    border-top: 1px solid rgba(0, 0, 0, 0.15);
-    border-left: 1px solid rgba(0, 0, 0, 0.15);
-    border-right: 1px solid rgba(255, 255, 255, 0.8);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+    border-top-color: rgba(0, 0, 0, 0.15) !important;
+    border-left-color: rgba(0, 0, 0, 0.15) !important;
+    border-right-color: rgba(255, 255, 255, 0.8) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.8) !important;
 }
 
 [data-theme="light"] .project-links a {
