@@ -492,93 +492,58 @@ function calculateYears(startDateStr) {
   return Math.round(diffInYears);
 }
 
-// Background Music System
-let musicContext = null;
-let musicGainNode = null;
-let oscillators = [];
+// Background Music System – Random Radio Streams
+let musicAudio = null;
 let isPlaying = false;
+const RADIO_STREAMS = [
+  // Continuous music-only streams (CORS enabled)
+  "https://stream.radioparadise.com/mp3-128", // Radio Paradise – eclectic English music
+  "https://icecast.omroep.nl/radio2-bb-mp3", // Radio 2 – classical & instrumental music
+  "https://listen.radioking.com/radio/1458/stream/128", // Smooth Jazz – nonstop instrumental jazz
+  "https://streaming.radio.co/s98c6b8e7c/listen" // Chillout Lounge – continuous ambient music
+];
 
-function createAmbientMusic() {
+function startRandomMusic() {
   try {
-    if (!musicContext) {
-      musicContext = new (window.AudioContext || window.webkitAudioContext)();
-      musicGainNode = musicContext.createGain();
-      musicGainNode.gain.setValueAtTime(0.15, musicContext.currentTime); // Low volume
-      musicGainNode.connect(musicContext.destination);
-    }
-
-    // Create multiple oscillators for ambient soundscape
-    const frequencies = [174, 261.63, 329.63, 392]; // C major pentatonic-ish ambient tones
-
-    oscillators = frequencies.map((freq, index) => {
-      const osc = musicContext.createOscillator();
-      const oscGain = musicContext.createGain();
-
-      osc.type = index % 2 === 0 ? 'sine' : 'triangle'; // Mix of waveforms
-      osc.frequency.setValueAtTime(freq, musicContext.currentTime);
-
-      // Create subtle variation
-      const lfo = musicContext.createOscillator();
-      const lfoGain = musicContext.createGain();
-      lfo.frequency.setValueAtTime(0.1 + index * 0.05, musicContext.currentTime);
-      lfoGain.gain.setValueAtTime(0.5, musicContext.currentTime);
-      lfo.connect(lfoGain);
-      lfoGain.connect(osc.frequency);
-
-      oscGain.gain.setValueAtTime(0.1 + index * 0.02, musicContext.currentTime);
-
-      osc.connect(oscGain);
-      oscGain.connect(musicGainNode);
-
-      osc.start();
-      lfo.start();
-
-      return { osc, oscGain, lfo };
-    });
-
+    // Choose a random radio stream each time music is turned on
+    const trackUrl = RADIO_STREAMS[Math.floor(Math.random() * RADIO_STREAMS.length)];
+    musicAudio = new Audio(trackUrl);
+    musicAudio.loop = true;
+    musicAudio.volume = 0.2; // low background volume
+    musicAudio.play();
     isPlaying = true;
-  } catch (error) {
-    console.log('Background music not available');
+  } catch (e) {
+    console.log('Background music could not be started', e);
   }
 }
 
-function stopAmbientMusic() {
-  if (oscillators.length > 0) {
-    oscillators.forEach(({ osc, lfo }) => {
-      try {
-        osc.stop();
-        lfo.stop();
-      } catch (e) {
-        // Already stopped
-      }
-    });
-    oscillators = [];
+function stopMusic() {
+  if (musicAudio) {
+    musicAudio.pause();
+    musicAudio = null;
     isPlaying = false;
   }
 }
 
 function toggleMusic(isOn) {
-  playClickSound(); // Add click sound for music toggle
-
+  playClickSound(); // click feedback for toggle
   if (isOn && !isPlaying) {
-    createAmbientMusic();
+    startRandomMusic();
   } else if (!isOn && isPlaying) {
-    stopAmbientMusic();
+    stopMusic();
   }
 }
 
-// Theme Toggle with sound
+// Theme Toggle with sound (unchanged)
 function toggleTheme(isDark) {
-  playClickSound(); // Add click sound for theme toggle
-
+  playClickSound();
   const body = document.body;
-  // If isDark is provided, use it. Otherwise toggle.
-  if (typeof isDark === 'boolean') {
-    body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  if (typeof isDark === "boolean") {
+    body.setAttribute("data-theme", isDark ? "dark" : "light");
   } else {
-    const current = body.getAttribute('data-theme');
-    const next = current === 'dark' ? 'light' : 'dark';
-    body.setAttribute('data-theme', next);
+    const current = body.getAttribute("data-theme");
+    const next = current === "dark" ? "light" : "dark";
+    body.setAttribute("data-theme", next);
   }
 }
 
@@ -629,7 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     const musicCheckbox = document.getElementById('music-checkbox');
     if (musicCheckbox && musicCheckbox.checked) {
-      createAmbientMusic();
+      startRandomMusic();
     }
   }, 500); // Small delay to ensure audio context works
 });
