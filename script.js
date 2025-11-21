@@ -427,6 +427,73 @@ function toggleTheme(isDark) {
   }
 }
 
+// Click Sound Effect using Web Audio API - Crisp and Tactile
+function playClickSound() {
+  try {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    // Create white noise for crisp click
+    const bufferSize = audioContext.sampleRate * 0.015; // 15ms
+    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    // Generate white noise
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+
+    const noise = audioContext.createBufferSource();
+    noise.buffer = buffer;
+
+    // Create oscillator for tonal component
+    const oscillator = audioContext.createOscillator();
+    oscillator.frequency.setValueAtTime(1200, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.01);
+
+    // Create filter for shaping
+    const filter = audioContext.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.setValueAtTime(800, audioContext.currentTime);
+
+    // Gain nodes for mixing
+    const noiseGain = audioContext.createGain();
+    const oscGain = audioContext.createGain();
+    const masterGain = audioContext.createGain();
+
+    // Connect noise path
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(masterGain);
+
+    // Connect oscillator path
+    oscillator.connect(oscGain);
+    oscGain.connect(masterGain);
+
+    // Output
+    masterGain.connect(audioContext.destination);
+
+    // Sharp attack and decay for tactile feel
+    const now = audioContext.currentTime;
+    noiseGain.gain.setValueAtTime(0.4, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.01);
+
+    oscGain.gain.setValueAtTime(0.15, now);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.01);
+
+    masterGain.gain.setValueAtTime(0.5, now);
+    masterGain.gain.exponentialRampToValueAtTime(0.001, now + 0.015);
+
+    // Start and stop
+    noise.start(now);
+    noise.stop(now + 0.015);
+    oscillator.start(now);
+    oscillator.stop(now + 0.015);
+  } catch (error) {
+    // Silently fail if Web Audio API is not supported
+    console.log('Click sound not available');
+  }
+}
+
 // Calculate years rounded to nearest
 function calculateYears(startDateStr) {
   const start = new Date(startDateStr);
@@ -442,6 +509,15 @@ document.addEventListener('DOMContentLoaded', () => {
   renderExperience();
   renderProjects();
   setupViewToggle();
+
+  // Add click sound to all interactive elements
+  const clickableElements = document.querySelectorAll(
+    'button, .toggle-btn, .btn-outline, .btn-primary, .btn-secondary, .collapsible-header, .project-item, .experience-item, .tech-category-item'
+  );
+
+  clickableElements.forEach(element => {
+    element.addEventListener('click', playClickSound);
+  });
 
   // Dynamic Stats
   const expSpan = document.getElementById('exp-years');
