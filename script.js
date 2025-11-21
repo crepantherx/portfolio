@@ -460,4 +460,45 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.onclick = () => openBookingModal(planName);
     }
   });
+
+  // Skill Search
+  const searchInput = document.getElementById('skill-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => filterSkills(e.target.value));
+  }
 });
+
+function filterSkills(searchTerm) {
+  const term = searchTerm.toLowerCase().trim();
+  const categories = document.querySelectorAll('.tech-category-item');
+
+  categories.forEach(category => {
+    const skills = category.querySelectorAll('.tech-tag');
+    let hasMatch = false;
+
+    skills.forEach(skill => {
+      const text = skill.textContent.toLowerCase();
+      if (term && text.includes(term)) {
+        skill.classList.add('highlight');
+        hasMatch = true;
+      } else {
+        skill.classList.remove('highlight');
+      }
+    });
+
+    // Expand/Collapse logic
+    const isExpanded = category.classList.contains('expanded');
+
+    if (term) {
+      // If searching, expand if match, collapse if no match
+      if (hasMatch) {
+        if (!isExpanded) toggleTechCategory(category);
+      } else {
+        if (isExpanded) toggleTechCategory(category);
+      }
+    } else {
+      // If search cleared, collapse everything (or restore default state)
+      if (isExpanded) toggleTechCategory(category);
+    }
+  });
+}
