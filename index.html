@@ -136,7 +136,10 @@
                 </div>
 
                 <div class="project-links">
-                  <a href="https://deepstatistics.co.in" target="_blank">Live</a>
+                  <div class="live-wrapper">
+                    <span class="live-indicator"></span>
+                    <a href="https://deepstatistics.co.in" target="_blank">Live</a>
+                  </div>
                   <a href="#" target="_blank">System Design</a>
                 </div>
               </div>
@@ -296,10 +299,8 @@
           <input type="email" id="user-email" placeholder="name@example.com" required>
         </div>
         <div class="modal-actions">
-          <button class="btn-outline" onclick="closeBookingModal()"
-            style="border-color: var(--divider); color: var(--text-secondary);">Cancel</button>
-          <button class="btn-outline" onclick="nextBookingStep()"
-            style="background: var(--accent); color: white; border-color: var(--accent);">Next</button>
+          <button class="btn-secondary" onclick="closeBookingModal()">Cancel</button>
+          <button class="btn-primary" onclick="nextBookingStep()">Next</button>
         </div>
       </div>
 
@@ -330,10 +331,8 @@
         </div>
 
         <div class="modal-actions">
-          <button class="btn-outline" onclick="prevBookingStep()"
-            style="border-color: var(--divider); color: var(--text-secondary);">Back</button>
-          <button id="btn-confirm" class="btn-outline" onclick="handleBookingSubmit()"
-            style="background: var(--accent); color: white; border-color: var(--accent);" disabled>Continue</button>
+          <button class="btn-secondary" onclick="prevBookingStep()">Back</button>
+          <button id="btn-confirm" class="btn-primary" onclick="handleBookingSubmit()" disabled>Continue</button>
         </div>
       </div>
 

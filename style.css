@@ -1230,5 +1230,54 @@ input:checked+.toggle-track .toggle-indicator {
 }
 
 /* Light Mode State (Unchecked) */
-/* Since the checkbox is checked for Dark Mode, unchecked is Light Mode */
-/* The CSS above handles light mode via [data-theme="light"] parent selector */
+/* Modal Buttons */
+.btn-primary {
+    background: var(--accent);
+    color: white;
+    border: 1px solid var(--accent);
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 6px 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--divider);
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    border-color: var(--text-main);
+    color: var(--text-main);
+    background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .btn-secondary:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
