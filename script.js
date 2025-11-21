@@ -111,7 +111,7 @@ function renderProjects() {
   const container = document.getElementById('project-list');
 
   const projectsHTML = PROJECTS.map((p, index) => `
-    <article class="project-item ${index === 0 ? 'expanded' : ''}" onclick="toggleProject(this)">
+    <article class="project-item expanded" onclick="toggleProject(this)">
       <div class="project-header">
         <div>
           <span class="project-title">${p.title}</span>
