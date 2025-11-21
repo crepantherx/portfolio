@@ -1335,23 +1335,35 @@ input:checked+.toggle-track .toggle-indicator {
 }
 
 /* Skill Search Input */
+/* Skill Search Input */
 .skill-search-input {
     width: 100%;
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--divider);
-    background: var(--bg-card);
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: none;
+    background: var(--bg);
     color: var(--text-main);
     font-family: var(--font-sans);
     font-size: 0.9rem;
     transition: all 0.2s ease;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    /* Inset Shadow for Light Mode */
+    box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.15), inset -4px -4px 8px rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .skill-search-input {
+    /* Inset Shadow for Dark Mode */
+    box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.3), inset -4px -4px 8px rgba(255, 255, 255, 0.05);
 }
 
 .skill-search-input:focus {
     outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+    /* Slightly deeper inset on focus or just a glow */
+    box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.2), inset -6px -6px 12px rgba(255, 255, 255, 0.5), 0 0 0 1px var(--accent);
+}
+
+[data-theme="dark"] .skill-search-input:focus {
+    box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.4), inset -6px -6px 12px rgba(255, 255, 255, 0.05), 0 0 0 1px var(--accent);
 }
 
 /* Highlighted Skill Tag */
