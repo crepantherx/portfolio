@@ -414,18 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Theme Toggle
-function toggleTheme(isDark) {
-  const body = document.body;
-  // If isDark is provided, use it. Otherwise toggle.
-  if (typeof isDark === 'boolean') {
-    body.setAttribute('data-theme', isDark ? 'dark' : 'light');
-  } else {
-    const current = body.getAttribute('data-theme');
-    const next = current === 'dark' ? 'light' : 'dark';
-    body.setAttribute('data-theme', next);
-  }
-}
+
 
 // Click Sound Effect using Web Audio API - Crisp and Tactile
 function playClickSound() {
@@ -503,6 +492,96 @@ function calculateYears(startDateStr) {
   return Math.round(diffInYears);
 }
 
+// Background Music System
+let musicContext = null;
+let musicGainNode = null;
+let oscillators = [];
+let isPlaying = false;
+
+function createAmbientMusic() {
+  try {
+    if (!musicContext) {
+      musicContext = new (window.AudioContext || window.webkitAudioContext)();
+      musicGainNode = musicContext.createGain();
+      musicGainNode.gain.setValueAtTime(0.15, musicContext.currentTime); // Low volume
+      musicGainNode.connect(musicContext.destination);
+    }
+
+    // Create multiple oscillators for ambient soundscape
+    const frequencies = [174, 261.63, 329.63, 392]; // C major pentatonic-ish ambient tones
+
+    oscillators = frequencies.map((freq, index) => {
+      const osc = musicContext.createOscillator();
+      const oscGain = musicContext.createGain();
+
+      osc.type = index % 2 === 0 ? 'sine' : 'triangle'; // Mix of waveforms
+      osc.frequency.setValueAtTime(freq, musicContext.currentTime);
+
+      // Create subtle variation
+      const lfo = musicContext.createOscillator();
+      const lfoGain = musicContext.createGain();
+      lfo.frequency.setValueAtTime(0.1 + index * 0.05, musicContext.currentTime);
+      lfoGain.gain.setValueAtTime(0.5, musicContext.currentTime);
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc.frequency);
+
+      oscGain.gain.setValueAtTime(0.1 + index * 0.02, musicContext.currentTime);
+
+      osc.connect(oscGain);
+      oscGain.connect(musicGainNode);
+
+      osc.start();
+      lfo.start();
+
+      return { osc, oscGain, lfo };
+    });
+
+    isPlaying = true;
+  } catch (error) {
+    console.log('Background music not available');
+  }
+}
+
+function stopAmbientMusic() {
+  if (oscillators.length > 0) {
+    oscillators.forEach(({ osc, lfo }) => {
+      try {
+        osc.stop();
+        lfo.stop();
+      } catch (e) {
+        // Already stopped
+      }
+    });
+    oscillators = [];
+    isPlaying = false;
+  }
+}
+
+function toggleMusic(isOn) {
+  playClickSound(); // Add click sound for music toggle
+
+  if (isOn && !isPlaying) {
+    createAmbientMusic();
+  } else if (!isOn && isPlaying) {
+    stopAmbientMusic();
+  }
+}
+
+// Theme Toggle with sound
+function toggleTheme(isDark) {
+  playClickSound(); // Add click sound for theme toggle
+
+  const body = document.body;
+  // If isDark is provided, use it. Otherwise toggle.
+  if (typeof isDark === 'boolean') {
+    body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  } else {
+    const current = body.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    body.setAttribute('data-theme', next);
+  }
+}
+
 // Init
 document.addEventListener('DOMContentLoaded', () => {
   renderProfile();
@@ -545,6 +624,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (searchInput) {
     searchInput.addEventListener('input', (e) => filterSkills(e.target.value));
   }
+
+  // Initialize background music (start playing by default)
+  setTimeout(() => {
+    const musicCheckbox = document.getElementById('music-checkbox');
+    if (musicCheckbox && musicCheckbox.checked) {
+      createAmbientMusic();
+    }
+  }, 500); // Small delay to ensure audio context works
 });
 
 function filterSkills(searchTerm) {

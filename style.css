@@ -1328,6 +1328,37 @@ input:checked+.toggle-track .toggle-indicator {
         0 0 20px #42a778;
 }
 
+/* Music Toggle */
+.music-toggle {
+    display: inline-block;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    padding: 10px;
+    position: fixed;
+    top: 24px;
+    /* Align with theme toggle */
+    right: 84px;
+    /* 60px to the left of theme toggle (24px + 60px) */
+    z-index: 1000;
+}
+
+.music-toggle input {
+    display: none;
+}
+
+.music-icon {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    transition: all 0.3s ease;
+}
+
+input:checked+.toggle-track .music-icon {
+    color: #42a778;
+    text-shadow:
+        0 0 5px #42a778,
+        0 0 10px #42a778;
+}
+
 /* Light Mode State (Unchecked) */
 /* Modal Buttons */
 .btn-primary {
