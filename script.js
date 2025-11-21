@@ -7,20 +7,33 @@ const PROFILE = {
   github: "https://github.com/yourhandle",
   kaggle: "https://kaggle.com/yourhandle",
   cv: "#",
-  tech: [
-    "Python", "Bash", "Pandas", "NumPy", "PySpark", "SpaCy", "Scikit-learn",
-    "TensorFlow", "PyTorch", "Seaborn", "Matplotlib", "SQL", "Datetime",
-    "Logging", "Async", "Apache Airflow", "Apache Kafka", "Flink",
-    "Apache Spark", "ONNX", "TensorRT", "FastAPI", "Kubernetes", "Kubeflow",
-    "MLflow", "Databricks", "GitHub Actions", "Jenkins", "Docker", "JFrog",
-    "Terraform", "Datadog", "Prometheus", "Splunk", "Logistic Regression",
-    "Classification", "Clustering", "Decision Trees", "Random Forests",
-    "Gradient Boosting", "XGBoost", "LightGBM", "Support Vector Machines",
-    "K-Nearest Neighbors", "Naive Bayes", "CNN", "RNN", "LSTM",
-    "Transformers", "BERT", "RoBERTa", "GPT", "LLaMA", "GANs",
-    "LangChain", "HuggingFace", "OpenAI APIs", "Vector Embeddings", "RAG"
-]
-,
+  techCategories: [
+    {
+      category: "Languages & Libraries",
+      skills: ["Python", "Bash", "Pandas", "NumPy", "PySpark", "SpaCy", "Scikit-learn", "TensorFlow", "PyTorch", "Seaborn", "Matplotlib", "SQL", "Datetime", "Logging", "Async", "Apache Airflow", "Apache Kafka", "Flink", "Apache Spark"]
+    },
+    {
+      category: "Model Serving & Optimization",
+      skills: ["ONNX", "TensorRT", "FastAPI", "Kubernetes", "Kubeflow", "MLflow", "Databricks"]
+    },
+    {
+      category: "DevOps & MLOps Tooling",
+      skills: ["GitHub Actions", "Jenkins", "Docker", "JFrog", "Terraform", "Datadog", "Prometheus", "Splunk"]
+    },
+    {
+      category: "Machine Learning Algorithms",
+      skills: ["Logistic Regression", "Classification", "Clustering", "Decision Trees", "Random Forests", "Gradient Boosting (XGBoost, LightGBM)", "Support Vector Machines", "K-Nearest Neighbors", "Naive Bayes"]
+    },
+    {
+      category: "Deep Learning Architectures",
+      skills: ["CNN", "RNN", "LSTM", "Transformers", "BERT", "RoBERTa", "GPT", "LLaMA", "GANs"]
+    },
+    {
+      category: "LLM & Generative AI Frameworks",
+      skills: ["LangChain", "HuggingFace", "OpenAI APIs", "Vector Embeddings", "Retrieval-Augmented Generation (RAG)"]
+    }
+  ]
+  ,
   impact: "+18% Conversion Uplift"
 };
 
@@ -91,7 +104,47 @@ function renderProfile() {
   document.getElementById('year').textContent = new Date().getFullYear();
 
   const techContainer = document.getElementById('tech-list');
-  techContainer.innerHTML = PROFILE.tech.map(t => `<span class="tech-tag" style="border:1px solid var(--divider); padding:2px 8px; border-radius:4px; font-size:0.75rem; color:var(--text-tertiary); font-family:var(--font-mono)">${t}</span>`).join(' ');
+  techContainer.innerHTML = PROFILE.techCategories.map((category, index) => `
+    <div class="tech-category-item" style="margin-bottom: 16px; border-bottom: 1px solid var(--divider); padding-bottom: 12px;" onclick="toggleTechCategory(this)">
+      <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 8px 0;">
+        <h4 style="font-size: 0.85rem; color: var(--text-secondary); margin: 0; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.05em;">${category.category}</h4>
+        <div class="tech-arrow" style="font-size: 1rem; color: var(--text-tertiary); transition: transform 0.3s ease, color 0.3s ease;">→</div>
+      </div>
+      <div class="tech-skills" style="max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.3s ease, opacity 0.3s ease, margin-top 0.3s ease; margin-top: 0;">
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; padding-top: 12px;">
+          ${category.skills.map(skill => `<span class="tech-tag" style="border:1px solid var(--divider); padding:4px 12px; border-radius:4px; font-size:0.75rem; color:var(--text-tertiary); font-family:var(--font-mono)">${skill}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Toggle function for tech categories
+function toggleTechCategory(element) {
+  const isExpanded = element.classList.contains('expanded');
+  const skillsDiv = element.querySelector('.tech-skills');
+  const arrow = element.querySelector('.tech-arrow');
+  const heading = element.querySelector('h4');
+
+  if (isExpanded) {
+    element.classList.remove('expanded');
+    skillsDiv.style.maxHeight = '0';
+    skillsDiv.style.opacity = '0';
+    skillsDiv.style.marginTop = '0';
+    arrow.style.transform = 'rotate(0deg)';
+    arrow.style.color = 'var(--text-tertiary)';
+    arrow.style.textShadow = 'none';
+    heading.style.color = 'var(--text-secondary)';
+  } else {
+    element.classList.add('expanded');
+    skillsDiv.style.maxHeight = '500px';
+    skillsDiv.style.opacity = '1';
+    skillsDiv.style.marginTop = '12px';
+    arrow.style.transform = 'rotate(90deg)';
+    arrow.style.color = 'var(--accent)';
+    arrow.style.textShadow = '0 0 8px var(--accent), 0 0 12px var(--accent)';
+    heading.style.color = 'var(--accent)';
+  }
 }
 
 function renderExperience() {
