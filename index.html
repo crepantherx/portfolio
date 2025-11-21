@@ -54,33 +54,17 @@
 
         <!-- Header & Stats -->
         <div style="margin-bottom: 60px;">
-          <h2 id="profile-role" style="font-size: 1.5rem; margin-bottom: 16px;">Full Stack Machine Learning Engineer
+          <h2 id="profile-role" style="font-size: 1rem; margin-bottom: 16px;">Full Stack Machine Learning Engineer
           </h2>
           <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 40px;">
-            Building scalable, intelligent systems with a focus on performance and design.
+            With 5 YoE, strong mathematical mindset, extensive Python development background, and a track record of turning concepts into production-ready products
           </p>
         </div>
 
         <!-- Technical Expertise (Static & Embedded) -->
-        <div class="inset-panel">
-          <h3>Technical Expertise</h3>
-          <div id="tech-list" style="display: flex; flex-wrap: wrap; gap: 8px; padding-top: 16px;">
-            <!-- Tech tags injected here -->
-          </div>
-        </div>
 
-        <section class="collapsible-section expanded" id="section-projects">
-          <div class="collapsible-header" onclick="toggleSection('section-projects')">
-            <h2>Projects</h2>
-            <div class="section-arrow">→</div>
-          </div>
-          <div class="collapsible-content">
-            <h5>Alias work representing actual work</h5><br>
-            <div id="project-list">
-              <!-- Projects injected here -->
-            </div>
-          </div>
-        </section>
+
+
 
         <section class="collapsible-section" id="section-startup">
           <div class="collapsible-header" onclick="toggleSection('section-startup')">
@@ -150,6 +134,20 @@
           </div>
         </section>
 
+                  <section class="collapsible-section expanded" id="section-projects">
+          <div class="collapsible-header" onclick="toggleSection('section-projects')">
+            <h2>Projects</h2>
+            <div class="section-arrow">→</div>
+          </div>
+          <div class="collapsible-content">
+            <h5>Alias representing actual work</h5><br>
+            <div id="project-list">
+              <!-- Projects injected here -->
+            </div>
+          </div>
+        </section>
+
+
         <section class="collapsible-section" id="section-corporate">
           <div class="collapsible-header" onclick="toggleSection('section-corporate')">
             <h2>Corporate Experience</h2>
@@ -161,6 +159,13 @@
             </div>
           </div>
         </section>
+
+                  <div class="inset-panel">
+          <h3>Technical Expertise</h3>
+          <div id="tech-list" style="display: flex; flex-wrap: wrap; gap: 8px; padding-top: 16px;">
+            <!-- Tech tags injected here -->
+          </div>
+        </div>
 
         <footer>
           <div>&copy; <span id="year"></span> Sudhir Singh</div>
@@ -221,8 +226,7 @@
               <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student ]
               </p>
 
-              <button class="btn-outline" onclick="openBookingModal('Want To Learn Python From Me')">Book
-                Session</button>
+              <button class="btn-outline" onclick="openBookingModal('Want To Learn Python From Me')">Get Appointment</button>
             </div>
 
             <!-- Card 2 -->
@@ -230,7 +234,7 @@
               <h3>Research Related Topic</h3>
               <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Scholar ]
               </p>
-              <button class="btn-outline" onclick="openBookingModal('Research Related Topic')">Book Session</button>
+              <button class="btn-outline" onclick="openBookingModal('Research Related Topic')">Get Appointment</button>
             </div>
 
             <!-- Card 3 -->
@@ -238,25 +242,24 @@
               <h3>ML/DE Technical Design Challenges</h3>
               <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student ]
               </p>
-              <button class="btn-outline" onclick="openBookingModal('ML/DE Technical Design Challenges')">Book
-                Session</button>
+              <button class="btn-outline" onclick="openBookingModal('ML/DE Technical Design Challenges')">Get Appointment</button>
             </div>
 
             <!-- Card 4 -->
             <div class="pricing-card">
-              <h3>Discuss Startup Ideas</h3>
+              <h3>Discuss Your Startup Idea</h3>
               <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student ]
               </p>
-              <button class="btn-outline" onclick="openBookingModal('Discuss Startup Ideas')">Book Session</button>
+              <button class="btn-outline" onclick="openBookingModal('Discuss Startup Ideas')">Get Appointment</button>
             </div>
 
             <!-- Card 5 -->
             <div class="pricing-card">
 
-              <h3>Guidance</h3>
+              <h3>Want Me To Mentor You</h3>
               <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student ]
               </p>
-              <button class="btn-outline" onclick="openBookingModal('Guidance')">Book Session</button>
+              <button class="btn-outline" onclick="openBookingModal('Guidance')">Get Appointment</button>
             </div>
 
             <!-- Card 6 -->
@@ -265,8 +268,7 @@
               <h3>Building Long Term Connection</h3>
               <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px;">[ Professional | Student ]
               </p>
-              <button class="btn-outline" onclick="openBookingModal('Building Long Term Connection')">Book
-                Session</button>
+              <button class="btn-outline" onclick="openBookingModal('Building Long Term Connection')">Get Appointment</button>
             </div>
           </div>
 
@@ -308,12 +310,21 @@
 
       <!-- Step 2: Payment -->
       <div id="modal-step-2" class="hidden">
-        <p style="font-size: 0.9rem; margin-bottom: 8px;">
-          Scan the QR code to pay. Once paid, click confirm to send the request.
-        </p>
+          Don't Panic if for anything goes wrong, Just contact me via email, from about page.
+          <br><br>
+           Paid amount will be fully refunded after appointment completion<br>
+
         <p id="modal-price"
           style="font-size: 1.1rem; font-weight: 700; color: var(--accent); text-align: center; margin-bottom: 16px;">
-          Amount to Pay: ₹500
+          Charges: ₹1000
+
+        </p>
+
+                  <p class="payment-status"
+          style="font-size: 0.85rem; color: var(--text-tertiary); text-align: center; margin-bottom: 24px; font-style: italic;">
+          Scan & Pay then enter transaction details below.
+
+
         </p>
 
         <div class="qr-container" style="display: flex; justify-content: center; margin-bottom: 16px;">
@@ -321,11 +332,8 @@
             style="width: 150px; height: 150px; object-fit: contain; border: 1px solid var(--divider); border-radius: 4px;">
         </div>
 
-        <p class="payment-status"
-          style="font-size: 0.85rem; color: var(--text-tertiary); text-align: center; margin-bottom: 24px; font-style: italic;">
-          Waiting for user to complete the payment and enter transaction details. Don't Panic if for anything goes
-          wrong, Just contact me.
-        </p>
+
+
 
         <div class="form-group">
           <label for="txn-id">UPI Transaction ID (Required)</label>

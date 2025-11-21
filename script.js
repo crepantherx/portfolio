@@ -217,32 +217,32 @@ const CONSULTATION_CONFIG = {
   "Want To Learn Python From Me": {
     qr: "./2000.jpeg",
     link: "https://cal.com/sudhir-singh/want-to-learn-python-from-me-professional-student?overlayCalendar=true",
-    price: "₹500"
+    price: "₹1000"
   },
   "Research Related Topic": {
     qr: "./1000.jpg",
     link: "https://cal.com/sudhir-singh/research-related-topic-for-scholars?overlayCalendar=true",
-    price: "₹500"
+    price: "₹1000"
   },
   "ML/DE Technical Design Challenges": {
     qr: "./1000.jpg",
     link: "https://cal.com/sudhir-singh/ml-de-technical-design-challenges-for-professionals?overlayCalendar=true",
-    price: "₹500"
+    price: "₹1000"
   },
   "Discuss Startup Ideas": {
     qr: "./1000.jpg",
     link: "https://cal.com/sudhir-singh/discuss-startup-ideas?overlayCalendar=true",
-    price: "₹500"
+    price: "₹1000"
   },
   "Guidance": {
     qr: "./1000.jpg",
     link: "https://cal.com/sudhir-singh/guidence-for-students?overlayCalendar=true",
-    price: "₹500"
+    price: "₹1000"
   },
   "Building Long Term Connection": {
     qr: "./1000.jpg",
     link: "https://cal.com/sudhir-singh/building-long-terms-connection?overlayCalendar=true",
-    price: "₹500"
+    price: "₹1000"
   }
 };
 
@@ -257,7 +257,7 @@ function openBookingModal(planName) {
   // Set Price if element exists
   const priceEl = document.getElementById('modal-price');
   if (priceEl && config) {
-    priceEl.textContent = `Amount to Pay: ${config.price}`;
+    priceEl.textContent = `Charges: ${config.price}`;
   }
 
   // Set QR Code Image
