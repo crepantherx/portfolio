@@ -367,7 +367,7 @@ main {
 .collapsible-header .section-arrow {
     font-size: 1.2rem;
     color: var(--text-tertiary);
-    transition: transform 0.3s ease, color 0.3s ease;
+    display: inline-block; transition: transform 0.3s ease, color 0.3s ease;
 }
 
 .expanded .section-arrow {
@@ -481,7 +481,7 @@ main {
     margin-top: 16px;
 }
 
-.experience-item.expanded .project-arrow {
+.experience-itemarticle.project-item.expanded .project-header .project-arrow {
     transform: rotate(90deg) !important;
     color: var(--accent);
 }
@@ -534,10 +534,10 @@ main {
     font-family: var(--font-mono);
     font-size: 1rem;
     color: var(--text-tertiary);
-    transition: transform 0.2s ease;
+    display: inline-block; transition: transform 0.2s ease;
 }
 
-.expanded .project-arrow {
+article.project-item.expanded .project-header .project-arrow {
     transform: rotate(90deg) !important;
     color: var(--accent);
     text-shadow: 0 0 8px var(--accent), 0 0 12px var(--accent);
@@ -574,6 +574,13 @@ main {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 40px;
+}
+
+@media (max-width: 768px) {
+    .details-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
 }
 
 .metric-box {
@@ -1078,7 +1085,7 @@ footer {
     border: 1px solid var(--divider);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     transform: translateY(20px);
-    transition: transform 0.3s ease;
+    display: inline-block; transition: transform 0.3s ease;
 }
 
 .modal-overlay.active .modal-content {
