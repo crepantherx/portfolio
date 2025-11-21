@@ -29,7 +29,7 @@ const PROJECTS = [
     title: "Realtime Anomaly Detection",
     short: "Domain Adapted NLP",
     desc: "Fine-tuned transformer for domain NER with retraining pipeline and MLflow tracking.",
-    demo: "#",
+    demo: "https://demo.example.com/ner",
     repo: "https://github.com/yourhandle/ner-service",
     design: "#",
     metrics: { F1: 0.91, Latency: "42ms", Size: "220MB" },
@@ -94,7 +94,7 @@ function renderExperience() {
         </div>
         <div class="exp-meta">
           <div class="exp-period">${exp.period}</div>
-          <div class="project-arrow">↓</div>
+          <div class="project-arrow">→</div>
         </div>
       </div>
       
@@ -149,7 +149,12 @@ function renderProjects() {
         </div>
 
         <div class="project-links">
-          ${p.demo && p.demo !== '#' ? `<a href="${p.demo}" target="_blank">Live Demo</a>` : ''}
+          ${p.demo && p.demo !== '#' ? `
+            <div class="live-wrapper">
+              <span class="live-indicator"></span>
+              <a href="${p.demo}" target="_blank">Live</a>
+            </div>
+          ` : ''}
           <a href="${p.repo}" target="_blank">View Code on GitHub</a>
           <a href="${p.design}" target="_blank">System Design</a>
         </div>
