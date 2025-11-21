@@ -81,8 +81,8 @@ const EXPERIENCE = [
     company: "@ Confidential",
     role: "Senior Machine Learning Engineer",
     period: "2024 - Present <div class=\"live-wrapper\">\n" +
-        "                <span class=\"live-indicator\"></span>\n" +
-        "              </div> ",
+      "                <span class=\"live-indicator\"></span>\n" +
+      "              </div> ",
     desc: "Leading the recommendation engine team. Improved model inference latency by 40% and mentored junior engineers."
   },
   {
@@ -424,12 +424,32 @@ function toggleTheme(isDark) {
   }
 }
 
+// Calculate years rounded to nearest
+function calculateYears(startDateStr) {
+  const start = new Date(startDateStr);
+  const now = new Date();
+  const diffInMs = now - start;
+  const diffInYears = diffInMs / (1000 * 60 * 60 * 24 * 365.25);
+  return Math.round(diffInYears);
+}
+
 // Init
 document.addEventListener('DOMContentLoaded', () => {
   renderProfile();
   renderExperience();
   renderProjects();
   setupViewToggle();
+
+  // Dynamic Stats
+  const expSpan = document.getElementById('exp-years');
+  if (expSpan) {
+    expSpan.textContent = calculateYears('2021-01-01');
+  }
+
+  const ageSpan = document.getElementById('age-years');
+  if (ageSpan) {
+    ageSpan.textContent = calculateYears('1998-10-01');
+  }
 
   // Attach click handlers to "Book Session" buttons
   const bookButtons = document.querySelectorAll('.btn-outline');
