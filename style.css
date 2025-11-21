@@ -956,6 +956,46 @@ footer {
     font-weight: 400;
 }
 
+/* Contact Block */
+.contact-block {
+    border: 1px solid var(--divider);
+    padding: 32px;
+    border-radius: var(--radius-card);
+    margin-bottom: 32px;
+    background: var(--bg);
+    text-align: center;
+}
+
+[data-theme="dark"] .contact-block {
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    border: var(--card-border);
+}
+
+[data-theme="light"] .contact-block {
+    background: #ffffff;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1), -4px -4px 12px rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.contact-block h4 {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+    color: var(--text-main);
+}
+
+.contact-block p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+}
+
+.contact-block .btn-outline {
+    width: auto;
+    display: inline-block;
+    margin-top: 8px;
+}
+
 .btn-outline {
     text-decoration: none;
     display: inline-block;
