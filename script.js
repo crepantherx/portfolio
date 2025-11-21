@@ -7,7 +7,20 @@ const PROFILE = {
   github: "https://github.com/yourhandle",
   kaggle: "https://kaggle.com/yourhandle",
   cv: "#",
-  tech: ["Python", "PyTorch", "TensorFlow", "Docker", "Kubernetes", "FastAPI", "Postgres", "Redis"],
+  tech: [
+    "Python", "Bash", "Pandas", "NumPy", "PySpark", "SpaCy", "Scikit-learn",
+    "TensorFlow", "PyTorch", "Seaborn", "Matplotlib", "SQL", "Datetime",
+    "Logging", "Async", "Apache Airflow", "Apache Kafka", "Flink",
+    "Apache Spark", "ONNX", "TensorRT", "FastAPI", "Kubernetes", "Kubeflow",
+    "MLflow", "Databricks", "GitHub Actions", "Jenkins", "Docker", "JFrog",
+    "Terraform", "Datadog", "Prometheus", "Splunk", "Logistic Regression",
+    "Classification", "Clustering", "Decision Trees", "Random Forests",
+    "Gradient Boosting", "XGBoost", "LightGBM", "Support Vector Machines",
+    "K-Nearest Neighbors", "Naive Bayes", "CNN", "RNN", "LSTM",
+    "Transformers", "BERT", "RoBERTa", "GPT", "LLaMA", "GANs",
+    "LangChain", "HuggingFace", "OpenAI APIs", "Vector Embeddings", "RAG"
+]
+,
   impact: "+18% Conversion Uplift"
 };
 
@@ -52,21 +65,21 @@ const PROJECTS = [
 
 const EXPERIENCE = [
   {
-    company: "Tech Giant Corp",
+    company: "@ Confidential",
     role: "Senior Machine Learning Engineer",
-    period: "2022 - Present",
+    period: "2024 - Present",
     desc: "Leading the recommendation engine team. Improved model inference latency by 40% and mentored junior engineers."
   },
   {
-    company: "High Growth Startup",
+    company: "@ Tiger Analytics",
     role: "Machine Learning Engineer",
-    period: "2020 - 2022",
+    period: "2023 - 2024",
     desc: "Built the first version of the NLP pipeline for customer support automation. Reduced manual ticket handling by 60%."
   },
   {
-    company: "Data Analytics Ltd",
-    role: "Data Scientist",
-    period: "2018 - 2020",
+    company: "@ Tech Mahindra",
+    role: "Machine Learning Engineer",
+    period: "2021 - 2023",
     desc: "Developed predictive models for churn analysis and customer segmentation. Collaborated with product teams to drive data-driven decisions."
   }
 ];
