@@ -80,7 +80,9 @@ const EXPERIENCE = [
   {
     company: "@ Confidential",
     role: "Senior Machine Learning Engineer",
-    period: "2024 - Present",
+    period: "2024 - Present <div class=\"live-wrapper\">\n" +
+        "                <span class=\"live-indicator\"></span>\n" +
+        "              </div> ",
     desc: "Leading the recommendation engine team. Improved model inference latency by 40% and mentored junior engineers."
   },
   {
