@@ -103,7 +103,10 @@ const EXPERIENCE = [
 function renderProfile() {
   // document.getElementById('exp-years').textContent = PROFILE.exp; // Removed
   // document.getElementById('impact-stat').textContent = PROFILE.impact; // Removed
-  document.getElementById('year').textContent = new Date().getFullYear();
+  const yearSpans = document.querySelectorAll('.year-span');
+  yearSpans.forEach(span => {
+    span.textContent = new Date().getFullYear();
+  });
 
   const techContainer = document.getElementById('tech-list');
   techContainer.innerHTML = PROFILE.techCategories.map((category, index) => `
