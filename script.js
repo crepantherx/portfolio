@@ -41,12 +41,12 @@ const PROJECTS = [
   {
     id: "reco-edge",
     title: "Realtime Interaction-Driven Recommendations",
-    short: "Edge CPU Quantized Transformer",
+    short: "Like Instagram, but not Batch prediction",
     desc: "Quantized transformer recommender running on CPU at the edge. Focus: low-latency personalized ranking.",
     demo: "https://sudhir-singh-realtime-interaction-driven-recommendation.streamlit.app/",
     repo: "https://github.com/crepantherx/Realtime-Interaction-Driven-Recommendations",
     design: "#",
-    metrics: { AUC: 0.84, Latency: "300-800ms" },
+    metrics: { AUC: 0.84, Latency: "300-800ms", Hosted: Vercel-and-Streamlit},
     tags: ["Realtime", "Interactions"],
     readiness: ["Dockerized", "CI/CD", "MlFlow"]
   },
