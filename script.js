@@ -618,6 +618,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function filterSkills(searchTerm) {
   const term = searchTerm.toLowerCase().trim();
+
+  // Auto-expand main section if searching
+  if (term) {
+    const mainSection = document.getElementById('section-tech');
+    if (mainSection && !mainSection.classList.contains('expanded')) {
+      mainSection.classList.add('expanded');
+    }
+  }
+
   const categories = document.querySelectorAll('.tech-category-item');
 
   categories.forEach(category => {
