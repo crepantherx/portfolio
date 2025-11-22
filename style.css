@@ -909,6 +909,46 @@ footer {
     .pricing-grid {
         grid-template-columns: 1fr;
     }
+
+    /* Compact Mobile Layout */
+    .project-item.expanded .project-details {
+        margin-top: 16px;
+        padding-top: 16px;
+    }
+
+    .details-grid {
+        gap: 16px;
+    }
+
+    .metric-value {
+        font-size: 1.1rem;
+    }
+
+    .project-details h4 {
+        margin-bottom: 4px;
+        font-size: 0.85rem;
+    }
+
+    .project-details p {
+        margin-bottom: 12px;
+        font-size: 0.9rem;
+    }
+
+    .metric-box {
+        margin-bottom: 8px;
+        padding-left: 12px;
+    }
+
+    .project-links {
+        margin-top: 16px;
+        margin-bottom: 8px;
+    }
+
+    .project-links a {
+        padding: 6px 16px;
+        font-size: 0.8rem;
+        margin: 4px;
+    }
 }
 
 /* Mentorship Styles */
