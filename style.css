@@ -846,7 +846,7 @@ footer {
     .container {
         display: block;
         height: auto;
-        padding: 24px;
+        padding: 12px;
     }
 
     header {
@@ -874,6 +874,11 @@ footer {
         pointer-events: auto;
         padding: 0;
         display: block !important;
+    }
+
+    .project-item,
+    .collapsible-section {
+        padding: 16px;
     }
 
     .view-section.hidden {
