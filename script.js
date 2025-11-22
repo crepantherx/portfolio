@@ -44,11 +44,11 @@ const PROJECTS = [
     short: "Edge CPU Quantized Transformer",
     desc: "Quantized transformer recommender running on CPU at the edge. Focus: low-latency personalized ranking.",
     demo: "https://sudhir-singh-realtime-interaction-driven-recommendation.streamlit.app/",
-    repo: "https://github.com/yourhandle/reco-edge",
+    repo: "https://github.com/crepantherx/Realtime-Interaction-Driven-Recommendations",
     design: "#",
-    metrics: { AUC: 0.84, Latency: "30ms", Size: "38MB" },
-    tags: ["Edge AI", "Transformer"],
-    readiness: ["Dockerized", "CI/CD", "Prometheus"]
+    metrics: { AUC: 0.84, Latency: "300-800ms" },
+    tags: ["Realtime", "Interactions"],
+    readiness: ["Dockerized", "CI/CD", "MlFlow"]
   },
   {
     id: "ner-prod",
