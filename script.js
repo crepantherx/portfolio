@@ -46,9 +46,9 @@ const PROJECTS = [
     demo: "https://sudhir-singh-realtime-interaction-driven-recommendation.streamlit.app/",
     repo: "https://github.com/crepantherx/Realtime-Interaction-Driven-Recommendations",
     design: "#",
-    metrics: { AUC: 0.84, Latency: "300-800ms", Hosted: Vercel-and-Streamlit},
+    metrics: { AUC: 0.84, Latency: "300-800ms", Hosted: "Vercel"},
     tags: ["Realtime", "Interactions"],
-    readiness: ["Dockerized", "CI/CD", "MlFlow"]
+    Tech: ["Dockerized", "CI/CD", "MlFlow", "Pinecone", "Vector Embedding", "FastAPI"]
   },
   {
     id: "ner-prod",
