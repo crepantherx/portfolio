@@ -48,7 +48,7 @@ const PROJECTS = [
     design: "#",
     metrics: { AUC: 0.84, Latency: "300-800ms", Hosted: "Vercel"},
     tags: ["Realtime", "Interactions"],
-    Tech: ["Dockerized", "CI/CD", "MlFlow", "Pinecone", "Vector Embedding", "FastAPI"]
+    readiness: ["Dockerized", "CI/CD", "MlFlow", "Pinecone", "Vector Embedding", "FastAPI"]
   },
   {
     id: "ner-prod",
