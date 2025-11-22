@@ -221,10 +221,9 @@ function renderProjects() {
 
         <div class="project-links">
           ${p.demo && p.demo !== '#' ? `
-            <div class="live-wrapper">
-              <span class="live-indicator"></span>
-              <a href="${p.demo}" target="_blank">Live</a>
-            </div>
+            <a href="${p.demo}" target="_blank">
+              Live<span class="live-dot"></span>
+            </a>
           ` : ''}
           <a href="${p.repo}" target="_blank">View Code on GitHub</a>
           <a href="${p.design}" target="_blank">System Design</a>

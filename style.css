@@ -633,20 +633,34 @@ article.project-item.expanded .project-header .project-arrow {
     flex-wrap: wrap;
 }
 
-/* Live indicator - simple blinking circle */
+/* Live indicator - blinking dot inside button */
+.live-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bg);
+    margin-left: 8px;
+    animation: blink-dot 1.5s infinite;
+}
+
+[data-theme="dark"] .live-dot {
+    background: #ffffff;
+}
+
+/* Restored Green Blink for Experience Section */
 .live-wrapper {
     display: inline-flex;
     align-items: center;
-    margin-right: 16px;
+    margin-left: 8px;
 }
 
 .live-indicator {
     display: inline-block;
-    width: 12px;
-    height: 12px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: #42a778;
-    margin-right: 12px;
     box-shadow: 0 0 0 4px rgba(66, 167, 120, 0.2);
     animation: blink-live 2s infinite;
 }
@@ -691,6 +705,20 @@ article.project-item.expanded .project-header .project-arrow {
     }
 }
 
+@keyframes blink-dot {
+    0% {
+        opacity: 0.2;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.2;
+    }
+}
+
 .project-links a {
     text-decoration: none;
     font-size: 0.85rem;
@@ -707,7 +735,8 @@ article.project-item.expanded .project-header .project-arrow {
     border-right: 1px solid black;
     border-bottom: 1px solid black;
     transition: all 0.1s ease;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
     position: relative;
 }
 
