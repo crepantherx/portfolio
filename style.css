@@ -1674,3 +1674,39 @@ input:checked+.toggle-track .music-icon {
 [data-theme="dark"] .project-link-tag:active {
     box-shadow: inset 3px 3px 6px #151515, inset -3px -3px 6px #292929;
 }
+
+/* Project Details Grid - Responsive */
+.project-details-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+    .project-details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+    }
+}
+
+/* Project Tech Stack Tag (Non-clickable, Inset Neumorphism) */
+.project-tech-tag {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    background: var(--bg);
+    border: 1px solid var(--divider);
+    /* Subtle inset shadow for "embedded" look */
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.1), inset -2px -2px 5px rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .project-tech-tag {
+    background: var(--bg);
+    border-color: rgba(255, 255, 255, 0.05);
+    box-shadow: inset 2px 2px 5px #151515, inset -2px -2px 5px #292929;
+}
