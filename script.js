@@ -207,12 +207,28 @@ function renderProjects() {
       </div>
 
       <div class="project-details" onclick="event.stopPropagation()">
-        <div class="details-grid">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-bottom:24px">
           <div>
             <h4>Description</h4>
-            <p>${p.desc}</p>
-            <div style="margin-top:16px">
-              ${p.tags.map(t => `<span style="margin-right:8px; font-size:0.8rem; color:var(--text-secondary)">#${t}</span>`).join('')}
+            <p style="font-size:0.95rem; color:var(--text-secondary); line-height:1.6; margin-bottom:16px">${p.desc}</p>
+            
+            <div style="font-size:0.85rem; color:var(--text-tertiary); margin-bottom:16px">
+              ${p.tags.map(t => `#${t}`).join(' ')}
+            </div>
+
+            <h4>Tech Stack</h4>
+            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; justify-content: flex-start;">
+              ${p.techStack ? p.techStack.map(tech => `
+                <span style="
+                  display: inline-block;
+                  font-size: 0.8rem;
+                  color: var(--text-secondary);
+                  border: 1px solid var(--divider);
+                  padding: 4px 10px;
+                  border-radius: 4px;
+                  background: rgba(255, 255, 255, 0.03);
+                ">${tech}</span>
+              `).join('') : ''}
             </div>
           </div>
 
@@ -225,11 +241,6 @@ function renderProjects() {
                   <div class="metric-label">${k}</div>
                 </div>
               `).join('')}
-            </div>
-
-            <h4>Tech Stack</h4>
-            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px">
-              ${p.techStack ? p.techStack.map(tech => `<span style="font-size:0.8rem; color:var(--text-secondary); background:var(--surface-hover); padding:2px 8px; border-radius:4px;">${tech}</span>`).join('') : ''}
             </div>
           </div>
         </div>
