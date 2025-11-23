@@ -127,9 +127,9 @@ function renderProfile() {
         <h4 style="font-size: 0.85rem; color: var(--text-secondary); margin: 0; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.05em;">${category.category}</h4>
         <div class="tech-arrow" style="font-size: 1rem; color: var(--text-tertiary); transition: transform 0.3s ease, color 0.3s ease;">→</div>
       </div>
-      <div class="tech-skills" style="max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.3s ease, opacity 0.3s ease, margin-top 0.3s ease; margin-top: 0;">
-        <div style="display: flex; flex-wrap: wrap; gap: 8px; padding-top: 12px;">
-          ${category.skills.map(skill => `<span class="tech-tag" onclick="handleSkillClick('${skill}', ${index}, event)" style="border:1px solid var(--divider); padding:4px 12px; border-radius:4px; font-size:0.75rem; color:var(--text-tertiary); font-family:var(--font-mono); cursor: pointer;">${skill}</span>`).join('')}
+      <div class="tech-skills" style="max-height: 0; overflow: hidden; opacity: 0; padding: 0; transition: max-height 0.3s ease, opacity 0.3s ease, margin-top 0.3s ease, padding 0.3s ease; margin-top: 0;">
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          ${category.skills.map(skill => `<span class="tech-tag" onclick="handleSkillClick('${skill}', ${index}, event)">${skill}</span>`).join('')}
         </div>
         <div class="category-projects" id="cat-projects-${index}" style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px;"></div>
       </div>
@@ -149,15 +149,17 @@ function toggleTechCategory(element) {
     skillsDiv.style.maxHeight = '0';
     skillsDiv.style.opacity = '0';
     skillsDiv.style.marginTop = '0';
+    skillsDiv.style.padding = '0';
     arrow.style.transform = 'rotate(0deg)';
     arrow.style.color = 'var(--text-tertiary)';
     arrow.style.textShadow = 'none';
     heading.style.color = 'var(--text-secondary)';
   } else {
     element.classList.add('expanded');
-    skillsDiv.style.maxHeight = '500px';
+    skillsDiv.style.maxHeight = '2000px';
     skillsDiv.style.opacity = '1';
     skillsDiv.style.marginTop = '12px';
+    skillsDiv.style.padding = '12px';
     arrow.style.transform = 'rotate(90deg)';
     arrow.style.color = 'var(--accent)';
     arrow.style.textShadow = '0 0 8px var(--accent), 0 0 12px var(--accent)';

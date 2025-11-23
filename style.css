@@ -1591,34 +1591,86 @@ input:checked+.toggle-track .music-icon {
     margin-bottom: 0;
 }
 
-/* Selected Skill */
-.tech-tag.selected {
-    background: var(--accent);
-    color: white !important;
-    border-color: var(--accent) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+/* Neumorphic Skill Tags */
+.tech-tag {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--bg);
+    border: none;
+    /* Remove border for true neumorphism */
+
+    /* Neumorphic Shadow - Light Mode Default */
+    box-shadow: 3px 3px 6px #d1cdc7, -3px -3px 6px #ffffff;
 }
 
-/* Project Link Tag */
+[data-theme="dark"] .tech-tag {
+    background: var(--bg);
+    color: var(--text-secondary);
+    /* Neumorphic Shadow - Dark Mode */
+    box-shadow: 4px 4px 8px #151515, -4px -4px 8px #292929;
+}
+
+.tech-tag:hover {
+    transform: translateY(-1px);
+    color: var(--accent);
+}
+
+[data-theme="dark"] .tech-tag:hover {
+    box-shadow: 5px 5px 10px #151515, -5px -5px 10px #292929;
+}
+
+/* Selected State - Pressed/Inset Look */
+.tech-tag.selected {
+    color: var(--accent) !important;
+    background: var(--bg);
+    box-shadow: inset 3px 3px 6px #d1cdc7, inset -3px -3px 6px #ffffff;
+    border: none !important;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .tech-tag.selected {
+    background: var(--bg);
+    box-shadow: inset 4px 4px 8px #111111, inset -4px -4px 8px #2d2d2d;
+    color: var(--accent) !important;
+}
+
+/* Project Link Tag - Matching Style */
 .project-link-tag {
     display: inline-block;
-    padding: 4px 12px;
-    background: var(--surface-hover, #f0f0f0);
-    border: 1px solid var(--divider);
+    padding: 6px 16px;
+    background: var(--bg);
     border-radius: 20px;
     font-size: 0.8rem;
     color: var(--text-main);
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: var(--font-mono);
+    border: none;
+    box-shadow: 3px 3px 6px #d1cdc7, -3px -3px 6px #ffffff;
+    margin-right: 8px;
+    margin-bottom: 8px;
 }
 
 [data-theme="dark"] .project-link-tag {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg);
+    box-shadow: 4px 4px 8px #151515, -4px -4px 8px #292929;
 }
 
 .project-link-tag:hover {
-    border-color: var(--accent);
     color: var(--accent);
     transform: translateY(-1px);
+}
+
+.project-link-tag:active {
+    box-shadow: inset 2px 2px 4px #d1cdc7, inset -2px -2px 4px #ffffff;
+}
+
+[data-theme="dark"] .project-link-tag:active {
+    box-shadow: inset 3px 3px 6px #151515, inset -3px -3px 6px #292929;
 }
