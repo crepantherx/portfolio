@@ -1590,3 +1590,35 @@ input:checked+.toggle-track .music-icon {
 #section-booking.contact-block .collapsible-header h4 {
     margin-bottom: 0;
 }
+
+/* Selected Skill */
+.tech-tag.selected {
+    background: var(--accent);
+    color: white !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Project Link Tag */
+.project-link-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--surface-hover, #f0f0f0);
+    border: 1px solid var(--divider);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: var(--font-mono);
+}
+
+[data-theme="dark"] .project-link-tag {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.project-link-tag:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-1px);
+}

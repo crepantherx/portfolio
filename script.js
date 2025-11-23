@@ -48,7 +48,7 @@ const PROJECTS = [
     design: "https://app.eraser.io/workspace/iWYxDRWsVmEHYw42b8K4?origin=share",
     metrics: { AUC: 0.84, Latency: "300-800ms", Hosted: "Vercel" },
     tags: ["Realtime", "Interactions"],
-    readiness: ["Dockerized", "CI/CD", "MlFlow", "Pinecone", "Vector Embedding", "FastAPI"]
+    techStack: ["Python", "PyTorch", "Transformers", "FastAPI", "Docker", "Redis", "Streamlit", "Bash"]
   },
   {
     id: "ner-prod",
@@ -60,7 +60,7 @@ const PROJECTS = [
     design: "#",
     metrics: { F1: 0.91, Latency: "42ms", Size: "220MB" },
     tags: ["NLP", "MLflow"],
-    readiness: ["Auto-rollback", "Docker", "MLflow"]
+    techStack: ["Python", "HuggingFace", "BERT", "MLflow", "Docker", "Flask", "PostgreSQL"]
   },
   {
     id: "forecast-api",
@@ -72,7 +72,7 @@ const PROJECTS = [
     design: "#",
     metrics: { MAPE: "6.2%", Retrain: "Weekly" },
     tags: ["Time-series", "Airflow"],
-    readiness: ["Scheduled Retrain", "Integration Tests"]
+    techStack: ["Python", "Scikit-learn", "Apache Airflow", "Pandas", "FastAPI", "Docker"]
   },
   {
     id: "deep-statistics",
@@ -84,7 +84,7 @@ const PROJECTS = [
     design: "#",
     metrics: { Uptime: "10.9%" },
     tags: ["Full Stack ML", "Scalability", "Statistics", "Zero-shot Classification", "Fast API", "RAG"],
-    readiness: ["Hobby", "Waiting for AI to get more powerful"]
+    techStack: ["Python", "FastAPI", "React", "PostgreSQL", "Docker", "Nginx"]
   }
 ];
 
@@ -122,15 +122,16 @@ function renderProfile() {
 
   const techContainer = document.getElementById('tech-list');
   techContainer.innerHTML = PROFILE.techCategories.map((category, index) => `
-    <div class="tech-category-item" style="margin-bottom: 16px; border-bottom: 1px solid var(--divider); padding-bottom: 12px;" onclick="toggleTechCategory(this)">
+    <div class="tech-category-item" id="cat-${index}" style="margin-bottom: 16px; border-bottom: 1px solid var(--divider); padding-bottom: 12px;" onclick="toggleTechCategory(this)">
       <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 8px 0;">
         <h4 style="font-size: 0.85rem; color: var(--text-secondary); margin: 0; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.05em;">${category.category}</h4>
         <div class="tech-arrow" style="font-size: 1rem; color: var(--text-tertiary); transition: transform 0.3s ease, color 0.3s ease;">→</div>
       </div>
       <div class="tech-skills" style="max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.3s ease, opacity 0.3s ease, margin-top 0.3s ease; margin-top: 0;">
         <div style="display: flex; flex-wrap: wrap; gap: 8px; padding-top: 12px;">
-          ${category.skills.map(skill => `<span class="tech-tag" style="border:1px solid var(--divider); padding:4px 12px; border-radius:4px; font-size:0.75rem; color:var(--text-tertiary); font-family:var(--font-mono)">${skill}</span>`).join('')}
+          ${category.skills.map(skill => `<span class="tech-tag" onclick="handleSkillClick('${skill}', ${index}, event)" style="border:1px solid var(--divider); padding:4px 12px; border-radius:4px; font-size:0.75rem; color:var(--text-tertiary); font-family:var(--font-mono); cursor: pointer;">${skill}</span>`).join('')}
         </div>
+        <div class="category-projects" id="cat-projects-${index}" style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px;"></div>
       </div>
     </div>
   `).join('');
@@ -194,7 +195,7 @@ function renderProjects() {
   const container = document.getElementById('project-list');
 
   const projectsHTML = PROJECTS.map((p, index) => `
-    <article class="project-item" onclick="toggleProject(this)">
+    <article class="project-item" id="${p.id}" onclick="toggleProject(this)">
       <div class="project-header">
         <div>
           <span class="project-title">${p.title} <span class="live-text">LIVE</span></span>
@@ -224,10 +225,10 @@ function renderProjects() {
               `).join('')}
             </div>
 
-            <h4>Readiness</h4>
-            <ul style="font-size:0.9rem; color:var(--text-secondary); padding-left:20px">
-              ${p.readiness.map(r => `<li>${r}</li>`).join('')}
-            </ul>
+            <h4>Tech Stack</h4>
+            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px">
+              ${p.techStack ? p.techStack.map(tech => `<span style="font-size:0.8rem; color:var(--text-secondary); background:var(--surface-hover); padding:2px 8px; border-radius:4px;">${tech}</span>`).join('') : ''}
+            </div>
           </div>
         </div>
 
@@ -257,6 +258,85 @@ function toggleSection(sectionId) {
   const section = document.getElementById(sectionId);
   if (section) {
     section.classList.toggle('expanded');
+  }
+}
+
+function handleSkillClick(skillName, catIndex, event) {
+  event.stopPropagation(); // Prevent bubbling to category toggle
+
+  const target = event.target;
+  target.classList.toggle('selected');
+
+  // Find all selected skills in this category
+  const categoryContainer = document.getElementById(`cat-${catIndex}`);
+  const selectedSkills = Array.from(categoryContainer.querySelectorAll('.tech-tag.selected'))
+    .map(el => el.textContent.trim().toLowerCase());
+
+  const projectsContainer = document.getElementById(`cat-projects-${catIndex}`);
+
+  if (selectedSkills.length === 0) {
+    projectsContainer.innerHTML = '';
+    return;
+  }
+
+  // Find matching projects
+  const matchingProjects = PROJECTS.filter(p => {
+    if (!p.techStack) return false;
+    // Check if project has ALL of the selected skills (AND logic)
+    const hasAll = selectedSkills.every(selectedSkill =>
+      p.techStack.some(projectTech => projectTech.toLowerCase() === selectedSkill)
+    );
+    return hasAll;
+  });
+
+  // Render links
+  if (matchingProjects.length > 0) {
+    projectsContainer.innerHTML = `
+      <div style="width: 100%; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Used in:</div>
+      ${matchingProjects.map(p => `
+        <span class="project-link-tag" onclick="goToProject('${p.id}', event)">
+          ${p.title} ↗
+        </span>
+      `).join('')}
+    `;
+  } else {
+    projectsContainer.innerHTML = `<div style="font-size: 0.8rem; color: var(--text-tertiary);">No specific projects listed with this combination.</div>`;
+  }
+}
+
+function goToProject(projectId, event) {
+  event.stopPropagation();
+
+  // 1. Switch to Work view if not active
+  const workBtn = document.querySelector('.toggle-btn[data-view="work"]');
+  if (workBtn && !workBtn.classList.contains('active')) {
+    workBtn.click();
+  }
+
+  // 2. Expand Projects Section
+  const projectsSection = document.getElementById('section-projects');
+  if (projectsSection && !projectsSection.classList.contains('expanded')) {
+    projectsSection.classList.add('expanded');
+  }
+
+  // 3. Find and Expand Project
+  const projectEl = document.getElementById(projectId);
+  if (projectEl) {
+    if (!projectEl.classList.contains('expanded')) {
+      projectEl.classList.add('expanded');
+    }
+
+    // Smooth scroll
+    setTimeout(() => {
+      projectEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // Highlight effect
+      projectEl.style.transition = 'box-shadow 0.5s ease';
+      projectEl.style.boxShadow = '0 0 0 2px var(--accent)';
+      setTimeout(() => {
+        projectEl.style.boxShadow = '';
+      }, 2000);
+    }, 300);
   }
 }
 
