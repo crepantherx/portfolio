@@ -237,7 +237,8 @@ function renderProjects() {
               Live<span class="live-dot"></span>
             </a>
           ` : ''}
-          <a href="${p.repo}" target="_blank">View Code on GitHub</a>
+<!--          <a href="${p.repo}" target="_blank">Request To See Code</a>-->
+          <a href="mailto:hire.sudhir.singh@icloud.com">Request To See Code</a>
           <a href="${p.design}" target="_blank">System Design</a>
         </div>
       </div>
