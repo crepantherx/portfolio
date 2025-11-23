@@ -649,6 +649,25 @@ article.project-item.expanded .project-header .project-arrow {
     flex-wrap: wrap;
 }
 
+/* Live Text in Heading */
+.live-text {
+    font-size: 0.6em;
+    color: var(--accent);
+    margin-left: 8px;
+    vertical-align: middle;
+    animation: blink-dot 1.5s infinite;
+    display: inline-block;
+    transition: opacity 0.3s ease;
+}
+
+.collapsible-section.expanded .collapsible-header .live-text {
+    display: none;
+}
+
+.project-item.expanded .live-text {
+    display: none;
+}
+
 /* Live indicator - blinking dot inside button */
 .live-dot {
     display: inline-block;

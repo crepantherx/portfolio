@@ -46,7 +46,7 @@ const PROJECTS = [
     demo: "https://sudhir-singh-realtime-interaction-driven-recommendation.streamlit.app/",
     repo: "https://github.com/crepantherx/Realtime-Interaction-Driven-Recommendations",
     design: "https://app.eraser.io/workspace/iWYxDRWsVmEHYw42b8K4?origin=share",
-    metrics: { AUC: 0.84, Latency: "300-800ms", Hosted: "Vercel"},
+    metrics: { AUC: 0.84, Latency: "300-800ms", Hosted: "Vercel" },
     tags: ["Realtime", "Interactions"],
     readiness: ["Dockerized", "CI/CD", "MlFlow", "Pinecone", "Vector Embedding", "FastAPI"]
   },
@@ -185,7 +185,7 @@ function renderProjects() {
     <article class="project-item" onclick="toggleProject(this)">
       <div class="project-header">
         <div>
-          <span class="project-title">${p.title}</span>
+          <span class="project-title">${p.title} <span class="live-text">LIVE</span></span>
           <div class="project-summary">${p.short}</div>
         </div>
         <div class="project-arrow">→</div>
