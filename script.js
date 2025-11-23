@@ -73,6 +73,18 @@ const PROJECTS = [
     metrics: { MAPE: "6.2%", Retrain: "Weekly" },
     tags: ["Time-series", "Airflow"],
     readiness: ["Scheduled Retrain", "Integration Tests"]
+  },
+  {
+    id: "deep-statistics",
+    title: "Deep Statistics",
+    short: "Zero shot classification",
+    desc: "Passion weekend experiment project started by me & Utkarsh, that might become something meaningful long-term",
+    demo: "https://deepstatistics.co.in",
+    repo: "#",
+    design: "#",
+    metrics: { Uptime: "10.9%" },
+    tags: ["Full Stack ML", "Scalability", "Statistics", "Zero-shot Classification", "Fast API"],
+    readiness: ["Hobby", "Waiting for AI to get more powerful"]
   }
 ];
 
