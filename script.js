@@ -67,7 +67,7 @@ const PROJECTS = [
     title: "Scheduled Demand Forecast API",
     short: "Time-series Forecasting",
     desc: "Weekly retraining forecasting service with API and monitoring; integrated into inventory pipeline.",
-    demo: "https://demo.example.com/forecast",
+    demo: "https://project-forecasting.sudhir-singh.com",
     repo: "https://github.com/yourhandle/forecast-api",
     design: "#",
     metrics: { MAPE: "6.2%", Retrain: "Weekly" },
