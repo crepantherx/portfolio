@@ -53,7 +53,7 @@ const PROJECTS = [
   {
     id: "ner-prod",
     title: "Realtime Anomaly Detection",
-    short: "Domain Adapted NLP",
+    short: "Unbalanced Dataset",
     desc: "Fine-tuned transformer for domain NER with retraining pipeline and MLflow tracking.",
     demo: "https://project-anomaly.sudhir-singh.com/",
     repo: "https://github.com/crepantherx/anamoly",
@@ -83,7 +83,7 @@ const PROJECTS = [
     repo: "#",
     design: "#",
     metrics: { Uptime: "10.9%" },
-    tags: ["Full Stack ML", "Scalability", "Statistics", "Zero-shot Classification", "Fast API"],
+    tags: ["Full Stack ML", "Scalability", "Statistics", "Zero-shot Classification", "Fast API", "RAG"],
     readiness: ["Hobby", "Waiting for AI to get more powerful"]
   }
 ];
@@ -95,19 +95,19 @@ const EXPERIENCE = [
     period: "2024 - Present <div class=\"live-wrapper\">\n" +
       "                <span class=\"live-indicator\"></span>\n" +
       "              </div> ",
-    desc: "Leading the recommendation engine team. Improved model inference latency by 40% and mentored junior engineers."
+    desc: "Building engine for a SAAS platform that helps businesses compare their own catalog products against entire market data, identifying which market products are most similar to theirs."
   },
   {
     company: "@ Tiger Analytics",
     role: "Machine Learning Engineer",
     period: "2023 - 2024",
-    desc: "Built the first version of the NLP pipeline for customer support automation. Reduced manual ticket handling by 60%."
+    desc: "Built real-time user profiles from interaction patterns for personalized recommendations, and modeled trust by flagging fake profiles."
   },
   {
     company: "@ Tech Mahindra",
     role: "Machine Learning Engineer",
     period: "2021 - 2023",
-    desc: "Developed predictive models for churn analysis and customer segmentation. Collaborated with product teams to drive data-driven decisions."
+    desc: "Build engine for a platform that automates claim review & risk analysis by combining image classification, document NLP, & financial forecasting."
   }
 ];
 
