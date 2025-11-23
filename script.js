@@ -302,7 +302,7 @@ function handleSkillClick(skillName, catIndex, event) {
       `).join('')}
     `;
   } else {
-    projectsContainer.innerHTML = `<div style="font-size: 0.8rem; color: var(--text-tertiary);">No specific projects listed with this combination.</div>`;
+    projectsContainer.innerHTML = `<div style="font-size: 0.8rem; color: var(--text-tertiary);">Intentionally, common skills are not attached with multiple projects to avoid repetition.</div>`;
   }
 }
 
