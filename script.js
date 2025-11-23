@@ -47,7 +47,6 @@ const PROJECTS = [
     repo: "https://github.com/crepantherx/Realtime-Interaction-Driven-Recommendations",
     design: "https://app.eraser.io/workspace/iWYxDRWsVmEHYw42b8K4?origin=share",
     metrics: { AUC: 0.84, Latency: "300-800ms", Hosted: "Vercel" },
-    tags: ["Realtime", "Interactions"],
     techStack: ["Python", "PyTorch", "Transformers", "FastAPI", "Docker", "Redis", "Streamlit", "Bash"]
   },
   {
@@ -59,7 +58,6 @@ const PROJECTS = [
     repo: "https://github.com/crepantherx/anamoly",
     design: "#",
     metrics: { F1: 0.91, Latency: "42ms", Size: "220MB" },
-    tags: ["NLP", "MLflow"],
     techStack: ["Python", "HuggingFace", "BERT", "MLflow", "Docker", "Flask", "PostgreSQL"]
   },
   {
@@ -71,7 +69,6 @@ const PROJECTS = [
     repo: "https://github.com/yourhandle/forecast-api",
     design: "#",
     metrics: { MAPE: "6.2%", Retrain: "Weekly" },
-    tags: ["Time-series", "Airflow"],
     techStack: ["Python", "Scikit-learn", "Apache Airflow", "Pandas", "FastAPI", "Docker"]
   },
   {
@@ -83,7 +80,6 @@ const PROJECTS = [
     repo: "#",
     design: "#",
     metrics: { Uptime: "10.9%" },
-    tags: ["Full Stack ML", "Scalability", "Statistics", "Zero-shot Classification", "Fast API", "RAG"],
     techStack: ["Python", "FastAPI", "React", "PostgreSQL", "Docker", "Nginx"]
   }
 ];
@@ -212,10 +208,6 @@ function renderProjects() {
             <h4>Description</h4>
             <p class="project-desc">${p.desc}</p>
             
-            <div class="project-tags-list">
-              ${p.tags.map(t => `#${t}`).join(' ')}
-            </div>
-
             <h4>Tech Stack</h4>
             <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; justify-content: flex-start;">
               ${p.techStack ? p.techStack.map(tech => `
