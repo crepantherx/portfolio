@@ -210,9 +210,9 @@ function renderProjects() {
         <div class="project-details-grid">
           <div>
             <h4>Description</h4>
-            <p style="font-size:0.95rem; color:var(--text-secondary); line-height:1.6; margin-bottom:16px">${p.desc}</p>
+            <p class="project-desc">${p.desc}</p>
             
-            <div style="font-size:0.85rem; color:var(--text-tertiary); margin-bottom:16px">
+            <div class="project-tags-list">
               ${p.tags.map(t => `#${t}`).join(' ')}
             </div>
 
@@ -226,7 +226,7 @@ function renderProjects() {
 
           <div>
             <h4>Key Metrics</h4>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px">
+            <div class="project-metrics-grid">
               ${Object.entries(p.metrics).map(([k, v]) => `
                 <div class="metric-box">
                   <div class="metric-value">${v}</div>
