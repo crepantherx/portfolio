@@ -70,17 +70,6 @@ const PROJECTS = [
     design: "#",
     metrics: { MAPE: "6.2%", Retrain: "Weekly" },
     techStack: ["Python", "Scikit-learn", "Apache Airflow", "Pandas", "FastAPI", "Docker"]
-  },
-  {
-    id: "deep-statistics",
-    title: "Deep Statistics",
-    short: "Zero shot classification",
-    desc: "Passion weekend experiment project started by me & Utkarsh, that might become something meaningful long-term",
-    demo: "https://deepstatistics.co.in",
-    repo: "#",
-    design: "#",
-    metrics: { Uptime: "10.9%" },
-    techStack: ["Python", "FastAPI", "React", "PostgreSQL", "Docker", "Nginx"]
   }
 ];
 
