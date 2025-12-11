@@ -30,18 +30,18 @@
 }
 
 [data-theme="dark"] {
-    --bg: #1f1f1f;
+    --bg: #181818;
     --text-main: #777;
     /* Lighter grey for visibility */
     --text-secondary: #888;
     --text-tertiary: #555;
     --accent: #42a778;
-    --divider: #151515;
+    --divider: #101010;
     /* Darker divider base */
 
     --grid-color: rgba(255, 255, 255, 0.03);
-    --card-bg: linear-gradient(145deg, #232323, #1c1c1c);
-    --card-shadow: 5px 5px 10px #151515, -5px -5px 10px #292929;
+    --card-bg: linear-gradient(145deg, #1c1c1c, #151515);
+    --card-shadow: 5px 5px 10px #0e0e0e, -5px -5px 10px #222222;
     --card-border: none;
 
     --text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8), -1px -1px 0 rgba(255, 255, 255, 0.1);
