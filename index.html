@@ -302,41 +302,53 @@
 
       <!-- Step 2: Payment -->
       <div id="modal-step-2" class="hidden">
-        Don't Panic if for anything goes wrong, Just contact me via email, from about page.
-        <br><br>
-        <div class="refund-note">
-          Paid amount will be fully refunded after appointment completion
-        </div>
+        <div class="payment-step-container">
 
-        <p id="modal-price"
-          style="font-size: 1.1rem; font-weight: 700; color: var(--accent); text-align: center; margin-bottom: 16px;">
-          Charges: ₹1000
+          <!-- Trust Badge -->
+          <div class="trust-badge">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-3zm-2 16l-4-4 1.41-1.41L10 15.17l6.59-6.59L18 10l-8 8z" />
+            </svg>
+            <span>100% refundable after completion.</span>
+          </div>
 
-        </p>
+          <!-- Price Display -->
+          <div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: -5px;">Total Payble Amount</div>
+            <div id="modal-price" class="price-display">₹1000</div>
+          </div>
 
-        <p class="payment-status"
-          style="font-size: 0.85rem; color: var(--text-tertiary); text-align: center; margin-bottom: 24px; font-style: italic;">
-          Scan & Pay then enter transaction details below.
+          <!-- QR Section -->
+          <div class="qr-section">
+            <img id="modal-qr-image" src="" alt="Payment QR Code"
+              style="width: 180px; height: 180px; object-fit: contain;">
+            <p class="payment-status"
+              style="margin-top: 8px; margin-bottom: 0; font-size: 0.85rem; color: var(--text-secondary);">
+              Scan using any UPI App
+            </p>
+          </div>
 
+          <!-- Input Field -->
+          <div class="form-group" style="text-align: left; margin-bottom: 8px;">
+            <label for="txn-id" style="text-align: center; display: block; margin-bottom: 8px;">Transaction ID /
+              UTR</label>
+            <input type="text" id="txn-id" placeholder="Enter Transaction ID" required
+              style="text-align: center; font-family: var(--font-mono); letter-spacing: 1px;">
+          </div>
 
-        </p>
+          <!-- Actions -->
+          <div class="modal-actions">
+            <button class="btn-secondary" onclick="prevBookingStep()">Back</button>
+            <button id="btn-confirm" class="btn-primary" onclick="handleBookingSubmit()" disabled>Confirm
+              Payment</button>
+          </div>
 
-        <div class="qr-container" style="display: flex; justify-content: center; margin-bottom: 16px;">
-          <img id="modal-qr-image" src="" alt="Payment QR Code"
-            style="width: 150px; height: 150px; object-fit: contain; border: 1px solid var(--divider); border-radius: 4px;">
-        </div>
+          <!-- Footer Help -->
+          <p class="modal-help-text">
+            Issues with payment? <a href="mailto:hire.sudhir.singh@icloud.com">Contact Support</a>
+          </p>
 
-
-
-
-        <div class="form-group">
-          <label for="txn-id">UPI Transaction ID (Required)</label>
-          <input type="text" id="txn-id" placeholder="Enter Transaction ID / UTR" required>
-        </div>
-
-        <div class="modal-actions">
-          <button class="btn-secondary" onclick="prevBookingStep()">Back</button>
-          <button id="btn-confirm" class="btn-primary" onclick="handleBookingSubmit()" disabled>Continue</button>
         </div>
       </div>
 

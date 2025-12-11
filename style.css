@@ -1758,4 +1758,74 @@ input:checked+.toggle-track .music-icon {
 [data-theme="dark"] .refund-note {
     background: rgba(66, 167, 120, 0.05); /* Very subtle green tint */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}/* Redesigned Payment Modal Styles */
+.payment-step-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+}
+
+.price-display {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 10px 0;
+    font-family: var(--font-heading);
+}
+
+.qr-section {
+    background: var(--bg);
+    padding: 16px;
+    border-radius: var(--radius-card);
+    border: 1px solid var(--divider);
+    display: inline-block;
+    margin: 0 auto;
+    box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.05), inset -4px -4px 8px rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .qr-section {
+    box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.2), inset -4px -4px 8px rgba(255, 255, 255, 0.05);
+}
+
+.qr-section img {
+    border-radius: 4px;
+    display: block;
+}
+
+.trust-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(66, 167, 120, 0.1);
+    color: var(--accent);
+    padding: 12px;
+    border-radius: var(--radius-small);
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 1px solid rgba(66, 167, 120, 0.2);
+}
+
+.trust-badge svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+.modal-help-text {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    margin-top: 8px;
+}
+
+.modal-help-text a {
+    color: var(--text-secondary);
+    text-decoration: underline;
+    border: none;
+}
+
+.modal-help-text a:hover {
+    color: var(--accent);
+    background: none;
 }

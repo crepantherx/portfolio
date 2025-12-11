@@ -406,7 +406,7 @@ function openBookingModal(planName) {
   // Set Price if element exists
   const priceEl = document.getElementById('modal-price');
   if (priceEl && config) {
-    priceEl.textContent = `Charges: ${config.price}`;
+    priceEl.textContent = config.price;
   }
 
   // Set QR Code Image
