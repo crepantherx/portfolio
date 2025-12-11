@@ -22,8 +22,8 @@
     --grid-color: rgba(0, 0, 0, 0.03);
 
     /* Neumorphic Light */
-    --card-bg: linear-gradient(145deg, #f5f3f0, #d2cec8);
-    --card-shadow: 5px 5px 10px #b8b4ae, -5px -5px 10px #ffffff;
+    --card-bg: linear-gradient(145deg, #f0eeeb, #d1cfcc);
+    --card-shadow: 6px 6px 12px #c5c3c0, -6px -6px 12px #ffffff;
     --card-border: 1px solid rgba(255, 255, 255, 0.4);
     --text-shadow: 1px 1px 0 #ffffff;
     --border-highlight: 0 1px 0 #ffffff;
@@ -40,13 +40,13 @@
     /* Darker divider base */
 
     --grid-color: rgba(255, 255, 255, 0.03);
-    --card-bg: linear-gradient(145deg, #1c1c1c, #151515);
-    --card-shadow: 5px 5px 10px #0e0e0e, -5px -5px 10px #222222;
+    --card-bg: linear-gradient(145deg, #1a1a1a, #161616);
+    --card-shadow: 5px 5px 10px #0c0c0c, -5px -5px 10px #242424;
     --card-border: none;
 
     --text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8), -1px -1px 0 rgba(255, 255, 255, 0.1);
     /* Deep pressed look */
-    --border-highlight: 0 1px 0 rgba(255, 255, 255, 0.05);
+    --border-highlight: 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 * {
@@ -254,11 +254,11 @@ header {
 .toggle-btn.active {
     color: var(--accent);
     font-weight: 700;
-    box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.3), inset -4px -4px 8px rgba(255, 255, 255, 0.1);
+    box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.2), inset -4px -4px 8px rgba(255, 255, 255, 0.05);
 }
 
 [data-theme="light"] .toggle-btn.active {
-    box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.15), inset -4px -4px 8px rgba(255, 255, 255, 0.5);
+    box-shadow: inset 4px 4px 8px rgba(163, 177, 198, 0.3), inset -4px -4px 8px rgba(255, 255, 255, 0.8);
 }
 
 /* Main Content Area */
