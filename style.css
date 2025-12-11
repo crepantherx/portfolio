@@ -1739,3 +1739,23 @@ input:checked+.toggle-track .music-icon {
     border-color: rgba(255, 255, 255, 0.05);
     box-shadow: inset 2px 2px 5px #151515, inset -2px -2px 5px #292929;
 }
+
+/* Refund Policy Highlight */
+.refund-note {
+    display: block;
+    margin: 20px 0;
+    padding: 16px;
+    border: 1px dashed var(--accent);
+    border-radius: var(--radius-small);
+    color: var(--accent);
+    font-weight: 700;
+    text-align: center;
+    font-size: 1rem;
+    background: linear-gradient(to right, transparent, var(--bg), transparent);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .refund-note {
+    background: rgba(66, 167, 120, 0.05); /* Very subtle green tint */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
