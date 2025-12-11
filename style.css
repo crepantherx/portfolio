@@ -1368,13 +1368,13 @@ button:disabled {
 .toggle-track {
     width: 50px;
     height: 26px;
-    background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+    background: linear-gradient(145deg, #1a1a1a, #161616);
     border-radius: 40px;
     position: relative;
     box-shadow:
-        inset 5px 5px 10px #151515,
-        inset -5px -5px 10px #353535,
-        0 0 0 2px #252525;
+        inset 3px 3px 6px #0a0a0a,
+        inset -3px -3px 6px #262626,
+        0 0 0 2px #181818;
     /* Bezel */
     transition: all 0.3s ease;
 }
@@ -1390,14 +1390,14 @@ button:disabled {
 .toggle-knob {
     width: 20px;
     height: 20px;
-    background: linear-gradient(145deg, #3a3a3a, #2e2e2e);
+    background: linear-gradient(145deg, #222222, #1a1a1a);
     border-radius: 50%;
     position: absolute;
     top: 3px;
     left: 3px;
     box-shadow:
-        5px 5px 10px #1a1a1a,
-        -2px -2px 5px #404040,
+        3px 3px 6px #0a0a0a,
+        -1px -1px 3px #333333,
         inset 0 0 2px rgba(0, 0, 0, 0.5);
     /* Subtle rim */
     transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
