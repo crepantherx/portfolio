@@ -41,7 +41,7 @@
 
     --grid-color: rgba(255, 255, 255, 0.03);
     --card-bg: linear-gradient(145deg, #1a1a1a, #161616);
-    --card-shadow: 5px 5px 10px #0c0c0c, -5px -5px 10px #242424;
+    --card-shadow: 5px 5px 9px #0a0a0a, -5px -5px 9px #262626;
     --card-border: none;
 
     --text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8), -1px -1px 0 rgba(255, 255, 255, 0.1);
@@ -254,7 +254,7 @@ header {
 .toggle-btn.active {
     color: var(--accent);
     font-weight: 700;
-    box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.2), inset -4px -4px 8px rgba(255, 255, 255, 0.05);
+    box-shadow: inset 5px 5px 10px #0a0a0a, inset -5px -5px 10px #262626;
 }
 
 [data-theme="light"] .toggle-btn.active {
