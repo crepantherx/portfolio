@@ -913,15 +913,24 @@ footer {
     .container {
         display: block;
         height: auto;
-        padding: 12px;
+        padding: 16px 24px;
     }
 
     header {
         height: auto;
         border-right: none;
         border-bottom: none;
-        padding: 0 0 24px 0;
-        margin-bottom: 40px;
+        padding: 12px 0 24px 0;
+        margin-bottom: 16px;
+    }
+
+    /* Mobile Typography Overrides */
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.2rem;
     }
 
     [data-theme="dark"] header {
@@ -950,9 +959,9 @@ footer {
 
     .view-section.hidden {
         display: block !important;
-        margin-top: 60px;
+        margin-top: 0;
         border-top: none;
-        padding-top: 60px;
+        padding-top: 0;
     }
 
     #view-work footer {
@@ -1756,9 +1765,12 @@ input:checked+.toggle-track .music-icon {
 }
 
 [data-theme="dark"] .refund-note {
-    background: rgba(66, 167, 120, 0.05); /* Very subtle green tint */
+    background: rgba(66, 167, 120, 0.05);
+    /* Very subtle green tint */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}/* Redesigned Payment Modal Styles */
+}
+
+/* Redesigned Payment Modal Styles */
 .payment-step-container {
     display: flex;
     flex-direction: column;
