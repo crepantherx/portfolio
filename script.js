@@ -190,61 +190,87 @@ function renderExperience() {
 }
 
 function renderProjects() {
-  const container = document.getElementById('project-list');
-  if (!container) return;
+  const container = document.getElementById('all-projects-list');
+  // Also render summary list for Work view if it exists (though we might not need it if we have a full view)
+  const summaryContainer = document.getElementById('project-list');
 
-  const projectsHTML = PROJECTS.map((p, index) => `
-    <article class="project-item" id="${p.id}" onclick="toggleProject(this)">
-      <div class="project-header">
-        <div>
-          <span class="project-title">${p.title} <span class="live-text">LIVE</span></span>
-          <div class="project-summary">${p.short}</div>
-        </div>
-        <div class="project-arrow">→</div>
-      </div>
-
-      <div class="project-details" onclick="event.stopPropagation()">
-        <div class="project-details-grid">
-          <div>
-            <h4>Description</h4>
-            <p class="project-desc">${p.desc}</p>
-            
-            <h4>Tech Stack</h4>
-            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; justify-content: flex-start;">
-              ${p.techStack ? p.techStack.map(tech => `
-                <span class="project-tech-tag">${tech}</span>
-              `).join('') : ''}
+  if (container) {
+    const projectsHTML = PROJECTS.map((p) => `
+        <article class="project-item expanded" id="${p.id}" onclick="toggleProject(this)">
+          <div class="project-header">
+            <div>
+              <span class="project-title">${p.title} <span class="live-text">LIVE</span></span>
+              <div class="project-summary">${p.short}</div>
             </div>
+            <div class="project-arrow">→</div>
           </div>
 
-          <div>
-            <h4>Key Metrics</h4>
-            <div class="project-metrics-grid">
-              ${Object.entries(p.metrics).map(([k, v]) => `
-                <div class="metric-box">
-                  <div class="metric-value">${v}</div>
-                  <div class="metric-label">${k}</div>
+          <div class="project-details">
+            <div class="project-details-grid">
+              <div>
+                <h4>Description</h4>
+                <p class="project-desc">${p.desc}</p>
+                
+                <h4>Tech Stack</h4>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; justify-content: flex-start;">
+                  ${p.techStack ? p.techStack.map(tech => `
+                    <span class="project-tech-tag">${tech}</span>
+                  `).join('') : ''}
                 </div>
-              `).join('')}
+              </div>
+
+              <div>
+                <h4>Key Metrics</h4>
+                <div class="project-metrics-grid">
+                  ${Object.entries(p.metrics).map(([k, v]) => `
+                    <div class="metric-box">
+                      <div class="metric-value">${v}</div>
+                      <div class="metric-label">${k}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+
+            <div class="project-links">
+              ${p.demo && p.demo !== '#' ? `
+                <a href="${p.demo}" target="_blank">
+                  Live<span class="live-dot"></span>
+                </a>
+              ` : ''}
+              <a href="mailto:hire.sudhir.singh@icloud.com">Request To See Code</a>
+              <a href="${p.design}" target="_blank">System Design</a>
             </div>
           </div>
-        </div>
+        </article>
+      `).join('');
+    container.innerHTML = projectsHTML;
+  }
+}
 
-        <div class="project-links">
-          ${p.demo && p.demo !== '#' ? `
-            <a href="${p.demo}" target="_blank">
-              Live<span class="live-dot"></span>
-            </a>
-          ` : ''}
-<!--          <a href="${p.repo}" target="_blank">Request To See Code</a>-->
-          <a href="mailto:hire.sudhir.singh@icloud.com">Request To See Code</a>
-          <a href="${p.design}" target="_blank">System Design</a>
-        </div>
-      </div>
-    </article>
-  `).join('');
+// Logic to handle hash navigation (Deep linking to projects)
+function handleHashNavigation() {
+  const hash = window.location.hash.substring(1); // Remove '#'
+  if (!hash) return;
 
-  container.innerHTML = projectsHTML;
+  // Check if hash matches a project ID
+  const project = PROJECTS.find(p => p.id === hash);
+  if (project) {
+    // Switch to projects view
+    const projectsBtn = document.querySelector('.toggle-btn[data-view="projects"]');
+    if (projectsBtn) {
+      projectsBtn.click();
+      // Small delay to allow view to become visible
+      setTimeout(() => {
+        const projectEl = document.getElementById(hash);
+        if (projectEl) {
+          projectEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          projectEl.classList.add('highlighted');
+          setTimeout(() => projectEl.classList.remove('highlighted'), 2000);
+        }
+      }, 100);
+    }
+  }
 }
 
 // Interaction Logic
@@ -304,8 +330,9 @@ function handleSkillClick(skillName, catIndex, event) {
 
 function goToProject(projectId, event) {
   event.stopPropagation();
-  // Navigate to projects.html with hash logic
-  window.location.href = `projects.html#${projectId}`;
+  // Simply setting hash will trigger our hash listener if we add one, or we can call handle directly
+  window.location.hash = projectId;
+  handleHashNavigation();
 }
 
 // View Toggle Logic
@@ -342,7 +369,6 @@ function setupViewToggle() {
   });
 }
 
-// Consultation Configuration
 // Consultation Configuration
 const CONSULTATION_CONFIG = {
   "Want To Learn Python From Me": {
@@ -662,6 +688,10 @@ document.addEventListener('DOMContentLoaded', () => {
   renderProjects();
   setupViewToggle();
   handleInitialRouting();
+  handleHashNavigation();
+
+  // Listen for hash changes
+  window.addEventListener('hashchange', handleHashNavigation);
 
 
   // Add click sound to all interactive elements

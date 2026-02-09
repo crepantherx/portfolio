@@ -52,8 +52,7 @@
       <div class="view-toggle">
         <button class="toggle-btn active" data-view="about">About</button>
         <button class="toggle-btn" data-view="work">Work</button>
-        <a href="projects.html" class="toggle-btn"
-          style="text-decoration: none; display: block; text-align: center;">Projects</a>
+        <button class="toggle-btn" data-view="projects">Projects</button>
         <button class="toggle-btn" data-view="mentorship">Contact</button>
       </div>
 
@@ -163,6 +162,22 @@
         </section>
 
         <footer>
+          <div>&copy; <span class="year-span"></span> Sudhir Singh</div>
+        </footer>
+      </div>
+
+      <!-- PROJECTS VIEW -->
+      <div id="view-projects" class="view-section hidden">
+        <div class="page-header">
+          <h2>Projects</h2>
+          <p>Production-ready machine learning projects with live demos and detailed metrics.</p>
+        </div>
+
+        <div id="all-projects-list" class="projects-container">
+          <!-- Projects injected here -->
+        </div>
+
+        <footer style="margin-top: 60px; padding: 20px 0; border-top: 1px solid var(--divider);">
           <div>&copy; <span class="year-span"></span> Sudhir Singh</div>
         </footer>
       </div>
