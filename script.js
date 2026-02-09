@@ -70,6 +70,17 @@ const PROJECTS = [
     design: "#",
     metrics: { MAPE: "6.2%", Retrain: "Weekly" },
     techStack: ["Python", "Scikit-learn", "Apache Airflow", "Pandas", "FastAPI", "Docker"]
+  },
+  {
+    id: "rag-pdf",
+    title: "Retrieval-Augmented Generation",
+    short: "PDF Assistant",
+    desc: "RAG, with intelligent chunking POC.",
+    demo: "https://rag.sudhir-singh.com",
+    repo: "https://github.com/yourhandle/forecast-api",
+    design: "#",
+    metrics: { Chunking: "Intelligent", LLM: "GPT-4o", Embedding: "OpenAI", VectorDB: "Chroma", ChunkingEfficiency: 'NA' },
+    techStack: ["Python", "FastAPI", "Docker", "LangChain", "HuggingFace", "OpenAI APIs", "Vector Embeddings", "Retrieval-Augmented Generation (RAG)"]
   }
 ];
 
