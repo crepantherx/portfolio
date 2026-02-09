@@ -289,6 +289,10 @@ function handleHashNavigation() {
       setTimeout(() => {
         const projectEl = document.getElementById(hash);
         if (projectEl) {
+          // Auto-expand the project
+          if (!projectEl.classList.contains('expanded')) {
+            projectEl.classList.add('expanded');
+          }
           projectEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
           projectEl.classList.add('highlighted');
           setTimeout(() => projectEl.classList.remove('highlighted'), 2000);
