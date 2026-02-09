@@ -1215,6 +1215,81 @@ footer {
     border-bottom: 1px solid rgba(255, 255, 255, 0.8);
 }
 
+/* Share Button */
+.share-btn {
+    text-decoration: none;
+    font-size: 0.85rem;
+    color: white;
+    background-color: #42a778;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 50px;
+    box-shadow: 4px 4px 12px rgba(50, 44, 44, 0.78), -4px -4px 12px rgba(221, 220, 220, 0.37);
+    border: none;
+    /* Reset default button border first */
+    border-top: 1px solid white;
+    border-left: 1px solid white;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.5em;
+    /* Match .project-links a margin */
+    box-sizing: border-box;
+    line-height: normal;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 40px;
+    vertical-align: middle;
+}
+
+.share-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 6px 6px 16px rgba(50, 44, 44, 0.85), -6px -6px 16px rgba(221, 220, 220, 0.45);
+}
+
+[data-theme="light"] .share-btn {
+    background: #4a90e2;
+    box-shadow: 4px 4px 12px rgba(74, 144, 226, 0.4), -4px -4px 12px rgba(255, 255, 255, 0.8);
+    border-top: 1px solid rgba(255, 255, 255, 0.8);
+    border-left: 1px solid rgba(255, 255, 255, 0.8);
+    border-right: 1px solid rgba(0, 0, 0, 0.15);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .share-btn:hover {
+    box-shadow: 6px 6px 16px rgba(74, 144, 226, 0.5), -6px -6px 16px rgba(255, 255, 255, 0.9);
+}
+
+.share-btn:active {
+    transform: translateY(0);
+    box-shadow: 4px 4px 12px rgba(50, 44, 44, 0.78), -4px -4px 12px rgba(221, 220, 220, 0.37);
+    border-top: 1px solid black;
+    border-left: 1px solid black;
+    border-right: 1px solid white;
+    border-bottom: 1px solid white;
+}
+
+[data-theme="light"] .share-btn:active {
+    box-shadow: 4px 4px 12px rgba(74, 144, 226, 0.4), -4px -4px 12px rgba(255, 255, 255, 0.8);
+    border-top: 1px solid rgba(0, 0, 0, 0.15);
+    border-left: 1px solid rgba(0, 0, 0, 0.15);
+    border-right: 1px solid rgba(255, 255, 255, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+/* Copied State */
+.share-btn.copied {
+    background: #42a778;
+    /* Green success color */
+    color: white;
+    border-color: #42a778;
+}
+
 .upi-block {
     margin-top: 60px;
     padding: 32px;

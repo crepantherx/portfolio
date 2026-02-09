@@ -196,7 +196,7 @@ function renderProjects() {
 
   if (container) {
     const projectsHTML = PROJECTS.map((p) => `
-        <article class="project-item expanded" id="${p.id}" onclick="toggleProject(this)">
+        <article class="project-item" id="${p.id}" onclick="toggleProject(this)">
           <div class="project-header">
             <div>
               <span class="project-title">${p.title} <span class="live-text">LIVE</span></span>
@@ -240,12 +240,37 @@ function renderProjects() {
               ` : ''}
               <a href="mailto:hire.sudhir.singh@icloud.com">Request To See Code</a>
               <a href="${p.design}" target="_blank">System Design</a>
+              <button class="share-btn" onclick="copyProjectLink('${p.id}', this, event)">
+                Share 🔗
+              </button>
             </div>
           </div>
         </article>
       `).join('');
     container.innerHTML = projectsHTML;
   }
+}
+
+// Copy Project Link
+function copyProjectLink(id, btn, event) {
+  event.stopPropagation();
+
+  // Construct URL: base URL (without hash) + # + project ID
+  const url = window.location.href.split('#')[0] + '#' + id;
+
+  navigator.clipboard.writeText(url).then(() => {
+    // Feedback
+    const originalText = btn.innerHTML;
+    btn.innerHTML = 'Copied!';
+    btn.classList.add('copied');
+
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(err => {
+    console.error('Failed to copy: ', err);
+  });
 }
 
 // Logic to handle hash navigation (Deep linking to projects)
