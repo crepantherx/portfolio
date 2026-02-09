@@ -1058,9 +1058,9 @@ footer {
 }
 
 [data-theme="light"] .pricing-card {
-    background: #ffffff;
-    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1), -4px -4px 12px rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    border: var(--card-border);
 }
 
 [data-theme="light"] .pricing-card:hover {
@@ -1103,9 +1103,9 @@ footer {
 }
 
 [data-theme="light"] .contact-block {
-    background: #ffffff;
-    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1), -4px -4px 12px rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    border: var(--card-border);
 }
 
 .contact-block h4 {

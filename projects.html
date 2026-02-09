@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects — Sudhir Singh</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Tourney:wght@100..900&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Only keep necessary overrides if any, otherwise rely on style.css */
+        /* Ensure the active button looks correct */
+        .toggle-btn.active {
+            color: var(--accent);
+            font-weight: 700;
+            box-shadow: inset 5px 5px 10px #0a0a0a, inset -5px -5px 10px #262626;
+        }
+
+        [data-theme="light"] .toggle-btn.active {
+            box-shadow: inset 4px 4px 8px rgba(163, 177, 198, 0.3), inset -4px -4px 8px rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+
+<body data-theme="light">
+
+    <!-- Technical Grid Background -->
+    <div class="grid-bg"></div>
+
+    <!-- Theme Toggle (Fixed Top Right) -->
+    <label class="theme-toggle">
+        <input type="checkbox" id="theme-checkbox" onchange="toggleTheme(this.checked)">
+        <div class="toggle-track">
+            <div class="toggle-knob">
+                <div class="toggle-indicator"></div>
+            </div>
+        </div>
+    </label>
+
+    <div class="container">
+
+        <!-- Sidebar / Header (Fixed on Desktop) -->
+        <header>
+            <span class="brand">SUDHIR SINGH</span>
+
+            <!-- Navigation -->
+            <div class="view-toggle">
+                <!-- Links back to specific views in index.html isn't straightforward with buttons + js, 
+                     so we'll just link to index.html and let user navigate, or use hash params if script supported it.
+                     For now, simple links to index.html seems safest. -->
+                <a href="index.html?view=about" class="toggle-btn"
+                    style="text-decoration: none; display: block; text-align: center;">About</a>
+                <a href="index.html?view=work" class="toggle-btn"
+                    style="text-decoration: none; display: block; text-align: center;">Work</a>
+                <button class="toggle-btn active">Projects</button>
+                <a href="index.html?view=mentorship" class="toggle-btn"
+                    style="text-decoration: none; display: block; text-align: center;">Contact</a>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main>
+            <div class="view-section active">
+                <div class="page-header">
+                    <h2>Projects</h2>
+                    <p>Production-ready machine learning projects with live demos and detailed metrics.</p>
+                </div>
+
+                <div id="all-projects-list" class="projects-container">
+                    <!-- Projects injected here -->
+                </div>
+
+                <footer style="margin-top: 60px; padding: 20px 0; border-top: 1px solid var(--divider);">
+                    <div>&copy; <span class="year-span"></span> Sudhir Singh</div>
+                </footer>
+            </div>
+        </main>
+
+    </div>
+
+    <script src="script.js?v=2"></script>
+    <script>
+        // Render projects on this page
+        function renderProjectsPage() {
+            const container = document.getElementById('all-projects-list');
+
+            const projectsHTML = PROJECTS.map((p) => `
+        <article class="project-item expanded" id="${p.id}" onclick="toggleProject(this)">
+          <div class="project-header">
+            <div>
+              <span class="project-title">${p.title} <span class="live-text">LIVE</span></span>
+              <div class="project-summary">${p.short}</div>
+            </div>
+            <div class="project-arrow">→</div>
+          </div>
+
+          <div class="project-details">
+            <div class="project-details-grid">
+              <div>
+                <h4>Description</h4>
+                <p class="project-desc">${p.desc}</p>
+                
+                <h4>Tech Stack</h4>
+                <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; justify-content: flex-start;">
+                  ${p.techStack ? p.techStack.map(tech => `
+                    <span class="project-tech-tag">${tech}</span>
+                  `).join('') : ''}
+                </div>
+              </div>
+
+              <div>
+                <h4>Key Metrics</h4>
+                <div class="project-metrics-grid">
+                  ${Object.entries(p.metrics).map(([k, v]) => `
+                    <div class="metric-box">
+                      <div class="metric-value">${v}</div>
+                      <div class="metric-label">${k}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+
+            <div class="project-links">
+              ${p.demo && p.demo !== '#' ? `
+                <a href="${p.demo}" target="_blank">
+                  Live<span class="live-dot"></span>
+                </a>
+              ` : ''}
+              <a href="mailto:hire.sudhir.singh@icloud.com">Request To See Code</a>
+              <a href="${p.design}" target="_blank">System Design</a>
+            </div>
+          </div>
+        </article>
+      `).join('');
+
+            container.innerHTML = projectsHTML;
+
+            // Handle URL hash navigation
+            handleHashNavigation();
+        }
+
+        // Handle hash-based navigation
+        function handleHashNavigation() {
+            const hash = window.location.hash.substring(1); // Remove '#'
+            if (hash) {
+                const projectEl = document.getElementById(hash);
+                if (projectEl) {
+                    // Smooth scroll to the project
+                    setTimeout(() => {
+                        projectEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                        // Add highlight effect
+                        projectEl.classList.add('highlighted');
+
+                        // Remove highlight after animation
+                        setTimeout(() => {
+                            projectEl.classList.remove('highlighted');
+                        }, 2000);
+                    }, 100);
+                }
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProjectsPage();
+
+            // Update year
+            const yearSpans = document.querySelectorAll('.year-span');
+            yearSpans.forEach(span => {
+                span.textContent = new Date().getFullYear();
+            });
+
+            // Listen for hash changes (browser back/forward)
+            window.addEventListener('hashchange', handleHashNavigation);
+        });
+    </script>
+</body>
+
+</html>

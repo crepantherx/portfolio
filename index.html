@@ -46,12 +46,14 @@
 
     <!-- Sidebar / Header (Fixed on Desktop) -->
     <header>
-      <span class="brand">SUDHIR SINGH</span>
+      <a href="index.html" class="brand">SUDHIR SINGH</a>
 
       <!-- View Toggle -->
       <div class="view-toggle">
         <button class="toggle-btn active" data-view="about">About</button>
         <button class="toggle-btn" data-view="work">Work</button>
+        <a href="projects.html" class="toggle-btn"
+          style="text-decoration: none; display: block; text-align: center;">Projects</a>
         <button class="toggle-btn" data-view="mentorship">Contact</button>
       </div>
 
@@ -117,16 +119,19 @@
         <div style="margin-bottom: 60px;">
           <h2 id="profile-role">Full Stack Machine Learning Engineer
           </h2>
-          <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 40px;">
+          <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 24px;">
             With <span id="exp-years">5</span> YoE, strong mathematical mindset, extensive Python development
             background, and a track record of
             turning concepts into production-ready products
           </p>
+          <!-- <a href="projects.html" class="btn-outline"
+            style="display: inline-block; padding: 10px 24px; text-decoration: none; border: 1px solid var(--accent); border-radius: 50px; color: var(--accent); font-family: var(--font-mono); font-size: 0.85rem; transition: all 0.2s;">View
+            Projects →</a> -->
         </div>
 
         <!-- Technical Expertise (Static & Embedded) -->
 
-        <section class="collapsible-section" id="section-corporate">
+        <section class="collapsible-section expanded" id="section-corporate">
           <div class="collapsible-header" onclick="toggleSection('section-corporate')">
             <h2>Experience </h2>
 
@@ -138,22 +143,6 @@
             </div>
           </div>
         </section>
-
-        <section class="collapsible-section" id="section-projects">
-          <div class="collapsible-header" onclick="toggleSection('section-projects')">
-            <h2>Projects <span class="live-text">LIVE</span></h2>
-            <div class="section-arrow">→</div>
-          </div>
-          <div class="collapsible-content">
-            <h5>Alias representing actual work</h5><br>
-            <div id="project-list">
-              <!-- Projects injected here -->
-            </div>
-          </div>
-        </section>
-
-
-
 
 
 

@@ -191,6 +191,7 @@ function renderExperience() {
 
 function renderProjects() {
   const container = document.getElementById('project-list');
+  if (!container) return;
 
   const projectsHTML = PROJECTS.map((p, index) => `
     <article class="project-item" id="${p.id}" onclick="toggleProject(this)">
@@ -303,38 +304,8 @@ function handleSkillClick(skillName, catIndex, event) {
 
 function goToProject(projectId, event) {
   event.stopPropagation();
-
-  // 1. Switch to Work view if not active
-  const workBtn = document.querySelector('.toggle-btn[data-view="work"]');
-  if (workBtn && !workBtn.classList.contains('active')) {
-    workBtn.click();
-  }
-
-  // 2. Expand Projects Section
-  const projectsSection = document.getElementById('section-projects');
-  if (projectsSection && !projectsSection.classList.contains('expanded')) {
-    projectsSection.classList.add('expanded');
-  }
-
-  // 3. Find and Expand Project
-  const projectEl = document.getElementById(projectId);
-  if (projectEl) {
-    if (!projectEl.classList.contains('expanded')) {
-      projectEl.classList.add('expanded');
-    }
-
-    // Smooth scroll
-    setTimeout(() => {
-      projectEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-      // Highlight effect
-      projectEl.style.transition = 'box-shadow 0.5s ease';
-      projectEl.style.boxShadow = '0 0 0 2px var(--accent)';
-      setTimeout(() => {
-        projectEl.style.boxShadow = '';
-      }, 2000);
-    }, 300);
-  }
+  // Navigate to projects.html with hash logic
+  window.location.href = `projects.html#${projectId}`;
 }
 
 // View Toggle Logic
@@ -640,25 +611,58 @@ function toggleMusic(isOn) {
   }
 }
 
-// Theme Toggle with sound (unchanged)
+// Theme Persistence
+function initializeTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  const body = document.body;
+  const themeCheckbox = document.getElementById('theme-checkbox');
+
+  if (savedTheme === 'dark') {
+    body.setAttribute('data-theme', 'dark');
+    if (themeCheckbox) themeCheckbox.checked = true;
+  } else {
+    body.setAttribute('data-theme', 'light');
+    if (themeCheckbox) themeCheckbox.checked = false;
+  }
+}
+
+// Theme Toggle with sound
 function toggleTheme(isDark) {
   playClickSound();
   const body = document.body;
-  if (typeof isDark === "boolean") {
-    body.setAttribute("data-theme", isDark ? "dark" : "light");
+  const theme = isDark ? "dark" : "light";
+  body.setAttribute("data-theme", theme);
+  localStorage.setItem('theme', theme);
+}
+
+// Handle initial routing based on URL params
+function handleInitialRouting() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const view = urlParams.get('view');
+
+  if (view) {
+    const btn = document.querySelector(`.toggle-btn[data-view="${view}"]`);
+    if (btn) {
+      btn.click();
+    }
   } else {
-    const current = body.getAttribute("data-theme");
-    const next = current === "dark" ? "light" : "dark";
-    body.setAttribute("data-theme", next);
+    // Default to 'About' view if no param is present
+    const aboutBtn = document.querySelector('.toggle-btn[data-view="about"]');
+    if (aboutBtn) {
+      aboutBtn.click();
+    }
   }
 }
 
 // Init
 document.addEventListener('DOMContentLoaded', () => {
+  initializeTheme(); // Set theme first
   renderProfile();
   renderExperience();
   renderProjects();
   setupViewToggle();
+  handleInitialRouting();
+
 
   // Add click sound to all interactive elements
   const clickableElements = document.querySelectorAll(
