@@ -688,6 +688,12 @@ function toggleTheme(isDark) {
   const theme = isDark ? "dark" : "light";
   body.setAttribute("data-theme", theme);
   localStorage.setItem('theme', theme);
+
+  // Update iframe if it's open
+  const iframe = document.getElementById('article-iframe');
+  if (iframe && iframe.contentDocument && iframe.contentDocument.documentElement) {
+    iframe.contentDocument.documentElement.setAttribute("data-theme", theme);
+  }
 }
 
 // Handle initial routing based on URL params
