@@ -830,6 +830,11 @@ function showArticleDetail(articleId) {
     if (template) {
       iframe.srcdoc = template.innerHTML;
     }
+  } else if (articleId === 'r-squared') {
+    const template = document.getElementById('article-rsquared-template');
+    if (template) {
+      iframe.srcdoc = template.innerHTML;
+    }
   }
   
   modal.classList.add('active');
