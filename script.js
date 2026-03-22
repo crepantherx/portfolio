@@ -816,8 +816,7 @@ function filterSkills(searchTerm) {
 function showArticleDetail(articleId) {
   playClickSound();
   
-  const articlesView = document.getElementById('view-articles');
-  const detailView = document.getElementById('view-article-detail');
+  const modal = document.getElementById('article-modal');
   const iframe = document.getElementById('article-iframe');
   
   if (articleId === 'roc-pr-explorer') {
@@ -827,34 +826,21 @@ function showArticleDetail(articleId) {
     }
   }
   
-  // Hide list, show detail
-  articlesView.classList.add('hidden');
-  articlesView.classList.remove('active');
-  
-  detailView.classList.remove('hidden');
-  setTimeout(() => {
-    detailView.classList.add('active');
-  }, 10);
-  
-  window.scrollTo(0, 0);
+  modal.classList.add('active');
+  modal.classList.remove('hidden');
 }
 
-function backToArticles() {
+function closeArticleModal() {
   playClickSound();
   
-  const articlesView = document.getElementById('view-articles');
-  const detailView = document.getElementById('view-article-detail');
+  const modal = document.getElementById('article-modal');
   const iframe = document.getElementById('article-iframe');
   
   // Clear iframe to release resources
   iframe.srcdoc = '';
   
-  // Hide detail, show list
-  detailView.classList.add('hidden');
-  detailView.classList.remove('active');
-  
-  articlesView.classList.remove('hidden');
+  modal.classList.remove('active');
   setTimeout(() => {
-    articlesView.classList.add('active');
-  }, 10);
+    modal.classList.add('hidden');
+  }, 300);
 }
