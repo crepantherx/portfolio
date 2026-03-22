@@ -811,3 +811,50 @@ function filterSkills(searchTerm) {
     }
   });
 }
+
+// Articles View Logic
+function showArticleDetail(articleId) {
+  playClickSound();
+  
+  const articlesView = document.getElementById('view-articles');
+  const detailView = document.getElementById('view-article-detail');
+  const iframe = document.getElementById('article-iframe');
+  
+  if (articleId === 'roc-pr-explorer') {
+    const template = document.getElementById('article-content-template');
+    if (template) {
+      iframe.srcdoc = template.innerHTML;
+    }
+  }
+  
+  // Hide list, show detail
+  articlesView.classList.add('hidden');
+  articlesView.classList.remove('active');
+  
+  detailView.classList.remove('hidden');
+  setTimeout(() => {
+    detailView.classList.add('active');
+  }, 10);
+  
+  window.scrollTo(0, 0);
+}
+
+function backToArticles() {
+  playClickSound();
+  
+  const articlesView = document.getElementById('view-articles');
+  const detailView = document.getElementById('view-article-detail');
+  const iframe = document.getElementById('article-iframe');
+  
+  // Clear iframe to release resources
+  iframe.srcdoc = '';
+  
+  // Hide detail, show list
+  detailView.classList.add('hidden');
+  detailView.classList.remove('active');
+  
+  articlesView.classList.remove('hidden');
+  setTimeout(() => {
+    articlesView.classList.add('active');
+  }, 10);
+}

@@ -1919,3 +1919,113 @@ input:checked+.toggle-track .music-icon {
     color: var(--accent);
     background: none;
 }
+
+/* Articles Section Styles */
+.articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 16px;
+}
+
+.article-card {
+    background: var(--card-bg);
+    border: var(--card-border);
+    border-radius: var(--radius-card);
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+[data-theme="dark"] .article-card {
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    border: var(--card-border);
+}
+
+.article-card:hover {
+    transform: translateY(-2px);
+}
+
+[data-theme="dark"] .article-card:hover {
+    box-shadow: 7px 7px 14px #151515, -7px -7px 14px #292929;
+}
+
+.article-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.article-card-tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--accent);
+    padding: 4px 10px;
+    border-radius: 50px;
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    white-space: nowrap;
+    margin-top: 4px;
+}
+
+[data-theme="dark"] .article-card-tag {
+    background: rgba(66, 167, 120, 0.1);
+    border-color: rgba(66, 167, 120, 0.2);
+}
+
+.article-card-title {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.article-card-desc {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 20px;
+    flex-grow: 1;
+}
+
+.article-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.article-card-meta span {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    background: var(--bg);
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--divider);
+}
+
+.article-card-arrow {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--accent);
+    font-weight: 600;
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+
+.article-card:hover .article-card-arrow {
+    transform: translateX(4px);
+}
