@@ -8,6 +8,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap"
     rel="stylesheet">
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
   <script>
     // Sync theme with parent via URL property or postMessage
     const params = new URLSearchParams(window.location.search);
@@ -651,18 +652,9 @@
           <div><strong>Intercept (b):</strong> <span id="vCostIntercept">0.50</span></div>
           <div><strong>Cost J(m,b):</strong> <span id="vCostVal">0.000</span></div>
         </div>
-        <p class="gd-hint" style="margin-top:0 !important">Watch how the cost forms a perfect parabola for each parameter. Click <strong>📉 Run Gradient Descent</strong> to watch the optimizer slide down these curves into the global minimum!</p>
+        <p class="gd-hint" style="margin-top:0 !important">Watch how the cost forms a 3D "Error Bowl". You can <strong>drag to rotate the graph</strong> below! Click <strong>📉 Run Gradient Descent</strong> to watch the optimizer slide down the bowl into the global minimum!</p>
         
-        <div class="cost-graphs" style="display: flex; gap: 24px; flex-wrap: wrap; align-items: center; justify-content: center; margin-top: 12px;">
-          <div class="graph-box">
-            <h4 style="font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text2); margin-bottom: 12px; letter-spacing: 0.05em; text-transform: uppercase;">Cost vs Slope (m)</h4>
-            <canvas id="cost-m-cv" width="320" height="220" style="border-radius: 8px; background: var(--surface2);"></canvas>
-          </div>
-          <div class="graph-box">
-            <h4 style="font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text2); margin-bottom: 12px; letter-spacing: 0.05em; text-transform: uppercase;">Cost vs Intercept (b)</h4>
-            <canvas id="cost-b-cv" width="320" height="220" style="border-radius: 8px; background: var(--surface2);"></canvas>
-          </div>
-        </div>
+        <div id="cost-3d-graph" style="width: 100%; height: 400px; border-radius: 8px; border: 1px solid var(--border); overflow: hidden; background: transparent; margin-top: 12px; cursor: move;"></div>
       </div>
     </div>
 
@@ -786,10 +778,7 @@
     }
 
     // --- Cost Map & Gradient Descent ---
-    const costCvM = document.getElementById('cost-m-cv');
-    const costCtxM = costCvM ? costCvM.getContext('2d') : null;
-    const costCvB = document.getElementById('cost-b-cv');
-    const costCtxB = costCvB ? costCvB.getContext('2d') : null;
+    const cost3DDiv = document.getElementById('cost-3d-graph');
     const M_MIN = -2.0, M_MAX = 2.0;
     const B_MIN = 0.0, B_MAX = 1.0;
     let gdAnimId = null;
@@ -806,76 +795,104 @@
       return cost / (2 * pts.length);
     }
 
-    function generateCostMap() {} // Interface compatibility
+    let surfaceZ = [], surfaceX = [], surfaceY = [];
+    let isPlotlyInitialized = false;
 
-    function drawCostMap() {
-      if (!costCtxM || !costCtxB) return;
-      
-      const W = costCvM.width, H = costCvM.height, PAD = 24;
-
-      // Find global max cost at corners for fixed Y-axis scaling
-      let maxCostScale = Math.max(
-        getCost(M_MIN, B_MIN), getCost(M_MAX, B_MIN),
-        getCost(M_MIN, B_MAX), getCost(M_MAX, B_MAX)
-      ) * 1.05;
-      if (maxCostScale === 0) maxCostScale = 1;
+    function generateCostMap() {
+      if (!cost3DDiv || !pts || !pts.length) return;
+      if (typeof Plotly === 'undefined') return;
 
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || !document.documentElement.hasAttribute('data-theme');
-      const gridC = isDark ? '#2a3a50' : 'rgba(0,0,0,0.15)';
-      const lineC = isDark ? '#bc8cff' : '#2563c7';
+      const fontC = isDark ? '#e6edf3' : '#1a1714';
 
-      function drawGraph(ctx, isM) {
-        ctx.clearRect(0, 0, W, H);
-        
-        ctx.strokeStyle = gridC;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(PAD, 0); ctx.lineTo(PAD, H-PAD); ctx.lineTo(W, H-PAD);
-        ctx.stroke();
-
-        // Parabola
-        ctx.beginPath();
-        ctx.strokeStyle = lineC;
-        ctx.lineWidth = 2.5;
-        
-        for (let i = 0; i <= W - PAD; i++) {
-          const frac = i / (W - PAD);
-          const x = PAD + i;
-          let m_val = userSlope, b_val = userIntercept;
-          
-          if (isM) m_val = M_MIN + frac * (M_MAX - M_MIN);
-          else     b_val = B_MIN + frac * (B_MAX - B_MIN);
-
-          const c = getCost(m_val, b_val);
-          const y = (H-PAD) - (c / maxCostScale) * (H-PAD);
-
-          if (i === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
+      surfaceZ = []; surfaceX = []; surfaceY = [];
+      const steps = 30; // Grid resolution
+      for (let j = 0; j <= steps; j++) {
+        const b = B_MIN + (j / steps) * (B_MAX - B_MIN);
+        surfaceY.push(b);
+        let rowZ = [];
+        for (let i = 0; i <= steps; i++) {
+          const m = M_MIN + (i / steps) * (M_MAX - M_MIN);
+          if (j === 0) surfaceX.push(m);
+          rowZ.push(getCost(m, b));
         }
-        ctx.stroke();
-
-        // Dot
-        const c = getCost(userSlope, userIntercept);
-        const curPx = PAD + (isM ? (userSlope - M_MIN)/(M_MAX - M_MIN) : (userIntercept - B_MIN)/(B_MAX - B_MIN)) * (W-PAD);
-        const curPy = (H-PAD) - (c / maxCostScale) * (H-PAD);
-        
-        ctx.beginPath();
-        ctx.arc(curPx, curPy, 6, 0, Math.PI*2);
-        ctx.fillStyle = '#f85149';
-        ctx.fill();
-        ctx.strokeStyle = isDark ? '#fff' : '#000';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
+        surfaceZ.push(rowZ);
       }
 
-      drawGraph(costCtxM, true);
-      drawGraph(costCtxB, false);
+      const surfaceTrace = {
+        z: surfaceZ, x: surfaceX, y: surfaceY,
+        type: 'surface',
+        colorscale: 'Viridis',
+        showscale: false,
+        opacity: 0.85,
+        hoverinfo: 'none'
+      };
+
+      const dotTrace = {
+        x: [userSlope], y: [userIntercept], z: [getCost(userSlope, userIntercept)],
+        mode: 'markers',
+        type: 'scatter3d',
+        marker: { color: isDark ? '#fff' : '#000', size: 6, line: { color: isDark ? '#000' : '#fff', width: 2 } },
+        showlegend: false,
+        hoverinfo: 'none'
+      };
+
+      const layout = {
+        scene: {
+          xaxis: { title: 'Slope (m)', color: fontC, gridcolor: isDark ? '#2a3a50': '#ddd' },
+          yaxis: { title: 'Intercept (b)', color: fontC, gridcolor: isDark ? '#2a3a50': '#ddd' },
+          zaxis: { title: 'Cost J', color: fontC, gridcolor: isDark ? '#2a3a50': '#ddd' },
+          bgcolor: 'rgba(0,0,0,0)'
+        },
+        margin: { l: 0, r: 0, b: 0, t: 0 },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        showlegend: false,
+        uirevision: 'true'
+      };
+
+      Plotly.react(cost3DDiv, [surfaceTrace, dotTrace], layout, { displayModeBar: false });
+      isPlotlyInitialized = true;
+    }
+
+    function drawCostMap() {
+      if (!isPlotlyInitialized || !cost3DDiv || typeof Plotly === 'undefined') return;
+
+      const c = getCost(userSlope, userIntercept);
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || !document.documentElement.hasAttribute('data-theme');
+
+      const dotTrace = {
+        x: [userSlope], y: [userIntercept], z: [c],
+        mode: 'markers',
+        type: 'scatter3d',
+        marker: { color: isDark ? '#fff' : '#000', size: 6, line: { color: isDark ? '#000' : '#fff', width: 2 } },
+        showlegend: false,
+        hoverinfo: 'none'
+      };
+
+      let traces = [cost3DDiv.data[0], dotTrace];
+
+      if (gdPath.length > 0) {
+        const lineTrace = {
+          x: gdPath.map(p => p.m),
+          y: gdPath.map(p => p.b),
+          z: gdPath.map(p => getCost(p.m, p.b)),
+          mode: 'lines',
+          type: 'scatter3d',
+          line: { color: '#f85149', width: 5 },
+          showlegend: false,
+          hoverinfo: 'none'
+        };
+        traces.push(lineTrace);
+      }
+
+      Plotly.react(cost3DDiv, traces, cost3DDiv.layout, { displayModeBar: false });
 
       const elM = document.getElementById('vCostSlope');
       if (elM) {
         elM.textContent = userSlope.toFixed(3);
         document.getElementById('vCostIntercept').textContent = userIntercept.toFixed(3);
-        document.getElementById('vCostVal').textContent = getCost(userSlope, userIntercept).toFixed(4);
+        document.getElementById('vCostVal').textContent = c.toFixed(4);
       }
     }
 
