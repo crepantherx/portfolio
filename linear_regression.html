@@ -463,6 +463,84 @@
       margin: 24px 0;
       font-style: italic;
     }
+
+    /* Cost Section */
+    .cost-section {
+      margin-top: 48px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+    .cost-header {
+      margin-bottom: 24px;
+    }
+    .cost-header h2 {
+      font-family: 'Instrument Serif', serif;
+      font-size: 32px;
+      font-weight: 400;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .cost-header p {
+      font-size: 15px;
+      color: var(--text2);
+      line-height: 1.6;
+      max-width: 680px;
+    }
+    .cost-body {
+      display: flex;
+      gap: 32px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      flex-wrap: wrap;
+    }
+    #cost-cv {
+      width: 300px;
+      height: 300px;
+      border-radius: 8px;
+      background: #000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .cost-info {
+      flex: 1;
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      line-height: 2.2;
+      min-width: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .cost-info strong {
+      color: var(--text2);
+      font-weight: 500;
+      display: inline-block;
+      width: 220px;
+    }
+    .cost-info span {
+      font-size: 18px;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .gd-hint {
+      margin-top: 24px !important;
+      font-family: 'DM Sans', sans-serif !important;
+      font-size: 14px !important;
+      color: var(--muted) !important;
+      line-height: 1.5 !important;
+    }
+    .formula-cost {
+      font-family: 'Instrument Serif', serif;
+      font-size: 24px;
+      font-style: italic;
+      color: var(--text);
+      background: var(--surface2);
+      padding: 12px 20px;
+      border-radius: 8px;
+      display: inline-block;
+      margin-top: 16px;
+    }
   </style>
 </head>
 
@@ -500,6 +578,7 @@
             <button class="btn" onclick="loadPreset('linear')">📈 Linear</button>
             <button class="btn" onclick="loadPreset('scattered')">🌪 Scattered</button>
             <button class="btn go" id="revealBtn" onclick="revealAnswer()">✦ Show Best Fit</button>
+            <button class="btn go" onclick="runGD()" id="btnGD">📉 Run Gradient Descent</button>
             <button class="btn reset" onclick="resetLine()">↩ Reset Line</button>
 
           </div>
@@ -556,6 +635,34 @@
           <span style="color:#f85149">R²→0 = no fit (or worse)</span>
         </div>
 
+      </div>
+    </div>
+
+    <!-- COST FUNCTION & GRADIENT DESCENT SECTION -->
+    <div class="cost-section">
+      <div class="cost-header">
+        <h2>Gradient Descent & The Cost Function</h2>
+        <p>The Cost Function calculates the total error of your line on a smooth landscape. Gradient Descent uses calculus (derivatives) to automatically walk step-by-step to the very bottom, discovering the Best Fit line.</p>
+        <div class="formula-cost">J(m, b) = 1/2n Σ (yᵢ − (m·xᵢ + b))²</div>
+      </div>
+      <div class="cost-body" style="flex-direction: column; gap: 24px;">
+        <div class="cost-info" style="flex-direction: row; flex-wrap: wrap; gap: 32px;">
+          <div><strong>Slope (m):</strong> <span id="vCostSlope">0.00</span></div>
+          <div><strong>Intercept (b):</strong> <span id="vCostIntercept">0.50</span></div>
+          <div><strong>Cost J(m,b):</strong> <span id="vCostVal">0.000</span></div>
+        </div>
+        <p class="gd-hint" style="margin-top:0 !important">Watch how the cost forms a perfect parabola for each parameter. Click <strong>📉 Run Gradient Descent</strong> to watch the optimizer slide down these curves into the global minimum!</p>
+        
+        <div class="cost-graphs" style="display: flex; gap: 24px; flex-wrap: wrap; align-items: center; justify-content: center; margin-top: 12px;">
+          <div class="graph-box">
+            <h4 style="font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text2); margin-bottom: 12px; letter-spacing: 0.05em; text-transform: uppercase;">Cost vs Slope (m)</h4>
+            <canvas id="cost-m-cv" width="320" height="220" style="border-radius: 8px; background: var(--surface2);"></canvas>
+          </div>
+          <div class="graph-box">
+            <h4 style="font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text2); margin-bottom: 12px; letter-spacing: 0.05em; text-transform: uppercase;">Cost vs Intercept (b)</h4>
+            <canvas id="cost-b-cv" width="320" height="220" style="border-radius: 8px; background: var(--surface2);"></canvas>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -621,11 +728,13 @@
     sSlope.addEventListener('input', () => {
       userSlope = sSlope.value / 100;
       document.getElementById('lblSlope').textContent = userSlope.toFixed(2);
+      gdPath = [];
       draw();
     });
     sIntercept.addEventListener('input', () => {
       userIntercept = sIntercept.value / 100;
       document.getElementById('lblIntercept').textContent = userIntercept.toFixed(2);
+      gdPath = [];
       draw();
     });
 
@@ -674,6 +783,142 @@
       const r2 = tss > 0 ? 1 - (rss / tss) : 0;
 
       return { tss, rss, mss, r2, mn };
+    }
+
+    // --- Cost Map & Gradient Descent ---
+    const costCvM = document.getElementById('cost-m-cv');
+    const costCtxM = costCvM ? costCvM.getContext('2d') : null;
+    const costCvB = document.getElementById('cost-b-cv');
+    const costCtxB = costCvB ? costCvB.getContext('2d') : null;
+    const M_MIN = -2.0, M_MAX = 2.0;
+    const B_MIN = 0.0, B_MAX = 1.0;
+    let gdAnimId = null;
+    let gdPath = [];
+
+    function getCost(m, b) {
+      if (!pts || !pts.length) return 0;
+      let cost = 0;
+      for (let i = 0; i < pts.length; i++) {
+        const p = pts[i];
+        const yh = m * p.x + b;
+        cost += (p.y - yh) ** 2;
+      }
+      return cost / (2 * pts.length);
+    }
+
+    function generateCostMap() {} // Interface compatibility
+
+    function drawCostMap() {
+      if (!costCtxM || !costCtxB) return;
+      
+      const W = costCvM.width, H = costCvM.height, PAD = 24;
+
+      // Find global max cost at corners for fixed Y-axis scaling
+      let maxCostScale = Math.max(
+        getCost(M_MIN, B_MIN), getCost(M_MAX, B_MIN),
+        getCost(M_MIN, B_MAX), getCost(M_MAX, B_MAX)
+      ) * 1.05;
+      if (maxCostScale === 0) maxCostScale = 1;
+
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || !document.documentElement.hasAttribute('data-theme');
+      const gridC = isDark ? '#2a3a50' : 'rgba(0,0,0,0.15)';
+      const lineC = isDark ? '#bc8cff' : '#2563c7';
+
+      function drawGraph(ctx, isM) {
+        ctx.clearRect(0, 0, W, H);
+        
+        ctx.strokeStyle = gridC;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(PAD, 0); ctx.lineTo(PAD, H-PAD); ctx.lineTo(W, H-PAD);
+        ctx.stroke();
+
+        // Parabola
+        ctx.beginPath();
+        ctx.strokeStyle = lineC;
+        ctx.lineWidth = 2.5;
+        
+        for (let i = 0; i <= W - PAD; i++) {
+          const frac = i / (W - PAD);
+          const x = PAD + i;
+          let m_val = userSlope, b_val = userIntercept;
+          
+          if (isM) m_val = M_MIN + frac * (M_MAX - M_MIN);
+          else     b_val = B_MIN + frac * (B_MAX - B_MIN);
+
+          const c = getCost(m_val, b_val);
+          const y = (H-PAD) - (c / maxCostScale) * (H-PAD);
+
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Dot
+        const c = getCost(userSlope, userIntercept);
+        const curPx = PAD + (isM ? (userSlope - M_MIN)/(M_MAX - M_MIN) : (userIntercept - B_MIN)/(B_MAX - B_MIN)) * (W-PAD);
+        const curPy = (H-PAD) - (c / maxCostScale) * (H-PAD);
+        
+        ctx.beginPath();
+        ctx.arc(curPx, curPy, 6, 0, Math.PI*2);
+        ctx.fillStyle = '#f85149';
+        ctx.fill();
+        ctx.strokeStyle = isDark ? '#fff' : '#000';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      drawGraph(costCtxM, true);
+      drawGraph(costCtxB, false);
+
+      const elM = document.getElementById('vCostSlope');
+      if (elM) {
+        elM.textContent = userSlope.toFixed(3);
+        document.getElementById('vCostIntercept').textContent = userIntercept.toFixed(3);
+        document.getElementById('vCostVal').textContent = getCost(userSlope, userIntercept).toFixed(4);
+      }
+    }
+
+    function runGD() {
+      if (gdAnimId) cancelAnimationFrame(gdAnimId);
+      gdPath = []; // reset path
+      const lr = 0.8; // Learning rate
+
+      function step() {
+        if (!pts.length) return;
+        let dm = 0, db = 0;
+        pts.forEach(p => {
+          const yh = userSlope * p.x + userIntercept;
+          const err = yh - p.y;
+          dm += err * p.x;
+          db += err;
+        });
+        dm /= pts.length;
+        db /= pts.length;
+
+        userSlope -= lr * dm;
+        userIntercept -= lr * db;
+
+        // Clamp
+        userSlope = Math.max(M_MIN, Math.min(M_MAX, userSlope));
+        userIntercept = Math.max(B_MIN, Math.min(B_MAX, userIntercept));
+
+        // Update UI
+        sSlope.value = userSlope * 100;
+        sIntercept.value = userIntercept * 100;
+        document.getElementById('lblSlope').textContent = userSlope.toFixed(2);
+        document.getElementById('lblIntercept').textContent = userIntercept.toFixed(2);
+        
+        gdPath.push({ m: userSlope, b: userIntercept });
+        draw();
+
+        if ((Math.abs(dm) > 0.0005 || Math.abs(db) > 0.0005) && gdPath.length < 300) {
+          gdAnimId = requestAnimationFrame(step);
+        } else {
+          gdAnimId = null;
+        }
+      }
+      step();
     }
 
     // Draw
@@ -835,6 +1080,7 @@
 
       // Update stats panel
       updateStats(st);
+      if (typeof drawCostMap === 'function') drawCostMap();
     }
 
     function updateStats(st) {
@@ -911,6 +1157,8 @@
       document.getElementById('lblSlope').textContent = '0.00';
       document.getElementById('lblIntercept').textContent = '0.50';
       document.getElementById('revealBar').style.display = 'none';
+      if (typeof generateCostMap === 'function') generateCostMap();
+      gdPath = [];
       draw();
     }
 
@@ -1023,6 +1271,7 @@
     });
 
     cv.addEventListener('mouseup', () => {
+      if (dragIdx >= 0 && typeof generateCostMap === 'function') generateCostMap();
       dragIdx = -1;
       dragLineEnd = null;
       cv.classList.remove('dragging');
