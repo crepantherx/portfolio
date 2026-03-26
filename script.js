@@ -691,8 +691,15 @@ function toggleTheme(isDark) {
 
   // Update iframe if it's open
   const iframe = document.getElementById('article-iframe');
-  if (iframe && iframe.contentDocument && iframe.contentDocument.documentElement) {
-    iframe.contentDocument.documentElement.setAttribute("data-theme", theme);
+  if (iframe) {
+    if (iframe.contentWindow) {
+      iframe.contentWindow.postMessage({ type: 'THEME_CHANGE', theme: theme }, '*');
+    }
+    try {
+      if (iframe.contentDocument && iframe.contentDocument.documentElement) {
+        iframe.contentDocument.documentElement.setAttribute("data-theme", theme);
+      }
+    } catch(e) {}
   }
 }
 
@@ -826,15 +833,15 @@ function showArticleDetail(articleId) {
   const iframe = document.getElementById('article-iframe');
   
   if (articleId === 'roc-pr-explorer') {
+    iframe.src = '';
     const template = document.getElementById('article-content-template');
     if (template) {
       iframe.srcdoc = template.innerHTML;
     }
   } else if (articleId === 'r-squared') {
-    const template = document.getElementById('article-rsquared-template');
-    if (template) {
-      iframe.srcdoc = template.innerHTML;
-    }
+    iframe.removeAttribute('srcdoc');
+    const currentTheme = document.body.getAttribute('data-theme') || 'light';
+    iframe.src = 'linear_regression.html?theme=' + currentTheme;
   }
   
   modal.classList.add('active');
@@ -849,6 +856,7 @@ function closeArticleModal() {
   
   // Clear iframe to release resources
   iframe.srcdoc = '';
+  iframe.removeAttribute('src');
   
   modal.classList.remove('active');
   setTimeout(() => {

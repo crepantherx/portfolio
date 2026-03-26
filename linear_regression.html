@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What Do Regression Metrics Tells?</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <script>
+    // Sync theme with parent via URL property or postMessage
+    const params = new URLSearchParams(window.location.search);
+    const themeParams = params.get('theme');
+    if (themeParams) {
+      document.documentElement.setAttribute('data-theme', themeParams);
+    } else {
+      try {
+        if (window.parent && window.parent.document && window.parent.document.body.hasAttribute('data-theme')) {
+          document.documentElement.setAttribute('data-theme', window.parent.document.body.getAttribute('data-theme'));
+        }
+      } catch (e) {
+        // Cross-origin fallback gracefully
+      }
+    }
+
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'THEME_CHANGE') {
+        document.documentElement.setAttribute('data-theme', event.data.theme);
+        if (typeof draw === 'function') draw(); // redraw canvas
+      }
+    });
+
+    try {
+      if (window.parent && window.parent.document && window.parent.document.body) {
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((m) => {
+            if (m.attributeName === 'data-theme' && window.parent.document.body.hasAttribute('data-theme')) {
+              document.documentElement.setAttribute('data-theme', window.parent.document.body.getAttribute('data-theme'));
+              if (typeof draw === 'function') draw(); // redraw canvas on theme change
+            }
+          });
+        });
+        observer.observe(window.parent.document.body, { attributes: true });
+      }
+    } catch (e) { }
+  </script>
+  <style>
+    :root {
+      --bg: #f5f2ed;
+      --surface: #ffffff;
+      --surface2: #eeeae3;
+      --border: rgba(0, 0, 0, 0.08);
+      --text: #1a1714;
+      --text2: #6b6560;
+      --text3: #9e9890;
+      --muted: #6b6560;
+      --accent: #2563c7;
+      --user: #f0883e;
+      --reg: #3fb950;
+      --mean: #e3b341;
+      --tss: #bc8cff;
+      --rss: #f85149;
+      --mss: #3fb950;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #1c2330;
+      --border: #21293a;
+      --text: #e6edf3;
+      --text2: #a0a0a0;
+      --text3: #777777;
+      --muted: #5a6a82;
+      --accent: #4493f8;
+      --user: #f0883e;
+      --reg: #3fb950;
+      --mean: #e3b341;
+      --tss: #bc8cff;
+      --rss: #f85149;
+      --mss: #3fb950;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 20px 48px;
+    }
+
+    .page {
+      max-width: 1060px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      margin-bottom: 28px;
+    }
+
+    .header h1 {
+      font-family: 'Instrument Serif', serif;
+      font-size: 36px;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    /* Main layout */
+    .main {
+      display: grid;
+      grid-template-columns: 1fr 260px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    /* Canvas card */
+    .canvas-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* Sliders section */
+    .sliders {
+      padding: 16px 20px 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .slider-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 24px;
+    }
+
+    .slider-group label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 7px;
+      letter-spacing: 0.05em;
+    }
+
+    .slider-group label span {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      background: var(--surface2);
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--user);
+      border: 2px solid var(--bg);
+      cursor: grab;
+      transition: transform .1s;
+    }
+
+    input[type=range]::-webkit-slider-thumb:active {
+      transform: scale(1.2);
+      cursor: grabbing;
+    }
+
+    .btns {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 7px 16px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: all .15s;
+    }
+
+    .btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn.go {
+      background: var(--reg);
+      border-color: var(--reg);
+      color: #000;
+      font-weight: 600;
+    }
+
+    .btn.go:hover {
+      background: #4fd860;
+    }
+
+    .btn.reset:hover {
+      border-color: var(--rss);
+      color: var(--rss);
+    }
+
+    /* Stats panel */
+    .stats-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .stat-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-block::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      border-radius: 10px 0 0 10px;
+    }
+
+    .stat-block.tss::after {
+      background: var(--tss);
+    }
+
+    .stat-block.rss::after {
+      background: var(--rss);
+    }
+
+    .stat-block.mss::after {
+      background: var(--mss);
+    }
+
+    .stat-block.r2 {
+      border-color: var(--accent);
+    }
+
+    .stat-block.r2::after {
+      background: var(--accent);
+    }
+
+    .stat-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
+    }
+
+    .stat-key {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+    }
+
+    .stat-block.tss .stat-key {
+      color: var(--tss);
+    }
+
+    .stat-block.rss .stat-key {
+      color: var(--rss);
+    }
+
+    .stat-block.mss .stat-key {
+      color: var(--mss);
+    }
+
+    .stat-block.r2 .stat-key {
+      color: var(--accent);
+    }
+
+    .stat-val {
+      font-family: 'DM Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .stat-block.tss .stat-val {
+      color: var(--tss);
+    }
+
+    .stat-block.rss .stat-val {
+      color: var(--rss);
+    }
+
+    .stat-block.mss .stat-val {
+      color: var(--mss);
+    }
+
+    .stat-block.r2 .stat-val {
+      color: var(--accent);
+    }
+
+    .stat-desc {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    /* R2 mini bar */
+    .r2-bar {
+      height: 5px;
+      background: var(--surface2);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .r2-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width .25s ease, background .25s;
+    }
+
+    /* Score tag for R2 */
+    .r2-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 20px;
+      margin-top: 7px;
+      display: inline-block;
+    }
+
+    /* Formula hint */
+    .formula-hint {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      background: var(--surface2);
+      padding: 8px 10px;
+      border-radius: 7px;
+      line-height: 1.8;
+      margin-top: 4px;
+    }
+
+    /* Reveal answer btn */
+    .reveal-bar {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .reveal-bar .msg {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-style: italic;
+      flex: 1;
+    }
+
+    @media(max-width:740px) {
+      .main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      opacity: 1;
+    }
+
+    canvas {
+      cursor: crosshair;
+    }
+
+    canvas.dragging {
+      cursor: grabbing;
+    }
+
+    /* Article Styles appended below Linear Regression Content */
+    .article-body {
+      max-width: 720px;
+      margin: 60px auto 0;
+      padding: 0 24px 80px;
+    }
+
+    .article-header {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+      margin-bottom: 24px;
+    }
+
+    .article-header h2 {
+      font-family: 'Instrument Serif', serif;
+      font-size: 32px;
+      font-weight: 400;
+      margin-bottom: 8px;
+    }
+
+    .byline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text3);
+      margin-bottom: 32px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .article-body p {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--text2);
+      margin-bottom: 24px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .article-body blockquote {
+      font-family: 'Instrument Serif', serif;
+      font-size: 20px;
+      color: var(--text);
+      border-left: 2px solid var(--border);
+      padding-left: 16px;
+      margin: 24px 0;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="header">
+      <h1>What Do Regression Metrics Tells?</h1>
+      <p>Adjust the line using sliders. Watch TSS, RSS, MSS and R² update live. Then reveal the optimal fit.</p>
+    </div>
+
+    <div class="main">
+      <!-- LEFT: canvas + sliders -->
+      <div class="canvas-card">
+        <canvas id="cv" width="780" height="480"></canvas>
+
+        <div class="sliders">
+          <div class="slider-row">
+            <div class="slider-group">
+              <label>TILT (slope) <span id="lblSlope">0.00</span></label>
+              <input type="range" id="sSlope" min="-200" max="200" value="0" step="1">
+            </div>
+            <div class="slider-group">
+              <label>SHIFT UP/DOWN <span id="lblIntercept">0.50</span></label>
+              <input type="range" id="sIntercept" min="0" max="100" value="50" step="1">
+            </div>
+          </div>
+
+          <div class="btns">
+            <button class="btn" onclick="toggleLayer('tss')">TSS</button>
+            <button class="btn" onclick="toggleLayer('rss')">RSS</button>
+            <button class="btn" onclick="toggleLayer('mss')">MSS</button>
+            <button class="btn" onclick="newPoints()">🎲 New Random Points</button>
+            <button class="btn" onclick="loadPreset('linear')">📈 Linear</button>
+            <button class="btn" onclick="loadPreset('scattered')">🌪 Scattered</button>
+            <button class="btn go" id="revealBtn" onclick="revealAnswer()">✦ Show Best Fit</button>
+            <button class="btn reset" onclick="resetLine()">↩ Reset Line</button>
+
+          </div>
+        </div>
+
+        <div class="reveal-bar" id="revealBar" style="display:none">
+          <div class="msg" id="revealMsg"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: live stats -->
+      <div class="stats-panel">
+
+        <div class="stat-block tss">
+          <div class="stat-top">
+            <span class="stat-key">TSS</span>
+          </div>
+          <div class="stat-val" id="vTSS">—</div>
+          <div class="stat-desc">Total Sum of Squares<br>Σ(yᵢ − ȳ)² — total spread of data</div>
+        </div>
+
+        <div class="stat-block rss">
+          <div class="stat-top">
+            <span class="stat-key">RSS</span>
+          </div>
+          <div class="stat-val" id="vRSS">—</div>
+          <div class="stat-desc">Residual Sum of Squares<br>Σ(yᵢ − ŷᵢ)² — unexplained error</div>
+        </div>
+
+        <div class="stat-block mss">
+          <div class="stat-top">
+            <span class="stat-key">MSS</span>
+          </div>
+          <div class="stat-val" id="vMSS">—</div>
+          <div class="stat-desc">Model Sum of Squares<br>Σ(ŷᵢ − ȳ)² — what line explains<br>TSS = MSS + RSS ✓</div>
+        </div>
+
+        <div class="stat-block r2">
+          <div class="stat-top">
+            <span class="stat-key">R²</span>
+          </div>
+          <div class="stat-val" id="vR2">—</div>
+          <div class="stat-desc">MSS / TSS — fraction explained</div>
+          <div class="r2-bar">
+            <div class="r2-bar-fill" id="r2Fill" style="width:0%"></div>
+          </div>
+          <div class="r2-tag" id="r2Tag" style="display:none"></div>
+        </div>
+
+        <div class="formula-hint">
+          TSS = MSS + RSS<br>
+          R² = MSS / TSS<br>
+          R² = 1 − RSS / TSS<br>
+          <span style="color:#3fb950">R²→1 = perfect fit</span><br>
+          <span style="color:#f85149">R²→0 = no fit</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- INSERT ARTICLE HERE -->
+    <div class="article-body">
+      <div class="article-header">
+        <h2>What exactly R-squared Tells ?</h2>
+      </div>
+      <div class="byline">
+        <span>Sudhir Singh</span> &middot; <span>1 min read</span> &middot; <span>Jul 15, 2025</span>
+      </div>
+      <p>Imagine if you try to draw a line on you data points.</p>
+      <p>The more the points are scattered the more harder it is to find some fundamental curves/lines so that it could
+        fit the line.</p>
+      <p>How can you say, you drawn slightly wrong line ?<br>if your line slightly misses the data point</p>
+      <p>The more closer the points are to the line, the better your line is. intuitively the more points appear more
+        distant from your line, the badder your lines is.</p>
+      <p>your brain can do draw a approximation line very neatly for few point, but cannot do for a lot of points.</p>
+      <p>But how to quantify this concept ?<br>variance does exactly the same thing</p>
+      <p>What if Linear Regression Algorithm was not there ?<br>You would have tried to find the mean of data point, and
+        then simply draw a line horizontal to x-axis.</p>
+      <p>When Linear Regression creates a new approximate line<br>we try to find</p>
+      <blockquote>Does this new regression line fits data better than mean line ?<br>This is what exactly R-squared
+        tells.</blockquote>
+    </div>
+  </div>
+
+  <script>
+    function toggleLayer(key) {
+      layers[key] = !layers[key];
+
+      const btn = document.querySelector(`[onclick="toggleLayer('${key}')"]`);
+      if (btn) {
+        if (layers[key]) {
+          btn.style.opacity = 1;
+          btn.style.borderColor = 'var(--accent)';
+          btn.style.color = 'var(--accent)';
+        } else {
+          btn.style.opacity = 0.4;
+          btn.style.borderColor = 'var(--border)';
+          btn.style.color = 'var(--text)';
+        }
+      }
+
+      draw();
+    }
+
+    const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+    const W = 780, H = 480, PAD = 56;
+    const DW = W - 2 * PAD, DH = H - 2 * PAD;
+
+    let pts = [];
+    let dragIdx = -1;
+    let dragLineEnd = null; // 'start' or 'end'
+    let layers = { tss: false, rss: false, mss: false };
+    let userSlope = 0, userIntercept = 0.5;
+    let revealed = false, regLine = null;
+
+    // Sliders
+    const sSlope = document.getElementById('sSlope');
+    const sIntercept = document.getElementById('sIntercept');
+
+    sSlope.addEventListener('input', () => {
+      userSlope = sSlope.value / 100;
+      document.getElementById('lblSlope').textContent = userSlope.toFixed(2);
+      draw();
+    });
+    sIntercept.addEventListener('input', () => {
+      userIntercept = sIntercept.value / 100;
+      document.getElementById('lblIntercept').textContent = userIntercept.toFixed(2);
+      draw();
+    });
+
+    // Coords
+    const toC = (x, y) => ({ cx: PAD + x * DW, cy: H - PAD - y * DH });
+    const frC = (cx, cy) => ({ x: (cx - PAD) / DW, y: (H - PAD - cy) / DH });
+    const cl = (v, a, b) => Math.max(a, Math.min(b, v));
+
+    // Math
+    function linReg(p) {
+      const n = p.length;
+      const mx = p.reduce((s, v) => s + v.x, 0) / n, my = p.reduce((s, v) => s + v.y, 0) / n;
+      let num = 0, den = 0;
+      p.forEach(v => { num += (v.x - mx) * (v.y - my); den += (v.x - mx) ** 2; });
+      if (!den) return null;
+      const s = num / den, i = my - s * mx;
+      return { s, i, mx, my };
+    }
+
+    function getMousePos(e) {
+      const rect = cv.getBoundingClientRect();
+      const scaleX = W / rect.width;
+      const scaleY = H / rect.height;
+
+      return {
+        cx: (e.clientX - rect.left) * scaleX,
+        cy: (e.clientY - rect.top) * scaleY
+      };
+    }
+
+    function calcStats(p, slope, intercept) {
+      if (!p.length) return null;
+
+      const mn = p.reduce((s, v) => s + v.y, 0) / p.length;
+
+      let tss = 0, rss = 0;
+
+      p.forEach(v => {
+        const yh = slope * v.x + intercept;
+        tss += (v.y - mn) ** 2;
+        rss += (v.y - yh) ** 2;
+      });
+
+      // ✅ FIX: enforce identity
+      const mss = tss - rss;
+
+      // ✅ allow negative R² (important!)
+      const r2 = tss > 0 ? 1 - (rss / tss) : 0;
+
+      return { tss, rss, mss, r2, mn };
+    }
+
+    // Draw
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      // Grid
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || !document.documentElement.hasAttribute('data-theme');
+      ctx.strokeStyle = isDark ? '#1a2233' : 'rgba(0,0,0,0.05)'; ctx.lineWidth = 1;
+      for (let i = 0; i <= 8; i++) {
+        const x = PAD + i * DW / 8, y = PAD + i * DH / 8;
+        ctx.beginPath(); ctx.moveTo(x, PAD); ctx.lineTo(x, H - PAD); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(PAD, y); ctx.lineTo(W - PAD, y); ctx.stroke();
+      }
+
+      // Axis
+      ctx.strokeStyle = isDark ? '#2a3a50' : 'rgba(0,0,0,0.15)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(PAD, PAD); ctx.lineTo(PAD, H - PAD); ctx.lineTo(W - PAD, H - PAD); ctx.stroke();
+      ctx.fillStyle = isDark ? '#3a4e68' : '#9e9890'; ctx.font = '13px "DM Mono"';
+      ctx.fillText('x', W - PAD + 10, H - PAD + 5); ctx.fillText('y', PAD - 5, PAD - 12);
+
+      if (!pts.length) {
+        ctx.fillStyle = isDark ? '#2a3a50' : '#9e9890'; ctx.font = '14px "DM Sans"'; ctx.textAlign = 'center';
+        ctx.fillText('Press "New Random Points" or pick a preset', W / 2, H / 2);
+        ctx.textAlign = 'left'; return;
+      }
+
+      const st = calcStats(pts, userSlope, userIntercept);
+
+      // Mean line
+      const { cy: mcy } = toC(0, st.mn);
+      ctx.save(); ctx.setLineDash([7, 5]); ctx.strokeStyle = '#e3b341'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.6;
+      ctx.beginPath(); ctx.moveTo(PAD, mcy); ctx.lineTo(W - PAD, mcy); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha = 1;
+      ctx.fillStyle = '#e3b341'; ctx.font = '10px "DM Mono"';
+      ctx.fillText('ȳ', W - PAD + 6, mcy + 4); ctx.restore();
+
+      // TSS lines (faint, always visible)
+      if (layers.tss) {
+        pts.forEach(p => {
+          const { cx, cy } = toC(p.x, p.y), { cy: mc } = toC(p.x, st.mn);
+          ctx.save();
+          ctx.strokeStyle = '#bc8cff';
+          ctx.lineWidth = 1;
+          ctx.globalAlpha = 0.2;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(cx, mc);
+          ctx.stroke();
+          ctx.restore();
+        });
+      }
+
+      // Residuals for user line (RSS) - colored by size
+      if (layers.rss) {
+        pts.forEach(p => {
+          const yh = userSlope * p.x + userIntercept;
+          const { cx, cy } = toC(p.x, p.y), { cy: rc } = toC(p.x, yh);
+          const res = Math.abs(p.y - yh);
+          const alpha = cl(0.3 + res * 1.2, 0.3, 0.9);
+
+          ctx.save();
+          ctx.strokeStyle = '#f85149';
+          ctx.lineWidth = 1.5;
+          ctx.globalAlpha = alpha;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(cx, rc);
+          ctx.stroke();
+          ctx.restore();
+        });
+      }
+
+      if (layers.mss) {
+        pts.forEach(p => {
+          const yh = userSlope * p.x + userIntercept;
+          const { cx, cy: hatY } = toC(p.x, yh);
+          const { cy: meanY } = toC(p.x, st.mn);
+
+          ctx.save();
+          ctx.strokeStyle = '#3fb950';
+          ctx.lineWidth = 1.5;
+          ctx.globalAlpha = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(cx, hatY);
+          ctx.lineTo(cx, meanY);
+          ctx.stroke();
+          ctx.restore();
+        });
+      }
+
+
+      // Revealed: optimal regression line
+      if (revealed && regLine) {
+        const c0 = toC(0, regLine.i), c1 = toC(1, regLine.s + regLine.i);
+        ctx.save(); ctx.strokeStyle = '#3fb950'; ctx.lineWidth = 2.5; ctx.shadowColor = '#3fb950'; ctx.shadowBlur = 8;
+        ctx.beginPath(); ctx.moveTo(c0.cx, c0.cy); ctx.lineTo(c1.cx, c1.cy); ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#3fb950'; ctx.font = '500 11px "DM Mono"';
+        ctx.fillText('best fit ŷ', c1.cx - 68, c1.cy - 10); ctx.restore();
+      }
+
+      // User line
+      const c0u = toC(0, userIntercept), c1u = toC(1, userSlope + userIntercept);
+      const dx = c1u.cx - c0u.cx, dy = c1u.cy - c0u.cy;
+      const tStart = (PAD - c0u.cx) / dx, tEnd = (W - PAD - c0u.cx) / dx;
+      ctx.save();
+      if (revealed) { ctx.globalAlpha = 0.45; ctx.setLineDash([5, 4]); }
+      ctx.strokeStyle = '#f0883e'; ctx.lineWidth = 2.5; ctx.shadowColor = '#f0883e'; ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.moveTo(PAD, c0u.cy + tStart * dy); ctx.lineTo(W - PAD, c0u.cy + tEnd * dy);
+      ctx.stroke(); ctx.shadowBlur = 0; ctx.setLineDash([]); ctx.globalAlpha = 1;
+      ctx.fillStyle = '#f0883e'; ctx.font = '500 11px "DM Mono"';
+      if (!revealed) ctx.fillText('your line', c1u.cx + 10, c1u.cy - 8);
+      ctx.restore();
+
+      // --- draw draggable endpoints ---
+      const start = toC(0, userIntercept);
+      const end = toC(1, userSlope + userIntercept);
+
+      ctx.save();
+      ctx.fillStyle = '#f0883e';
+
+      // start point
+      ctx.beginPath();
+      ctx.arc(start.cx, start.cy, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // end point
+      ctx.beginPath();
+      ctx.arc(end.cx, end.cy, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+
+      // Data points
+      pts.forEach(p => {
+        const { cx, cy } = toC(p.x, p.y);
+        ctx.save();
+        ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+        ctx.fillStyle = isDark ? '#0d1117' : '#ffffff'; ctx.fill();
+        ctx.strokeStyle = isDark ? '#c9d1d9' : '#1a1714'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = isDark ? '#c9d1d9' : '#1a1714'; ctx.fill();
+        ctx.restore();
+      });
+
+      // Update stats panel
+      updateStats(st);
+    }
+
+    function updateStats(st) {
+      if (!st) return;
+      document.getElementById('vTSS').textContent = st.tss.toFixed(3);
+      document.getElementById('vRSS').textContent = st.rss.toFixed(3);
+      document.getElementById('vMSS').textContent = st.mss.toFixed(3);
+      document.getElementById('vR2').textContent = st.r2.toFixed(3);
+
+      const pct = st.r2 * 100;
+      const fill = document.getElementById('r2Fill');
+      fill.style.width = pct.toFixed(1) + '%';
+
+      let bg, label;
+      if (pct >= 85) { bg = '#3fb950'; label = 'Excellent'; }
+      else if (pct >= 65) { bg = '#e3b341'; label = 'Good'; }
+      else if (pct >= 40) { bg = '#f0883e'; label = 'Moderate'; }
+      else { bg = '#f85149'; label = 'Weak'; }
+      fill.style.background = bg;
+
+      const tag = document.getElementById('r2Tag');
+      tag.style.display = 'inline-block';
+      tag.style.background = bg + '22';
+      tag.style.color = bg;
+      tag.style.border = `1px solid ${bg}44`;
+      tag.textContent = label + ' — ' + pct.toFixed(1) + '%';
+    }
+
+    // Reveal best fit
+    function revealAnswer() {
+      if (!pts.length) return;
+      revealed = true;
+      regLine = linReg(pts);
+      if (regLine) {
+        const stReg = calcStats(pts, regLine.s, regLine.i);
+        const stUser = calcStats(pts, userSlope, userIntercept);
+        const diff = (stReg.r2 - stUser.r2);
+        let msg;
+        if (diff <= 0.01) msg = '🎯 Perfect! Your line matches the optimal fit almost exactly.';
+        else if (diff <= 0.07) msg = `👍 Very close! The optimal line is only ${diff.toFixed(3)} better in R².`;
+        else if (diff <= 0.2) msg = `🤔 The optimal line beats yours by ${diff.toFixed(3)} in R² — subtle but meaningful.`;
+        else msg = `📉 The optimal line is ${diff.toFixed(3)} better — this is why we need the algorithm!`;
+
+        const bar = document.getElementById('revealBar');
+        bar.style.display = 'flex';
+        document.getElementById('revealMsg').textContent = msg;
+
+        // Snap sliders to optimal
+        setTimeout(() => {
+          const steps = 40;
+          let t = 0;
+          const startS = userSlope, startI = userIntercept;
+          const timer = setInterval(() => {
+            t++;
+            const p = t / steps;
+            const ease = 1 - Math.pow(1 - p, 3);
+            userSlope = startS + (regLine.s - startS) * ease;
+            userIntercept = startI + (regLine.i - startI) * ease;
+            sSlope.value = (userSlope * 100).toFixed(0);
+            sIntercept.value = (userIntercept * 100).toFixed(0);
+            document.getElementById('lblSlope').textContent = userSlope.toFixed(2);
+            document.getElementById('lblIntercept').textContent = userIntercept.toFixed(2);
+            draw();
+            if (t >= steps) clearInterval(timer);
+          }, 18);
+        }, 200);
+      }
+    }
+
+    function resetLine() {
+      revealed = false; regLine = null;
+      userSlope = 0; userIntercept = 0.5;
+      sSlope.value = 0; sIntercept.value = 50;
+      document.getElementById('lblSlope').textContent = '0.00';
+      document.getElementById('lblIntercept').textContent = '0.50';
+      document.getElementById('revealBar').style.display = 'none';
+      draw();
+    }
+
+    function newPoints() {
+      revealed = false; regLine = null;
+      pts = [];
+      const n = 10 + Math.floor(Math.random() * 6);
+      for (let i = 0; i < n; i++) pts.push({ x: 0.04 + Math.random() * 0.92, y: 0.04 + Math.random() * 0.92 });
+      resetLine();
+    }
+
+    function loadPreset(t) {
+      revealed = false; regLine = null; pts = [];
+      if (t === 'linear') {
+        [[.08, .13], [.17, .22], [.27, .31], [.35, .40], [.43, .48], [.51, .55], [.60, .63], [.69, .71], [.77, .80], [.86, .87], [.94, .93]]
+          .forEach(([x, y]) => pts.push({ x, y: y + (Math.random() - .5) * .07 }));
+      } else {
+        for (let i = 0; i < 13; i++) pts.push({ x: .04 + Math.random() * .92, y: .04 + Math.random() * .92 });
+      }
+      resetLine();
+    }
+
+    loadPreset('linear');
+    ['tss', 'rss', 'mss'].forEach(key => {
+      const btn = document.querySelector(`[onclick="toggleLayer('${key}')"]`);
+      if (btn) btn.style.opacity = 0.4;
+    });
+
+    // --- Dragging support ---
+
+    cv.addEventListener('mousedown', (e) => {
+      const { cx, cy } = getMousePos(e);
+
+      // --- 1. Check line endpoints FIRST ---
+      const start = toC(0, userIntercept);
+      const end = toC(1, userSlope + userIntercept);
+
+      if (Math.hypot(cx - start.cx, cy - start.cy) < 12) {
+        dragLineEnd = 'start';
+        cv.classList.add('dragging');
+        return;
+      }
+
+      if (Math.hypot(cx - end.cx, cy - end.cy) < 12) {
+        dragLineEnd = 'end';
+        cv.classList.add('dragging');
+        return;
+      }
+
+      // --- 2. Then check points ---
+      for (let i = 0; i < pts.length; i++) {
+        const { cx: px, cy: py } = toC(pts[i].x, pts[i].y);
+        if (Math.hypot(cx - px, cy - py) < 10) {
+          dragIdx = i;
+          cv.classList.add('dragging');
+          return;
+        }
+      }
+    });
+
+    cv.addEventListener('mousemove', (e) => {
+      const { cx, cy } = getMousePos(e);
+
+      // --- Dragging LINE ---
+      if (dragLineEnd) {
+        const p = frC(cx, cy);
+
+        if (dragLineEnd === 'start') {
+          const y0 = cl(p.y, 0, 1);          // new intercept
+          const y1 = userSlope + userIntercept; // keep end fixed
+
+          userIntercept = y0;
+          userSlope = y1 - y0;
+        } else if (dragLineEnd === 'end') {
+          const y1 = cl(p.y, 0, 1);
+          userSlope = y1 - userIntercept;
+        }
+
+        // sync sliders
+        sSlope.value = (userSlope * 100).toFixed(0);
+        sIntercept.value = (userIntercept * 100).toFixed(0);
+        document.getElementById('lblSlope').textContent = userSlope.toFixed(2);
+        document.getElementById('lblIntercept').textContent = userIntercept.toFixed(2);
+
+        draw();
+        return;
+      }
+
+      // --- Dragging POINT ---
+      if (dragIdx >= 0) {
+        const p = frC(cx, cy);
+        pts[dragIdx] = {
+          x: cl(p.x, 0, 1),
+          y: cl(p.y, 0, 1)
+        };
+        draw();
+      }
+
+      let hovering = false;
+
+      const start = toC(0, userIntercept);
+      const end = toC(1, userSlope + userIntercept);
+
+      if (Math.hypot(cx - start.cx, cy - start.cy) < 12 ||
+        Math.hypot(cx - end.cx, cy - end.cy) < 12) {
+        hovering = true;
+      }
+
+      cv.style.cursor = hovering ? 'grab' : 'crosshair';
+    });
+
+    cv.addEventListener('mouseup', () => {
+      dragIdx = -1;
+      dragLineEnd = null;
+      cv.classList.remove('dragging');
+    });
+
+    cv.addEventListener('mouseleave', () => {
+      dragIdx = -1;
+      dragLineEnd = null;
+      cv.classList.remove('dragging');
+    });
+
+
+    cv.addEventListener('mouseup', () => {
+      dragIdx = -1;
+      cv.classList.remove('dragging');
+    });
+  </script>
+</body>
+
+</html>
