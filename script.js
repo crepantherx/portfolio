@@ -842,6 +842,10 @@ function showArticleDetail(articleId) {
     iframe.removeAttribute('srcdoc');
     const currentTheme = document.body.getAttribute('data-theme') || 'light';
     iframe.src = 'linear_regression.html?theme=' + currentTheme;
+  } else if (articleId === 'ml-optimizers') {
+    iframe.removeAttribute('srcdoc');
+    const currentTheme = document.body.getAttribute('data-theme') || 'light';
+    iframe.src = 'ml_optimizers.html?theme=' + currentTheme;
   }
   
   modal.classList.add('active');

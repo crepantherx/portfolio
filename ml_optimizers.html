@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Optimizers Visualizer - Detailed Port</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script>
+        // Theme synchronization logic
+        const params = new URLSearchParams(window.location.search);
+        const themeParams = params.get('theme');
+        if (themeParams) {
+            document.documentElement.setAttribute('data-theme', themeParams);
+        } else {
+            try {
+                if (window.parent && window.parent.document && window.parent.document.body.hasAttribute('data-theme')) {
+                    document.documentElement.setAttribute('data-theme', window.parent.document.body.getAttribute('data-theme'));
+                }
+            } catch (e) { }
+        }
+
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'THEME_CHANGE') {
+                document.documentElement.setAttribute('data-theme', event.data.theme);
+                if (typeof redraw === 'function') redraw(); 
+            }
+        });
+    </script>
+    <style>
+        :root {
+            --bg: #f5f2ed;
+            --surface: #ffffff;
+            --surface2: #eeeae3;
+            --border: rgba(0, 0, 0, 0.08);
+            --text: #1a1714;
+            --text2: #6b6560;
+            --muted: #6b6560;
+            --accent: #2563c7;
+            
+            --sgd: #E24B4A;
+            --momentum: #378ADD;
+            --adagrad: #1D9E75;
+            --rmsprop: #EF9F27;
+            --adam: #7F77DD;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #1c2330;
+            --border: #21293a;
+            --text: #e6edf3;
+            --text2: #a0a0a0;
+            --muted: #5a6a82;
+            --accent: #4493f8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); padding: 24px 20px; min-height: 100vh; }
+        .page { max-width: 1000px; margin: 0 auto; }
+        
+        .header { margin-bottom: 24px; }
+        .header h1 { font-family: 'Instrument Serif', serif; font-size: 34px; font-weight: 400; margin-bottom: 8px; }
+        .header p { font-size: 14px; color: var(--muted); }
+
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+        .tab-btn { 
+            padding: 8px 16px; font-size: 13px; border-radius: 6px; border: 1px solid var(--border); 
+            background: var(--surface); color: var(--text); cursor: pointer; transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif; font-weight: 500;
+        }
+        .tab-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+        .app-container {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+            padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        }
+
+        .controls-row { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text2); }
+        .row label { width: 140px; flex-shrink: 0; color: var(--muted); }
+        .val-display { width: 44px; text-align: right; font-weight: 500; color: var(--text); font-family: 'DM Mono', monospace; }
+        
+        input[type="range"] { flex: 1; accent-color: var(--accent); }
+        select { flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 13px; }
+
+        .btn-group { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .btn { 
+            padding: 8px 16px; font-size: 13px; border-radius: 6px; border: 1px solid var(--border); 
+            background: var(--surface2); color: var(--text); cursor: pointer; font-weight: 500; transition: opacity 0.2s;
+        }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+        .canvas-wrapper { position: relative; margin-bottom: 16px; }
+        canvas { background: var(--surface2); border-radius: 8px; display: block; width: 100%; height: auto; cursor: crosshair; }
+
+        .opt-picker { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+        .opt-btn { 
+            padding: 6px 13px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border); 
+            cursor: pointer; background: transparent; color: var(--text); font-weight: 400; transition: all 0.2s;
+        }
+        .opt-btn.active { color: white; border-color: transparent; }
+
+        .stats-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+        .stat-card { background: var(--surface2); border-radius: 8px; padding: 10px 12px; flex: 1; min-width: 140px; border: 1px solid var(--border); }
+        .stat-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .stat-body { font-size: 12px; color: var(--muted); line-height: 1.6; }
+        .stat-progress { margin-top: 6px; height: 5px; background: rgba(0,0,0,0.08); border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+
+        .info-card { max-width: 360px; }
+        
+        .article-body { max-width: 720px; margin: 64px auto; line-height: 1.7; font-size: 16px; color: var(--text2); }
+        .article-body h2 { font-family: 'Instrument Serif', serif; font-size: 28px; color: var(--text); margin: 40px 0 16px; }
+        .article-body p { margin-bottom: 20px; }
+        .article-body strong { color: var(--text); }
+        .article-body blockquote { border-left: 2px solid var(--accent); padding-left: 20px; font-style: italic; margin: 24px 0; color: var(--text); }
+        
+        #hint { font-size: 12px; color: var(--muted); margin-bottom: 8px; height: 18px; }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <header class="header">
+            <h1>Battle of the Optimizers</h1>
+            <p>A faithful port of the ML Optimizer visualizer, comparing SGD, Momentum, AdaGrad, RMSprop, and Adam.</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-multi" onclick="switchTab('multi')">Random Restarts (N attempts)</button>
+            <button class="tab-btn" id="tab-step" onclick="switchTab('step')">Step-by-step (single optimizer)</button>
+        </div>
+
+        <div class="app-container">
+            <div id="multi-controls">
+                <div class="controls-row">
+                    <div class="row">
+                        <label>Attempts (N)</label>
+                        <input type="range" id="n-range" min="1" max="30" value="10" step="1" oninput="updateN(this.value)">
+                        <span class="val-display" id="n-val">10</span>
+                    </div>
+                    <div class="row">
+                        <label>Learning rate</label>
+                        <input type="range" id="lr-range-multi" min="1" max="30" value="10" step="1" oninput="updateLR(this.value)">
+                        <span class="val-display" id="lr-val-multi">0.10</span>
+                    </div>
+                    <div class="row">
+                        <label>Landscape</label>
+                        <select id="landscape-multi" onchange="updateLandscape(this.value)">
+                            <option value="bumpy">Bumpy (local minima)</option>
+                            <option value="valley">Simple valley</option>
+                            <option value="ravine">Ravine</option>
+                            <option value="saddle">Saddle point</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn primary" id="run-multi-btn" onclick="runMulti()">Run simulation</button>
+                    <button class="btn" onclick="reset()">Reset</button>
+                </div>
+            </div>
+
+            <div id="step-controls" style="display: none;">
+                <div class="opt-picker" id="opt-picker">
+                    <!-- Dynamic -->
+                </div>
+                <div class="controls-row" style="margin-top: 10px;">
+                    <div class="row">
+                        <label>Learning rate</label>
+                        <input type="range" id="lr-range-step" min="1" max="30" value="10" step="1" oninput="updateLR(this.value)">
+                        <span class="val-display" id="lr-val-step">0.10</span>
+                    </div>
+                    <div class="row">
+                        <label>Landscape</label>
+                        <select id="landscape-step" onchange="updateLandscape(this.value)">
+                            <option value="bumpy">Bumpy (local minima)</option>
+                            <option value="valley">Simple valley</option>
+                            <option value="ravine">Ravine</option>
+                            <option value="saddle">Saddle point</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="font-size: 12px; color: var(--muted); margin-bottom: 8px;" id="step-hint">Click on the canvas to place a start point.</div>
+                <div class="btn-group">
+                    <button class="btn" id="step-btn" disabled onclick="doStep()">Step forward</button>
+                    <button class="btn" id="auto-btn" disabled onclick="toggleAuto()">Auto-run</button>
+                    <button class="btn" onclick="reset()">Reset</button>
+                </div>
+            </div>
+
+            <div class="canvas-wrapper">
+                <canvas id="canvas" width="700" height="280"></canvas>
+            </div>
+
+            <div id="stats-container" class="stats-grid">
+                <!-- Dynamic Stats Cards -->
+            </div>
+            
+            <div id="step-info-container" class="info-card" style="display: none;">
+                <!-- Dynamic Info Card -->
+            </div>
+        </div>
+
+        <article class="article-body">
+            <h2>Understanding Optimization</h2>
+            <p>Machine learning is essentially an optimization problem: we want to find the parameters that result in the smallest possible error (the "minimum" of the loss function).</p>
+            
+            <blockquote>Not all landscapes are easy to navigate. Bumpy regions can trap simple algorithms in "local minima," which are suboptimal solutions.</blockquote>
+            
+            <p><strong>SGD</strong> is the simplest approach, taking steps purely based on the current slope. <strong>Momentum</strong> adds a "velocity" term, helping the optimizer roll over small bumps. <strong>AdaGrad</strong> and <strong>RMSprop</strong> adapt the learning rate for each step based on the history of gradients.</p>
+            
+            <p><strong>Adam</strong> (Adaptive Moment Estimation) combines the best of both worlds—Momentum's velocity and RMSprop's adaptive scaling—making it the weapon of choice for deep learning practitioners worldwide.</p>
+        </article>
+    </div>
+
+    <script>
+        const OPTS = [
+            { id: "sgd",      label: "SGD",       color: "#E24B4A" },
+            { id: "momentum", label: "Momentum",  color: "#378ADD" },
+            { id: "adagrad",  label: "Adagrad",   color: "#1D9E75" },
+            { id: "rmsprop",  label: "RMSprop",   color: "#EF9F27" },
+            { id: "adam",     label: "Adam",      color: "#7F77DD" },
+        ];
+
+        const LANDSCAPES = {
+            bumpy:  (x) => 0.15 * x * x + 0.8 * Math.sin(3.5 * x) + 0.06 * x,
+            valley: (x) => 0.5 * x * x + 0.08 * Math.sin(4 * x),
+            ravine: (x) => 0.04 * x * x + 1.8 * Math.sin(0.8 * x + 0.5) * Math.exp(-0.04 * Math.abs(x)),
+            saddle: (x) => 0.6 * x * x - 0.4 * x - 0.4 * Math.sin(2 * x),
+        };
+
+        const W = 700, H = 280, PAD = { l: 46, r: 16, t: 34, b: 38 };
+
+        let mode = 'multi';
+        let landscapeKey = 'bumpy';
+        let lrCount = 10;
+        let populationN = 10;
+        let running = false;
+        let autoRunning = false;
+        let animId = null;
+        let autoInterval = null;
+        
+        let selectedOptId = 'sgd';
+        let startX = null;
+        let stepCount = 0;
+        let path = [];
+        let simState = null;
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Optimizer Step Logic
+        const STEP_FNS = {
+            sgd:      { init: x0 => ({ x: x0 }), step: (s, g, lr) => ({ x: s.x - lr * g }) },
+            momentum: { init: x0 => ({ x: x0, v: 0 }), step: (s, g, lr) => { const v = 0.85 * s.v - lr * g; return { x: s.x + v, v }; } },
+            adagrad:  { init: x0 => ({ x: x0, G: 0 }), step: (s, g, lr, t, eps) => { const G = s.G + g * g; return { x: s.x - (lr / Math.sqrt(G + eps)) * g, G }; } },
+            rmsprop:  { init: x0 => ({ x: x0, v: 0 }), step: (s, g, lr, t, eps) => { const v = 0.9 * s.v + 0.1 * g * g; return { x: s.x - (lr / Math.sqrt(v + eps)) * g, v }; } },
+            adam:     { init: x0 => ({ x: x0, m: 0, v: 0 }), step: (s, g, lr, t, eps) => {
+                const m = 0.9 * s.m + 0.1 * g, v = 0.999 * s.v + 0.001 * g * g;
+                const mh = m / (1 - Math.pow(0.9, t)), vh = v / (1 - Math.pow(0.999, t));
+                return { x: s.x - (lr / Math.sqrt(vh + eps)) * mh, m, v };
+            }},
+        };
+
+        function getLoss(x) { return LANDSCAPES[landscapeKey](x); }
+        function getGrad(x) { const h = 0.0001; return (getLoss(x + h) - getLoss(x - h)) / (2 * h); }
+        function clamp(x) { return Math.max(-5.2, Math.min(5.2, x)); }
+
+        function findGlobalMin() {
+            let best = Infinity, bestX = 0;
+            for (let i = -520; i <= 520; i++) {
+                const x = i / 100, y = getLoss(x);
+                if (y < best) { best = y; bestX = x; }
+            }
+            return { x: bestX, y: best };
+        }
+
+        function getLandscapeData() {
+            const domain = { min: -4.5, max: 4.5 };
+            const pts = [];
+            for (let i = 0; i <= 500; i++) {
+                const x = domain.min + (i / 500) * (domain.max - domain.min);
+                pts.push({ x, y: getLoss(x) });
+            }
+            const ys = pts.map(p => p.y);
+            const ymin = Math.min(...ys), ymax = Math.max(...ys);
+            const ypad = (ymax - ymin) * 0.22 + 0.2;
+            return { pts, ymin: ymin - ypad, ymax: ymax + ypad, domain };
+        }
+
+        const mapX = (x, domain) => PAD.l + (x - domain.min) / (domain.max - domain.min) * (W - PAD.l - PAD.r);
+        const mapY = (y, ymin, ymax) => PAD.t + (1 - (y - ymin) / (ymax - ymin)) * (H - PAD.t - PAD.b);
+
+        function drawBase(L) {
+            const style = getComputedStyle(document.documentElement);
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            
+            ctx.clearRect(0, 0, W, H);
+            
+            // Fill area under curve
+            ctx.beginPath();
+            L.pts.forEach((p, i) => { const cx = mapX(p.x, L.domain), cy = mapY(p.y, L.ymin, L.ymax); i === 0 ? ctx.moveTo(cx, cy) : ctx.lineTo(cx, cy); });
+            ctx.lineTo(mapX(L.pts[L.pts.length - 1].x, L.domain), H - PAD.b);
+            ctx.lineTo(mapX(L.pts[0].x, L.domain), H - PAD.b);
+            ctx.closePath(); 
+            ctx.fillStyle = isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)"; 
+            ctx.fill();
+
+            // Draw curve
+            ctx.beginPath();
+            L.pts.forEach((p, i) => { const cx = mapX(p.x, L.domain), cy = mapY(p.y, L.ymin, L.ymax); i === 0 ? ctx.moveTo(cx, cy) : ctx.lineTo(cx, cy); });
+            ctx.strokeStyle = isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)"; 
+            ctx.lineWidth = 2; 
+            ctx.stroke();
+
+            // Global Min Marker
+            const gm = findGlobalMin();
+            const gcx = mapX(gm.x, L.domain), gcy = mapY(gm.y, L.ymin, L.ymax);
+            ctx.beginPath(); ctx.arc(gcx, gcy, 6, 0, Math.PI * 2); ctx.fillStyle = "#3fb950"; ctx.fill();
+            ctx.fillStyle = "#3fb950"; ctx.font = "italic 11px sans-serif";
+            ctx.fillText("global min", gcx + 9, gcy + 4);
+
+            // X-Axis
+            ctx.strokeStyle = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)";
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(PAD.l, H - PAD.b); ctx.lineTo(W - PAD.r, H - PAD.b); ctx.stroke();
+            
+            ctx.fillStyle = isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)";
+            ctx.font = "11px Inter, sans-serif";
+            ctx.fillText("← parameter space →", W / 2 - 55, H - 10);
+        }
+
+        function redraw() {
+            const L = getLandscapeData();
+            drawBase(L);
+
+            if (mode === 'step') {
+                if (startX !== null) {
+                    const sx = mapX(startX, L.domain), sy = mapY(getLoss(startX), L.ymin, L.ymax);
+                    ctx.beginPath(); ctx.arc(sx, sy, 5, 0, Math.PI * 2); ctx.fillStyle = "rgba(0,0,0,0.35)"; ctx.fill();
+                    ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(sx, sy - 20); ctx.lineTo(sx, sy);
+                    ctx.strokeStyle = "rgba(0,0,0,0.3)"; ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]);
+                }
+                if (path.length > 1) {
+                    const opt = OPTS.find(o => o.id === selectedOptId);
+                    ctx.beginPath();
+                    path.forEach((p, i) => { const cx = mapX(p.x, L.domain), cy = mapY(p.y, L.ymin, L.ymax); i === 0 ? ctx.moveTo(cx, cy) : ctx.lineTo(cx, cy); });
+                    ctx.strokeStyle = opt.color; ctx.lineWidth = 2.5; ctx.stroke();
+                    const cur = path[path.length - 1];
+                    const cx = mapX(cur.x, L.domain), cy = mapY(cur.y, L.ymin, L.ymax);
+                    ctx.beginPath(); ctx.arc(cx, cy, 6, 0, Math.PI * 2); ctx.fillStyle = opt.color; ctx.fill();
+                    updateStepInfo(cur, opt);
+                }
+            }
+        }
+
+        // --- Multi Panel Logic ---
+        function runMulti() {
+            reset();
+            running = true;
+            document.getElementById('run-multi-btn').disabled = true;
+            
+            const count = populationN;
+            const lrVal = lrCount / 100;
+            const runs = Array.from({ length: count }, () => {
+                const x0 = Math.random() * 8.8 - 4.4;
+                const traces = {};
+                OPTS.forEach(opt => {
+                    let s = STEP_FNS[opt.id].init(x0);
+                    const tPath = [{ x: x0, y: getLoss(x0) }];
+                    for (let i = 0; i < 100; i++) {
+                        const g = getGrad(s.x);
+                        s = STEP_FNS[opt.id].step(s, g, lrVal, i + 1, 1e-8);
+                        s.x = clamp(s.x);
+                        tPath.push({ x: s.x, y: getLoss(s.x) });
+                    }
+                    traces[opt.id] = tPath;
+                });
+                return { x0, traces };
+            });
+
+            let step = 0;
+            const L = getLandscapeData();
+            const gm = findGlobalMin();
+
+            function frame() {
+                if (!running) return;
+                drawBase(L);
+                const gc = {};
+                OPTS.forEach(o => gc[o.id] = 0);
+
+                runs.forEach(run => {
+                    const sx = mapX(run.x0, L.domain), sy = mapY(getLoss(run.x0), L.ymin, L.ymax);
+                    ctx.beginPath(); ctx.arc(sx, sy, 3, 0, Math.PI * 2); ctx.fillStyle = "rgba(0,0,0,0.15)"; ctx.fill();
+                    
+                    OPTS.forEach(opt => {
+                        const tPath = run.traces[opt.id], end = Math.min(step, tPath.length - 1);
+                        ctx.beginPath();
+                        for (let i = 0; i <= end; i++) { 
+                            const p = tPath[i], cx = mapX(p.x, L.domain), cy = mapY(p.y, L.ymin, L.ymax); 
+                            i === 0 ? ctx.moveTo(cx, cy) : ctx.lineTo(cx, cy); 
+                        }
+                        ctx.strokeStyle = opt.color; ctx.lineWidth = 1; ctx.globalAlpha = 0.25; ctx.stroke(); ctx.globalAlpha = 1;
+                        if (step >= 100) { 
+                            const cur = tPath[tPath.length - 1]; 
+                            if (Math.abs(cur.x - gm.x) < 0.35) gc[opt.id]++;
+                        }
+                    });
+                });
+
+                if (step >= 100) {
+                    renderStats(gc);
+                    running = false;
+                    document.getElementById('run-multi-btn').disabled = false;
+                    return;
+                }
+                step++; 
+                animId = requestAnimationFrame(frame);
+            }
+            frame();
+        }
+
+        function renderStats(counts) {
+            const container = document.getElementById('stats-container');
+            container.innerHTML = '';
+            OPTS.forEach(o => {
+                const count = counts[o.id];
+                const pct = Math.round(count / populationN * 100);
+                const card = document.createElement('div');
+                card.className = 'stat-card';
+                card.innerHTML = `
+                    <div class="stat-title"><span class="dot" style="background:${o.color}"></span> ${o.label}</div>
+                    <div class="stat-body">found global: <strong>${count}/${populationN}</strong> (${pct}%)</div>
+                    <div class="stat-progress"><div class="progress-fill" style="background:${o.color}; width:${pct}%"></div></div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- Step Panel Logic ---
+        function updateStepInfo(cur, opt) {
+            const gm = findGlobalMin();
+            const isGlobal = Math.abs(cur.x - gm.x) < 0.35;
+            const container = document.getElementById('step-info-container');
+            container.style.display = 'block';
+            container.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-title"><span class="dot" style="background:${opt.color}"></span> ${opt.label}</div>
+                    <div class="stat-body">
+                        Step ${stepCount} / 100<br>
+                        x = ${cur.x.toFixed(4)}<br>
+                        loss = ${cur.y.toFixed(4)}<br>
+                        <span style="color:${isGlobal ? '#3fb950' : '#888'}; font-weight:${isGlobal ? '600' : '400'}">
+                            ${isGlobal ? '✓ Found global minimum!' : 'Searching…'}
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleCanvasClick(e) {
+            if (mode !== 'step') return;
+            if (autoRunning) toggleAuto();
+            
+            const rect = canvas.getBoundingClientRect();
+            const px = (e.clientX - rect.left) * (W / rect.width);
+            const L = getLandscapeData();
+            let x0 = L.domain.min + (px - PAD.l) / (W - PAD.l - PAD.r) * (L.domain.max - L.domain.min);
+            x0 = Math.max(L.domain.min, Math.min(L.domain.max, x0));
+            
+            startX = x0;
+            path = [{ x: x0, y: getLoss(x0) }];
+            stepCount = 0;
+            simState = { state: STEP_FNS[selectedOptId].init(x0), t: 0 };
+            
+            document.getElementById('step-hint').textContent = `Start at x = ${x0.toFixed(2)}. Press Step or Auto-run.`;
+            document.getElementById('step-btn').disabled = false;
+            document.getElementById('auto-btn').disabled = false;
+            redraw();
+        }
+
+        function doStep() {
+            if (!simState || stepCount >= 100) return false;
+            simState.t++;
+            const g = getGrad(simState.state.x);
+            simState.state = STEP_FNS[selectedOptId].step(simState.state, g, lrCount / 100, simState.t, 1e-8);
+            simState.state.x = clamp(simState.state.x);
+            stepCount++;
+            path.push({ x: simState.state.x, y: getLoss(simState.state.x) });
+            redraw();
+            if (stepCount >= 100) {
+                document.getElementById('step-hint').textContent = "Reached 100 steps. Reset to try again.";
+                document.getElementById('step-btn').disabled = true;
+                return false;
+            }
+            return true;
+        }
+
+        function toggleAuto() {
+            if (autoRunning) {
+                clearInterval(autoInterval);
+                autoRunning = false;
+                document.getElementById('auto-btn').textContent = "Auto-run";
+                document.getElementById('step-btn').disabled = false;
+            } else {
+                if (!simState || stepCount >= 100) return;
+                autoRunning = true;
+                document.getElementById('auto-btn').textContent = "Pause";
+                document.getElementById('step-btn').disabled = true;
+                autoInterval = setInterval(() => {
+                    if (!doStep()) toggleAuto();
+                }, 60);
+            }
+        }
+
+        // --- Common Logic ---
+        function switchTab(t) {
+            mode = t;
+            reset();
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${t}`).classList.add('active');
+            document.getElementById('multi-controls').style.display = t === 'multi' ? 'block' : 'none';
+            document.getElementById('step-controls').style.display = t === 'step' ? 'block' : 'none';
+            document.getElementById('stats-container').style.display = t === 'multi' ? 'flex' : 'none';
+            document.getElementById('step-info-container').style.display = 'none';
+        }
+
+        function updateN(v) { populationN = parseInt(v); document.getElementById('n-val').textContent = v; }
+        function updateLR(v) { 
+            lrCount = parseInt(v); 
+            const val = (v / 100).toFixed(2);
+            document.getElementById('lr-val-multi').textContent = val;
+            document.getElementById('lr-val-step').textContent = val;
+            document.getElementById('lr-range-multi').value = v;
+            document.getElementById('lr-range-step').value = v;
+        }
+
+        function updateLandscape(v) {
+            landscapeKey = v;
+            document.getElementById('landscape-multi').value = v;
+            document.getElementById('landscape-step').value = v;
+            reset();
+        }
+
+        function reset() {
+            running = false;
+            if (autoRunning) toggleAuto();
+            cancelAnimationFrame(animId);
+            startX = null;
+            path = [];
+            stepCount = 0;
+            simState = null;
+            document.getElementById('stats-container').innerHTML = '';
+            document.getElementById('step-info-container').style.display = 'none';
+            document.getElementById('step-hint').textContent = "Click on the canvas to place a start point.";
+            document.getElementById('step-btn').disabled = true;
+            document.getElementById('auto-btn').disabled = true;
+            redraw();
+        }
+
+        function setupOptPicker() {
+            const container = document.getElementById('opt-picker');
+            OPTS.forEach(o => {
+                const btn = document.createElement('button');
+                btn.className = 'opt-btn' + (o.id === selectedOptId ? ' active' : '');
+                btn.textContent = o.label;
+                if (o.id === selectedOptId) btn.style.background = o.color;
+                btn.onclick = () => {
+                    selectedOptId = o.id;
+                    document.querySelectorAll('.opt-btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.style.background = 'transparent';
+                    });
+                    btn.classList.add('active');
+                    btn.style.background = o.color;
+                    reset();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        canvas.addEventListener('mousedown', handleCanvasClick);
+        
+        // Init
+        setupOptPicker();
+        redraw();
+    </script>
+</body>
+
+</html>
