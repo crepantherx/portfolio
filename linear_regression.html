@@ -494,6 +494,8 @@
             <button class="btn" onclick="toggleLayer('tss')">TSS</button>
             <button class="btn" onclick="toggleLayer('rss')">RSS</button>
             <button class="btn" onclick="toggleLayer('mss')">MSS</button>
+            <button class="btn" style="border-color:var(--accent); color:var(--accent); opacity: 1;" onclick="toggleLayer('userLine')">Your Line</button>
+            <button class="btn" style="border-color:var(--accent); color:var(--accent); opacity: 1;" onclick="toggleLayer('meanLine')">Mean Line</button>
             <button class="btn" onclick="newPoints()">🎲 New Random Points</button>
             <button class="btn" onclick="loadPreset('linear')">📈 Linear</button>
             <button class="btn" onclick="loadPreset('scattered')">🌪 Scattered</button>
@@ -532,7 +534,7 @@
             <span class="stat-key">MSS</span>
           </div>
           <div class="stat-val" id="vMSS">—</div>
-          <div class="stat-desc">Model Sum of Squares<br>Σ(ŷᵢ − ȳ)² — what line explains<br>TSS = MSS + RSS ✓</div>
+          <div class="stat-desc">Model Sum of Squares<br>Σ(ŷᵢ − ȳ)² — what line explains<br><span style="color:var(--muted)">TSS = MSS + RSS (only at best fit)</span></div>
         </div>
 
         <div class="stat-block r2">
@@ -548,11 +550,10 @@
         </div>
 
         <div class="formula-hint">
-          TSS = MSS + RSS<br>
-          R² = MSS / TSS<br>
-          R² = 1 − RSS / TSS<br>
+          R² = 1 − (RSS / TSS)<br>
+          <span style="color:var(--muted)">Only optimal fit: TSS = MSS + RSS</span><br>
           <span style="color:#3fb950">R²→1 = perfect fit</span><br>
-          <span style="color:#f85149">R²→0 = no fit</span>
+          <span style="color:#f85149">R²→0 = no fit (or worse)</span>
         </div>
 
       </div>
@@ -609,7 +610,7 @@
     let pts = [];
     let dragIdx = -1;
     let dragLineEnd = null; // 'start' or 'end'
-    let layers = { tss: false, rss: false, mss: false };
+    let layers = { tss: false, rss: false, mss: false, userLine: true, meanLine: true };
     let userSlope = 0, userIntercept = 0.5;
     let revealed = false, regLine = null;
 
@@ -660,18 +661,16 @@
 
       const mn = p.reduce((s, v) => s + v.y, 0) / p.length;
 
-      let tss = 0, rss = 0;
+      let tss = 0, rss = 0, mss = 0;
 
       p.forEach(v => {
         const yh = slope * v.x + intercept;
         tss += (v.y - mn) ** 2;
         rss += (v.y - yh) ** 2;
+        mss += (yh - mn) ** 2; // True MSS
       });
 
-      // ✅ FIX: enforce identity
-      const mss = tss - rss;
-
-      // ✅ allow negative R² (important!)
+      // R2 strictly bound by RSS/TSS
       const r2 = tss > 0 ? 1 - (rss / tss) : 0;
 
       return { tss, rss, mss, r2, mn };
@@ -705,40 +704,46 @@
       const st = calcStats(pts, userSlope, userIntercept);
 
       // Mean line
-      const { cy: mcy } = toC(0, st.mn);
-      ctx.save(); ctx.setLineDash([7, 5]); ctx.strokeStyle = '#e3b341'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.6;
-      ctx.beginPath(); ctx.moveTo(PAD, mcy); ctx.lineTo(W - PAD, mcy); ctx.stroke();
-      ctx.setLineDash([]); ctx.globalAlpha = 1;
-      ctx.fillStyle = '#e3b341'; ctx.font = '10px "DM Mono"';
-      ctx.fillText('ȳ', W - PAD + 6, mcy + 4); ctx.restore();
+      if (layers.meanLine) {
+        const { cy: mcy } = toC(0, st.mn);
+        ctx.save(); ctx.setLineDash([7, 5]); ctx.strokeStyle = '#e3b341'; ctx.lineWidth = 1.5; ctx.globalAlpha = 0.6;
+        ctx.beginPath(); ctx.moveTo(PAD, mcy); ctx.lineTo(W - PAD, mcy); ctx.stroke();
+        ctx.setLineDash([]); ctx.globalAlpha = 1;
+        ctx.fillStyle = '#e3b341'; ctx.font = '10px "DM Mono"';
+        ctx.fillText('ȳ', W - PAD + 6, mcy + 4); ctx.restore();
+      }
 
-      // TSS lines (faint, always visible)
+      // TSS lines
       if (layers.tss) {
         pts.forEach(p => {
           const { cx, cy } = toC(p.x, p.y), { cy: mc } = toC(p.x, st.mn);
           ctx.save();
           ctx.strokeStyle = '#bc8cff';
-          ctx.lineWidth = 1;
-          ctx.globalAlpha = 0.2;
+          ctx.lineWidth = 2.5;
+          ctx.globalAlpha = 0.9;
           ctx.beginPath();
-          ctx.moveTo(cx, cy);
-          ctx.lineTo(cx, mc);
+          ctx.moveTo(cx - 5, cy);
+          ctx.lineTo(cx - 5, mc);
           ctx.stroke();
+
+          // End caps
+          ctx.beginPath(); ctx.moveTo(cx - 8, cy); ctx.lineTo(cx - 2, cy); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(cx - 8, mc); ctx.lineTo(cx - 2, mc); ctx.stroke();
           ctx.restore();
         });
       }
 
-      // Residuals for user line (RSS) - colored by size
+      // Residuals for user line (RSS)
       if (layers.rss) {
         pts.forEach(p => {
           const yh = userSlope * p.x + userIntercept;
           const { cx, cy } = toC(p.x, p.y), { cy: rc } = toC(p.x, yh);
           const res = Math.abs(p.y - yh);
-          const alpha = cl(0.3 + res * 1.2, 0.3, 0.9);
+          const alpha = cl(0.4 + res * 1.5, 0.4, 1);
 
           ctx.save();
           ctx.strokeStyle = '#f85149';
-          ctx.lineWidth = 1.5;
+          ctx.lineWidth = 2.5;
           ctx.globalAlpha = alpha;
           ctx.beginPath();
           ctx.moveTo(cx, cy);
@@ -756,12 +761,16 @@
 
           ctx.save();
           ctx.strokeStyle = '#3fb950';
-          ctx.lineWidth = 1.5;
-          ctx.globalAlpha = 0.6;
+          ctx.lineWidth = 2.5;
+          ctx.globalAlpha = 0.9;
           ctx.beginPath();
-          ctx.moveTo(cx, hatY);
-          ctx.lineTo(cx, meanY);
+          ctx.moveTo(cx + 5, hatY);
+          ctx.lineTo(cx + 5, meanY);
           ctx.stroke();
+
+          // End caps
+          ctx.beginPath(); ctx.moveTo(cx + 2, hatY); ctx.lineTo(cx + 8, hatY); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(cx + 2, meanY); ctx.lineTo(cx + 8, meanY); ctx.stroke();
           ctx.restore();
         });
       }
@@ -778,37 +787,39 @@
       }
 
       // User line
-      const c0u = toC(0, userIntercept), c1u = toC(1, userSlope + userIntercept);
-      const dx = c1u.cx - c0u.cx, dy = c1u.cy - c0u.cy;
-      const tStart = (PAD - c0u.cx) / dx, tEnd = (W - PAD - c0u.cx) / dx;
-      ctx.save();
-      if (revealed) { ctx.globalAlpha = 0.45; ctx.setLineDash([5, 4]); }
-      ctx.strokeStyle = '#f0883e'; ctx.lineWidth = 2.5; ctx.shadowColor = '#f0883e'; ctx.shadowBlur = 6;
-      ctx.beginPath();
-      ctx.moveTo(PAD, c0u.cy + tStart * dy); ctx.lineTo(W - PAD, c0u.cy + tEnd * dy);
-      ctx.stroke(); ctx.shadowBlur = 0; ctx.setLineDash([]); ctx.globalAlpha = 1;
-      ctx.fillStyle = '#f0883e'; ctx.font = '500 11px "DM Mono"';
-      if (!revealed) ctx.fillText('your line', c1u.cx + 10, c1u.cy - 8);
-      ctx.restore();
+      if (layers.userLine) {
+        const c0u = toC(0, userIntercept), c1u = toC(1, userSlope + userIntercept);
+        const dx = c1u.cx - c0u.cx, dy = c1u.cy - c0u.cy;
+        const tStart = (PAD - c0u.cx) / dx, tEnd = (W - PAD - c0u.cx) / dx;
+        ctx.save();
+        if (revealed) { ctx.globalAlpha = 0.45; ctx.setLineDash([5, 4]); }
+        ctx.strokeStyle = '#f0883e'; ctx.lineWidth = 2.5; ctx.shadowColor = '#f0883e'; ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.moveTo(PAD, c0u.cy + tStart * dy); ctx.lineTo(W - PAD, c0u.cy + tEnd * dy);
+        ctx.stroke(); ctx.shadowBlur = 0; ctx.setLineDash([]); ctx.globalAlpha = 1;
+        ctx.fillStyle = '#f0883e'; ctx.font = '500 11px "DM Mono"';
+        if (!revealed) ctx.fillText('your line', c1u.cx + 10, c1u.cy - 8);
+        ctx.restore();
 
-      // --- draw draggable endpoints ---
-      const start = toC(0, userIntercept);
-      const end = toC(1, userSlope + userIntercept);
+        // --- draw draggable endpoints ---
+        const start = toC(0, userIntercept);
+        const end = toC(1, userSlope + userIntercept);
 
-      ctx.save();
-      ctx.fillStyle = '#f0883e';
+        ctx.save();
+        ctx.fillStyle = '#f0883e';
 
-      // start point
-      ctx.beginPath();
-      ctx.arc(start.cx, start.cy, 5, 0, Math.PI * 2);
-      ctx.fill();
+        // start point
+        ctx.beginPath();
+        ctx.arc(start.cx, start.cy, 5, 0, Math.PI * 2);
+        ctx.fill();
 
-      // end point
-      ctx.beginPath();
-      ctx.arc(end.cx, end.cy, 5, 0, Math.PI * 2);
-      ctx.fill();
+        // end point
+        ctx.beginPath();
+        ctx.arc(end.cx, end.cy, 5, 0, Math.PI * 2);
+        ctx.fill();
 
-      ctx.restore();
+        ctx.restore();
+      }
 
       // Data points
       pts.forEach(p => {
