@@ -846,6 +846,10 @@ function showArticleDetail(articleId) {
     iframe.removeAttribute('srcdoc');
     const currentTheme = document.body.getAttribute('data-theme') || 'light';
     iframe.src = 'ml_optimizers.html?theme=' + currentTheme;
+  } else if (articleId === 'system-design') {
+    iframe.removeAttribute('srcdoc');
+    const currentTheme = document.body.getAttribute('data-theme') || 'light';
+    iframe.src = 'system-design-blueprint.html?theme=' + currentTheme;
   }
   
   modal.classList.add('active');
