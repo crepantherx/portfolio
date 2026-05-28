@@ -848,8 +848,7 @@ function showArticleDetail(articleId) {
     iframe.src = 'ml_optimizers.html?theme=' + currentTheme;
   } else if (articleId === 'system-design') {
     iframe.removeAttribute('srcdoc');
-    const currentTheme = document.body.getAttribute('data-theme') || 'light';
-    iframe.src = 'system-design-blueprint.html?theme=' + currentTheme;
+    iframe.src = 'system_design/index.html';
   }
   
   modal.classList.add('active');

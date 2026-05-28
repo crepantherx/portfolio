@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Design — Complete Collection</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06060b;
+  --surface: rgba(255,255,255,0.04);
+  --surface-hover: rgba(255,255,255,0.07);
+  --border: rgba(255,255,255,0.08);
+  --border-hover: rgba(255,255,255,0.15);
+  --text: #e8eaed;
+  --text2: #9aa0a6;
+  --text3: #5f6368;
+  --accent: #00e5ff;
+  --purple: #a855f7;
+  --orange: #f59e0b;
+  --green: #10b981;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --pink: #ec4899;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Syne', sans-serif;
+  --body: 'Inter', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Animated background */
+.bg-glow {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+}
+.bg-glow::before {
+  content: '';
+  position: absolute;
+  top: -20%; left: 15%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%);
+  animation: float1 20s ease-in-out infinite;
+}
+.bg-glow::after {
+  content: '';
+  position: absolute;
+  bottom: -10%; right: 10%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%);
+  animation: float2 25s ease-in-out infinite;
+}
+@keyframes float1 {
+  0%,100% { transform: translate(0,0); }
+  50% { transform: translate(40px, 30px); }
+}
+@keyframes float2 {
+  0%,100% { transform: translate(0,0); }
+  50% { transform: translate(-30px, -20px); }
+}
+
+/* Noise */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 1; opacity: 0.5;
+}
+
+/* Close button */
+.close-btn {
+  position: fixed; top: 20px; right: 24px; z-index: 100;
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 50%;
+  color: var(--text2);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  backdrop-filter: blur(8px);
+}
+.close-btn:hover {
+  background: rgba(255,255,255,0.12);
+  color: var(--text);
+  border-color: rgba(255,255,255,0.2);
+  transform: rotate(90deg);
+}
+
+/* Container */
+.container {
+  position: relative; z-index: 2;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 60px 32px 80px;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 56px;
+}
+.header-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.header-tag::before, .header-tag::after {
+  content: '';
+  width: 32px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent));
+}
+.header-tag::after {
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+.header h1 {
+  font-family: var(--sans);
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #ffffff 0%, #94a3b8 50%, #64748b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.header-desc {
+  font-size: 15px;
+  color: var(--text2);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+.header-stats {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 32px;
+}
+.stat {
+  text-align: center;
+}
+.stat-num {
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1;
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+/* Cards Grid */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 24px 24px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  display: block;
+  color: inherit;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.card:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-hover);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+.card:hover::before {
+  opacity: 1;
+}
+.card:nth-child(1)::before { background: linear-gradient(90deg, var(--orange), var(--red)); }
+.card:nth-child(2)::before { background: linear-gradient(90deg, var(--accent), var(--blue)); }
+.card:nth-child(3)::before { background: linear-gradient(90deg, var(--purple), var(--pink)); }
+.card:nth-child(4)::before { background: linear-gradient(90deg, var(--green), var(--accent)); }
+.card:nth-child(5)::before { background: linear-gradient(90deg, var(--blue), var(--purple)); }
+.card:nth-child(6)::before { background: linear-gradient(90deg, var(--pink), var(--orange)); }
+
+.card-icon {
+  font-size: 28px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.badge-blueprint { background: rgba(245,158,11,0.15); color: var(--orange); border: 1px solid rgba(245,158,11,0.25); }
+.badge-guide { background: rgba(0,229,255,0.12); color: var(--accent); border: 1px solid rgba(0,229,255,0.2); }
+.badge-practice { background: rgba(168,85,247,0.12); color: var(--purple); border: 1px solid rgba(168,85,247,0.2); }
+.badge-deep { background: rgba(16,185,129,0.12); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+.badge-qa { background: rgba(59,130,246,0.12); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); }
+.badge-mastery { background: rgba(236,72,153,0.12); color: var(--pink); border: 1px solid rgba(236,72,153,0.2); }
+
+.card-title {
+  font-family: var(--sans);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.card-desc {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.5px;
+}
+.card-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-arrow {
+  position: absolute;
+  bottom: 24px; right: 24px;
+  font-size: 18px;
+  color: var(--text3);
+  transition: all 0.3s;
+}
+.card:hover .card-arrow {
+  color: var(--accent);
+  transform: translateX(4px);
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.footer p {
+  font-size: 12px;
+  color: var(--text3);
+  font-family: var(--mono);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 2px; }
+
+/* Fade-in animation */
+.card { opacity: 0; animation: cardIn 0.5s ease forwards; }
+.card:nth-child(1) { animation-delay: 0.05s; }
+.card:nth-child(2) { animation-delay: 0.1s; }
+.card:nth-child(3) { animation-delay: 0.15s; }
+.card:nth-child(4) { animation-delay: 0.2s; }
+.card:nth-child(5) { animation-delay: 0.25s; }
+.card:nth-child(6) { animation-delay: 0.3s; }
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .container { padding: 48px 16px 60px; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .header-stats { gap: 24px; }
+  .stat-num { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<button class="close-btn" onclick="handleClose()" title="Close">✕</button>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-tag">System Design</div>
+    <h1>The Complete<br>Collection</h1>
+    <p class="header-desc">
+      Production-grade system design reasoning for senior interviews. 
+      Real tradeoffs, real numbers, real architecture.
+    </p>
+    <div class="header-stats">
+      <div class="stat"><div class="stat-num">6</div><div class="stat-label">Guides</div></div>
+      <div class="stat"><div class="stat-num">75+</div><div class="stat-label">Questions</div></div>
+      <div class="stat"><div class="stat-num">15+</div><div class="stat-label">Systems</div></div>
+      <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Tradeoffs</div></div>
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="cards-grid">
+
+    <!-- 1. 1-Hour Blueprint -->
+    <a class="card" href="../system-design-blueprint.html" target="_top">
+      <span class="card-icon">⏱️</span>
+      <div class="card-badge badge-blueprint">Blueprint</div>
+      <div class="card-title">1-Hour Interview Blueprint</div>
+      <p class="card-desc">
+        The structured 60-minute timeline for system design interviews. 
+        Phase-by-phase with scripts, NFR selectors, capacity math, and tool arsenal.
+      </p>
+      <div class="card-meta">
+        <span class="card-meta-item">📐 8 Phases</span>
+        <span class="card-meta-item">🎯 Interactive</span>
+        <span class="card-meta-item">⏱ Timed</span>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <!-- 2. Engineer's Field Manual -->
+    <a class="card" href="system-design-guide.html" target="_top">
+      <span class="card-icon">🧠</span>
+      <div class="card-badge badge-guide">Field Manual</div>
+      <div class="card-title">Engineer's Field Manual</div>
+      <p class="card-desc">
+        Deep dives into ChatGPT, Instagram, WhatsApp, Uber, Payments & more. 
+        Full architecture diagrams, streaming, fan-out, and distributed ID generation.
+      </p>
+      <div class="card-meta">
+        <span class="card-meta-item">🏗️ 15+ Systems</span>
+        <span class="card-meta-item">🔍 Sidebar Nav</span>
+        <span class="card-meta-item">🌙 Dark</span>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <!-- 3. 75 Questions -->
+    <a class="card" href="system_design_75.html" target="_top">
+      <span class="card-icon">💡</span>
+      <div class="card-badge badge-practice">Practice</div>
+      <div class="card-title">75 Interview Questions</div>
+      <p class="card-desc">
+        Curated set of 75 system design questions ranked by difficulty.
+        From URL shorteners to distributed consensus — battle-tested question bank.
+      </p>
+      <div class="card-meta">
+        <span class="card-meta-item">🎯 75 Questions</span>
+        <span class="card-meta-item">📊 Ranked</span>
+        <span class="card-meta-item">✅ Answers</span>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <!-- 4. 100 Q&A -->
+    <a class="card" href="a.html" target="_top">
+      <span class="card-icon">📝</span>
+      <div class="card-badge badge-qa">Q&A Bank</div>
+      <div class="card-title">100 Questions & Detailed Answers</div>
+      <p class="card-desc">
+        Comprehensive question bank with in-depth answers covering every major topic.
+        Architecture patterns, scaling strategies, and distributed systems.
+      </p>
+      <div class="card-meta">
+        <span class="card-meta-item">📚 100 Q&A</span>
+        <span class="card-meta-item">📖 Detailed</span>
+        <span class="card-meta-item">🎓 Complete</span>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <!-- 5. ChatGPT Deep Dive -->
+    <a class="card" href="b.html" target="_top">
+      <span class="card-icon">🤖</span>
+      <div class="card-badge badge-deep">Deep Dive</div>
+      <div class="card-title">ChatGPT — System Design</div>
+      <p class="card-desc">
+        Detailed breakdown of how to design a system like ChatGPT. 
+        GPU inference serving, KV cache, token streaming, and cost modeling.
+      </p>
+      <div class="card-meta">
+        <span class="card-meta-item">🧠 LLM Infra</span>
+        <span class="card-meta-item">⚡ GPU Scaling</span>
+        <span class="card-meta-item">🔥 Advanced</span>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <!-- 6. Mastery v2 -->
+    <a class="card" href="system_design_mastery_v2.html" target="_top">
+      <span class="card-icon">🏆</span>
+      <div class="card-badge badge-mastery">Mastery</div>
+      <div class="card-title">System Design Mastery</div>
+      <p class="card-desc">
+        Condensed mastery guide with decision frameworks, tradeoff matrices, 
+        and flow-step architectures for rapid interview recall.
+      </p>
+      <div class="card-meta">
+        <span class="card-meta-item">🗂️ Frameworks</span>
+        <span class="card-meta-item">⚖️ Tradeoffs</span>
+        <span class="card-meta-item">🚀 Concise</span>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+  </div>
+
+  <div class="footer">
+    <p>// built with obsession · sudhir singh</p>
+  </div>
+
+</div>
+
+<script>
+function handleClose() {
+  // If inside an iframe, tell parent to close the modal
+  if (window.parent && window.parent !== window) {
+    try { window.parent.closeArticleModal(); } catch(e) {}
+  } else {
+    window.history.back();
+  }
+}
+</script>
+</body>
+</html>

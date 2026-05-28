@@ -1,0 +1,614 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:var(--color-background-primary);
+  --bg2:var(--color-background-secondary);
+  --bg3:var(--color-background-tertiary);
+  --t1:var(--color-text-primary);
+  --t2:var(--color-text-secondary);
+  --t3:var(--color-text-tertiary);
+  --bd:var(--color-border-tertiary);
+  --bd2:var(--color-border-secondary);
+  --accent:#1a6cf5;
+  --r:8px;--rl:12px;
+}
+body{font-family:var(--font-sans,'system-ui');background:transparent;color:var(--t1);line-height:1.6;font-size:14px}
+
+/* TOP NAV */
+.topbar{background:var(--bg2);border-bottom:0.5px solid var(--bd2);padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:10}
+.topbar-title{font-size:13px;font-weight:500;white-space:nowrap}
+.search-wrap{position:relative;flex:1;min-width:160px;max-width:280px}
+.search-wrap input{width:100%;padding:6px 10px 6px 28px;background:var(--bg);border:0.5px solid var(--bd2);border-radius:var(--r);font-size:12px;color:var(--t1);outline:none}
+.search-wrap input:focus{border-color:var(--accent)}
+.search-wrap .si{position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--t3)}
+.nav-pills{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.np{font-size:11.5px;padding:5px 10px;border-radius:20px;border:0.5px solid var(--bd2);background:var(--bg);color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .12s}
+.np:hover{border-color:var(--accent);color:var(--accent)}
+.np.active{background:color-mix(in srgb,var(--accent) 12%,transparent);border-color:color-mix(in srgb,var(--accent) 30%,transparent);color:var(--accent);font-weight:500}
+
+/* CAT NAV */
+.cat-bar{display:flex;gap:6px;padding:10px 16px 0;flex-wrap:wrap;border-bottom:0.5px solid var(--bd);padding-bottom:10px}
+.cb{font-size:11.5px;padding:4px 12px;border-radius:20px;border:0.5px solid var(--bd2);background:var(--bg2);color:var(--t2);cursor:pointer;transition:all .12s}
+.cb:hover,.cb.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* CONTENT */
+.content{padding:20px 20px 60px;max-width:820px;margin:0 auto}
+
+/* HOME GRID */
+.home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:20px}
+.hc{background:var(--bg2);border:0.5px solid var(--bd);border-radius:var(--rl);padding:14px 16px;cursor:pointer;transition:all .15s}
+.hc:hover{border-color:var(--accent)}
+.hc-icon{font-size:18px;margin-bottom:6px}
+.hc-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.hc-desc{font-size:11.5px;color:var(--t2);line-height:1.5}
+.hc-count{font-size:11px;color:var(--t3);margin-top:5px}
+
+/* PAGE HEADER */
+.page-header{margin-bottom:22px;padding-bottom:16px;border-bottom:0.5px solid var(--bd)}
+.page-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;margin-bottom:8px}
+.badge-arch{background:color-mix(in srgb,#1a6cf5 12%,transparent);color:#1a6cf5}
+.badge-pattern{background:color-mix(in srgb,#0e9e6e 12%,transparent);color:#0e9e6e}
+.badge-problem{background:color-mix(in srgb,#d97706 12%,transparent);color:#d97706}
+.page-title{font-size:20px;font-weight:500;letter-spacing:-.02em;margin-bottom:5px}
+.page-desc{font-size:13px;color:var(--t2);line-height:1.6}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.metric{background:var(--bg2);border:0.5px solid var(--bd);border-radius:var(--r);padding:10px;text-align:center}
+.metric-val{font-size:17px;font-weight:500}
+.metric-lbl{font-size:10px;color:var(--t3);margin-top:2px}
+
+/* SECTIONS */
+.section{margin-bottom:24px}
+.section-title{font-size:12.5px;font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:7px;color:var(--t1)}
+.section-title::before{content:'';display:block;width:3px;height:13px;background:var(--accent);border-radius:2px;flex-shrink:0}
+
+/* CARDS */
+.cards{display:grid;gap:8px}
+.cards-2{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.card{background:var(--bg2);border:0.5px solid var(--bd);border-radius:var(--rl);padding:12px 14px}
+.card-title{font-size:12px;font-weight:500;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.card-body{font-size:12.5px;color:var(--t2);line-height:1.65}
+
+/* FLOW STEPS */
+.flow-steps{display:flex;flex-direction:column;gap:0}
+.flow-step{display:flex;gap:10px;padding:9px 0;position:relative}
+.flow-step:not(:last-child)::before{content:'';position:absolute;left:13px;top:32px;bottom:-2px;width:0.5px;background:var(--bd2)}
+.step-num{width:26px;height:26px;border-radius:50%;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:0.5px solid color-mix(in srgb,var(--accent) 25%,transparent)}
+.step-body{flex:1;padding-top:3px}
+.step-title{font-size:12.5px;font-weight:500;margin-bottom:2px}
+.step-desc{font-size:12px;color:var(--t2);line-height:1.6}
+
+/* TRADEOFFS */
+.tradeoffs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.tradeoff-card{padding:11px 13px;border-radius:var(--r);border:0.5px solid}
+.tradeoff-card.pro{background:color-mix(in srgb,#0e9e6e 8%,transparent);border-color:color-mix(in srgb,#0e9e6e 25%,transparent)}
+.tradeoff-card.con{background:color-mix(in srgb,#e24b4a 8%,transparent);border-color:color-mix(in srgb,#e24b4a 25%,transparent)}
+.tradeoff-label{font-size:11px;font-weight:500;margin-bottom:5px}
+.tradeoff-card.pro .tradeoff-label{color:#0e9e6e}
+.tradeoff-card.con .tradeoff-label{color:#e24b4a}
+.tradeoff-item{font-size:11.5px;color:var(--t2);padding:2px 0 2px 11px;position:relative;line-height:1.5}
+.tradeoff-item::before{content:'';position:absolute;left:0;top:9px;width:5px;height:1px;background:currentColor;opacity:.5}
+
+/* CODE */
+.code-block{background:var(--bg3);border:0.5px solid var(--bd);border-radius:var(--r);padding:11px 13px;font-family:var(--font-mono,'monospace');font-size:11px;color:var(--t2);line-height:1.7;overflow-x:auto;white-space:pre;margin-top:4px}
+
+/* DECISION */
+.decision{display:flex;flex-direction:column;gap:5px}
+.d-row{display:grid;grid-template-columns:1fr 16px 1fr;gap:5px;align-items:center;font-size:11.5px}
+.d-if{background:color-mix(in srgb,#1a6cf5 10%,transparent);border:0.5px solid color-mix(in srgb,#1a6cf5 25%,transparent);border-radius:var(--r);padding:7px 9px;color:#1a6cf5;font-weight:500;line-height:1.4}
+.d-then{background:color-mix(in srgb,#0e9e6e 10%,transparent);border:0.5px solid color-mix(in srgb,#0e9e6e 25%,transparent);border-radius:var(--r);padding:7px 9px;color:#0e9e6e;line-height:1.4}
+.d-arrow{text-align:center;color:var(--t3)}
+
+/* COLORS */
+.hl{color:var(--accent);font-weight:500}
+.warn{color:#d97706;font-weight:500}
+.danger{color:#e24b4a;font-weight:500}
+.success{color:#0e9e6e;font-weight:500}
+
+/* BACK BTN */
+.back-btn{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--t3);cursor:pointer;padding:4px 0;margin-bottom:12px;border:none;background:none}
+.back-btn:hover{color:var(--accent)}
+
+/* LIST ITEMS */
+.list-items{display:grid;gap:6px}
+.li-row{background:var(--bg2);border:0.5px solid var(--bd);border-radius:var(--r);padding:10px 14px;cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:10px}
+.li-row:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 4%,var(--bg2))}
+.li-info{flex:1}
+.li-title{font-size:12.5px;font-weight:500;margin-bottom:1px}
+.li-desc{font-size:11.5px;color:var(--t2)}
+.li-tag{font-size:10px;padding:2px 7px;border-radius:20px;flex-shrink:0}
+</style>
+
+<div class="topbar">
+  <span class="topbar-title"><i class="ti ti-cpu" aria-hidden="true"></i> System Design</span>
+  <div class="search-wrap">
+    <i class="ti ti-search si" aria-hidden="true"></i>
+    <input type="text" placeholder="Search..." id="search-input" oninput="onSearch(this.value)">
+  </div>
+</div>
+
+<div id="cat-bar-wrap"></div>
+<div class="content" id="content-area"></div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+
+<script>
+const DESIGNS=[
+  // REAL-WORLD
+  {id:'chatgpt',cat:'Real-World',label:'ChatGPT / LLM API',icon:'ti-brain',badge:'arch',
+   title:'ChatGPT & LLM Serving at Scale',
+   desc:'How OpenAI serves billions of inference requests: GPU batching, KV cache, streaming tokens.',
+   metrics:[['~100ms','Time to first token'],['32k+','Context window'],['~10 toks/s','Streaming rate']],
+   sections:[
+    {t:'Core Pipeline',body:`<div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">API Gateway + Rate Limiting</div><div class="step-desc">Token bucket per API key. Quota enforcement per org. Nginx + custom middleware. Request validated, model routed (GPT-4 → A100/H100 cluster, GPT-3.5 → cheaper T4s).</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">KV Cache (Critical Optimization)</div><div class="step-desc">Transformer attention computes keys/values for every prior token. KV cache stores these in GPU VRAM — re-prompting doesn't recompute. <span class="hl">Prefix caching:</span> if 10K users share the same system prompt, compute it once. Massive cost saving.</div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Continuous Batching (vLLM-style)</div><div class="step-desc">Static batching waits for N requests. Continuous batching adds new requests mid-generation. GPU stays 95%+ utilized. PagedAttention manages KV cache like OS virtual memory — no fragmentation.</div></div></div>
+      <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Token Streaming (SSE)</div><div class="step-desc">Server-Sent Events push each token as sampled. Client renders progressively. Token generation is auto-regressive — can't parallelize output tokens. Streaming gives perceived instant response for what otherwise would be a 25s wait.</div></div></div>
+    </div>`},
+    {t:'GPU Scaling Challenges',body:`<div class="cards cards-2">
+      <div class="card"><div class="card-title"><i class="ti ti-cpu" aria-hidden="true"></i> Memory Wall</div><div class="card-body">70B param model = ~140GB VRAM in fp16. <span class="hl">Tensor Parallelism:</span> split weight matrices across 8 GPUs. <span class="hl">Pipeline Parallelism:</span> split layers across nodes. Hybrid of both at production scale.</div></div>
+      <div class="card"><div class="card-title"><i class="ti ti-clock" aria-hidden="true"></i> Prefill vs Decode</div><div class="card-body">Prefill (processing input) = compute-bound. Decode (generating output) = memory-bandwidth bound. Chunked prefill: process large inputs in chunks to avoid blocking decode requests.</div></div>
+      <div class="card"><div class="card-title"><i class="ti ti-coins" aria-hidden="true"></i> Cost Optimization</div><div class="card-body">Speculative decoding: small draft model proposes 4-8 tokens, large model verifies in parallel → 3-4x speedup. Quantization (INT8/INT4): cuts memory 2-4x with <2% quality loss.</div></div>
+      <div class="card"><div class="card-title"><i class="ti ti-shield" aria-hidden="true"></i> Safety Layer</div><div class="card-body">Input moderation classifier runs before inference. Output filtering post-generation. Both on separate CPU fleet so they never block GPU pipeline throughput.</div></div>
+    </div>`},
+    {t:'Why Streaming Changes Everything',body:`<div class="card"><div class="card-body">Without streaming, a 500-token response at 20 tok/s takes 25 seconds before any content appears. Streaming gives <span class="hl">perceived instant response</span>. Trade-off: server holds connection open. At 1M concurrent streams you need HTTP/2 multiplexing and careful proxy keep-alive tuning. Backend must buffer partial tokens ensuring UTF-8 character boundaries aren't split mid-stream.</div></div>`},
+   ]},
+
+  {id:'instagram',cat:'Real-World',label:'Instagram Feed',icon:'ti-photo',badge:'arch',
+   title:'Instagram: Real-time Feed at 2B Users',
+   desc:'Fan-out strategies, ML ranking pipeline, and CDN for personalized feeds at sub-200ms.',
+   metrics:[['2B+','Monthly users'],['~100M','Photos/day'],['<200ms','Feed response']],
+   sections:[
+    {t:'Push vs Pull Fan-out',body:`<div class="tradeoffs">
+      <div class="tradeoff-card pro"><div class="tradeoff-label">PUSH (Fan-out on Write)</div><div class="tradeoff-item">When you post, photo ID pushed to all followers' feed caches</div><div class="tradeoff-item">Feed read is O(1) — just read Redis sorted set</div><div class="tradeoff-item">Used for users with &lt;1M followers</div></div>
+      <div class="tradeoff-card con"><div class="tradeoff-label">PULL (Fan-out on Read)</div><div class="tradeoff-item">Kylie Jenner (400M followers) would require 400M Redis writes per post</div><div class="tradeoff-item">Celebrity posts are pulled at read-time and merged in</div><div class="tradeoff-item">Hybrid: push for normal users, pull for verified celebrities</div></div>
+    </div>
+    <div class="card" style="margin-top:8px"><div class="card-body"><span class="hl">Feed assembly:</span> merge user's Redis feed cache + followed celebrity posts (pulled) → rank with ML model → deduplicate → return top 20.</div></div>`},
+    {t:'ML Ranking Pipeline',body:`<div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Candidate Generation</div><div class="step-desc">~500 candidate posts from Redis feed cache + suggested accounts + hashtags + reels.</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Feature Extraction</div><div class="step-desc">Post age, creator relationship strength (DM frequency, past likes), media type, user engagement history, device type, time of day.</div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">3-Stage Ranking</div><div class="step-desc">Lightweight filter (100ms) → medium model removes 80% → heavy pointwise neural net scores top 50. Trained on implicit feedback: watch time, likes, saves, shares.</div></div></div>
+      <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Diversity Rules</div><div class="step-desc">Hard rules override ML: no 2 consecutive posts from same account, inject 1 Reel per 5 posts, max post age 7 days.</div></div></div>
+    </div>`},
+    {t:'Photo Storage & CDN',body:`<div class="cards cards-2">
+      <div class="card"><div class="card-title">Object Storage</div><div class="card-body">Photos stored in distributed blob store (Haystack-style). Original + multiple resolutions per upload. ~50PB+ total. Photos are <span class="hl">immutable</span> — content-addressed by hash.</div></div>
+      <div class="card"><div class="card-title">CDN Strategy</div><div class="card-body">Akamai + Facebook's own CDN. Edge caches popular photos. Cache hit ~99% for viral. Long-tail served from origin. HTTP/2 + WebP format reduces bandwidth 25%.</div></div>
+    </div>`},
+   ]},
+
+  {id:'whatsapp',cat:'Real-World',label:'WhatsApp Messaging',icon:'ti-message-circle',badge:'arch',
+   title:'WhatsApp: 100B Messages/Day',
+   desc:'E2E encryption, presence indicators, offline queueing, and multi-device sync.',
+   metrics:[['100B+','Messages/day'],['2B','Users'],['<500ms','Delivery P99']],
+   sections:[
+    {t:'Message Delivery Pipeline',body:`<div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Client Encrypts (Signal Protocol)</div><div class="step-desc">Double ratchet + X3DH key exchange. Encrypted blob sent over persistent TCP (XMPP/TLS) to chat server. Server never sees plaintext.</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Ejabberd (Erlang) Chat Server</div><div class="step-desc">Erlang chosen for actor-model concurrency. Each connection = lightweight process (~500 bytes). 2M+ concurrent connections per node. Message stored in recipient's server queue.</div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">3-State Delivery ACK</div><div class="step-desc"><span class="hl">✓ Sent</span> (on server), <span class="hl">✓✓ Delivered</span> (device ACK), <span class="hl">✓✓ Blue Read</span> (opened). Server deletes message after delivery ACK. Privacy by design.</div></div></div>
+      <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Offline Queue (30-day TTL)</div><div class="step-desc">Device offline: message queued on server. On reconnect: XMPP presence stanza → server flushes queue in order → device ACKs per message.</div></div></div>
+    </div>`},
+    {t:'Presence: The Hardest Problem',body:`<div class="card"><div class="card-body"><span class="hl">Naive approach:</span> every user subscribes to every contact's presence. With 500 contacts × 2B users = O(n²) fanout — catastrophic.<br><br><span class="hl">WhatsApp's solution:</span> Lazy presence model. Broadcast only to contacts who have the app open AND are in your contact list AND you've recently chatted with. Heartbeat ping every 30s. Last seen stored on disconnect — approximate (within 1 min) to reduce write pressure.</div></div>`},
+    {t:'E2E Encryption (Signal Protocol)',body:`<div class="cards cards-2">
+      <div class="card"><div class="card-title">Key Exchange (X3DH)</div><div class="card-body">On install: generate identity key + signed prekey + 100 one-time prekeys. Server stores only public keys. Sender derives shared secret from recipient's public keys. No server sees plaintext. Ever.</div></div>
+      <div class="card"><div class="card-title">Double Ratchet</div><div class="card-body">Each message uses a new key derived from the chain. Compromise of one key doesn't break others (forward secrecy). Key rotation is automatic with every message.</div></div>
+      <div class="card"><div class="card-title">Group Messages</div><div class="card-body">Sender Key protocol: encrypt message once with sender key. Encrypt sender key individually for each member. At 1000 members: 1 message + 1000 key packets vs 1000 full encryptions.</div></div>
+      <div class="card"><div class="card-title">Multi-Device</div><div class="card-body">Each device has its own identity key. Message encrypted per device. New device added: existing devices transfer encrypted key bundles.</div></div>
+    </div>`},
+   ]},
+
+  {id:'uber',cat:'Real-World',label:'Uber Dispatch',icon:'ti-car',badge:'arch',
+   title:'Uber: Real-time Dispatch & Surge Pricing',
+   desc:'Geospatial matching with H3/S2, driver-rider algorithm, and surge feedback loops.',
+   metrics:[['100M+','Daily trips'],['<1min','Match P99'],['250K','Peak drivers']],
+   sections:[
+    {t:'Driver-Rider Matching',body:`<div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Driver Location (UDP every 4s)</div><div class="step-desc">UDP not TCP — packet loss acceptable, we want latest position only. Stored in S2 geospatial index (hierarchical sphere cells). Radius search O(log n).</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">H3 Supply/Demand Heatmap</div><div class="step-desc">Aggregate driver locations into hexagonal cells (H3). Each cell tracks: available_drivers, pending_requests, avg_eta. Updated every 5s. Powers surge pricing and dispatch routing.</div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Match Algorithm</div><div class="step-desc">Rider requests → query available drivers in 5km radius via S2 → rank by: ETA (primary), acceptance rate, rating, vehicle type → send offer to top 3 simultaneously → first accept wins.</div></div></div>
+      <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-title">ETA Calculation</div><div class="step-desc">Pre-computed routing graph (OSRM). Real-time traffic from driver speed data (crowd-sourced). Updated every 30s during trip. Race condition on accept: DB CAS (compare-and-swap) ensures only one driver wins.</div></div></div>
+    </div>`},
+    {t:'Surge Pricing Algorithm',body:`<div class="card"><div class="card-body">Multiplier = f(demand/supply ratio per cell). Ratio >2 → 1.2x. Ratio >4 → 1.5x. Smoothed with exponential moving average to avoid oscillation.<br><br><span class="warn">Hidden complexity: feedback loops.</span> High surge → drivers flood zone → supply spikes → surge drops → drivers leave → cycle repeats. Uber uses <span class="hl">predictive surge</span>: increase prices before shortage based on historical patterns and real-world events (stadium, rain, concerts).</div></div>`},
+   ]},
+
+  {id:'netflix',cat:'Real-World',label:'Netflix Streaming',icon:'ti-player-play',badge:'arch',
+   title:'Netflix: Adaptive Streaming & Open Connect CDN',
+   desc:'ABR streaming, per-title encoding, and why Netflix built its own CDN inside ISPs.',
+   metrics:[['15%','Global internet traffic'],['700K','Files per title'],['250ms','Bitrate switch']],
+   sections:[
+    {t:'Adaptive Bitrate (ABR) Pipeline',body:`<div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Encoding (700K files/title)</div><div class="step-desc">Each title → 20+ quality variants (240p–4K) × codecs (H.264, HEVC, AV1) × bitrates. AV1 saves 40% bandwidth vs H.264 at same quality. Encoding farm runs on AWS spot instances.</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">DASH Segmentation (2-6s chunks)</div><div class="step-desc">Video split into chunks. Manifest (MPD) lists all variants. Client downloads manifest → picks quality → buffers 15-30s ahead. ABR algorithm switches quality per-chunk based on measured bandwidth.</div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">BOLA Algorithm</div><div class="step-desc">Lyapunov optimization balances buffer level vs quality. Buffer <15s → drop quality aggressively. Buffer >45s → increase. Prevents rebuffering while maximizing quality.</div></div></div>
+    </div>`},
+    {t:'Open Connect CDN',body:`<div class="card"><div class="card-body"><span class="hl">Netflix owns its CDN</span> — Open Connect Appliances (OCAs) in 1000+ ISP data centers. ISPs get hardware free; they save on transit costs. Every night OCAs pre-fetch predicted popular content by region. 95% of traffic served from OCA edge. 5% from AWS CloudFront fallback (new releases, long-tail).<br><br>Client steering: Netflix API returns optimal OCA (lowest latency + best cache hit probability). Re-evaluated every few minutes.</div></div>`},
+   ]},
+
+  {id:'twitter',cat:'Real-World',label:'Twitter Timeline',icon:'ti-brand-twitter',badge:'arch',
+   title:'Twitter/X: Fan-out & Timeline at 500M Tweets/Day',
+   desc:"The infamous fan-out problem, Snowflake IDs, and why celebrities broke Twitter's architecture.",
+   metrics:[['500M','Tweets/day'],['150M','DAU'],['~5s','Fan-out P99']],
+   sections:[
+    {t:'The Fan-out Problem',body:`<div class="card"><div class="card-body"><span class="hl">Core tension:</span> Katy Perry tweets (150M followers). Do you write to 150M Redis caches or compute on read?<br><br><span class="warn">Original push fan-out:</span> every tweet → writes to all followers' sorted sets. Katy Perry tweet → 150M Redis writes. At peak: fan-out queue backlog grows faster than drain. Users waited hours to see viral tweets.<br><br><span class="hl">Hybrid solution:</span> Accounts with >500K followers excluded from write fan-out. Their tweets fetched at read-time and merged. Normal users: push fan-out. Power users: pull at read-time.</div></div>`},
+    {t:'Timeline Construction',body:`<div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Timeline Cache (Redis sorted set)</div><div class="step-desc">Each user: sorted set of tweet IDs scored by timestamp. Max 800 IDs stored. Cache hit rate ~99% for active users. Populated by fan-out service.</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Read-time Merge</div><div class="step-desc">Fetch cache → identify followed celebrities → fetch their recent tweets → merge by timestamp → apply filters (muted, blocked) → return top 20.</div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Algorithmic Ranking ("For You")</div><div class="step-desc">Two-tower neural net scores each tweet for your specific context. Signals: engagement rate, author relationship, recency, topic affinity. Separate from chronological "Following" tab.</div></div></div>
+    </div>`},
+   ]},
+
+  {id:'google',cat:'Real-World',label:'Google Search',icon:'ti-search',badge:'arch',
+   title:'Google Search: Sub-200ms for 100B+ Pages',
+   desc:'Crawling pipeline, inverted index, and multi-stage ML ranking at 8.5B searches/day.',
+   metrics:[['8.5B','Searches/day'],['<200ms','Query response'],['100B+','Indexed pages']],
+   sections:[
+    {t:'Crawl → Index Pipeline',body:`<div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Crawl Scheduler</div><div class="step-desc">Frontier of 100B+ URLs prioritized by PageRank, recency, crawl budget per domain. High-authority sites crawled every few hours. Googlebot respects crawl-delay in robots.txt.</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Document Processing</div><div class="step-desc">Fetch HTML → render JavaScript (headless Chrome) → extract text/links/structured data → language detection → duplicate detection via SimHash → store in WebTable (Bigtable).</div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Inverted Index</div><div class="step-desc">word → [doc_id, position, frequency, PageRank]. Sharded across thousands of servers. Query fans out to all shards in parallel, results merged. Built via MapReduce/Dataflow pipeline.</div></div></div>
+      <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Multi-stage Ranking</div><div class="step-desc">Stage 1: keyword match retrieves candidates. Stage 2: 200+ signals (PageRank, freshness, mobile-friendliness, Core Web Vitals). Stage 3: ML LTR model re-ranks top 100. BERT for query understanding.</div></div></div>
+    </div>`},
+   ]},
+
+  {id:'youtube',cat:'Real-World',label:'YouTube Upload',icon:'ti-brand-youtube',badge:'arch',
+   title:'YouTube: 500 Hours of Video Per Minute',
+   desc:'Resumable uploads, parallel transcoding pipeline, and per-title encoding.',
+   metrics:[['500hrs','Uploaded/min'],['1B hrs','Watched/day'],['100+','Formats/video']],
+   sections:[
+    {t:'Upload & Transcode Pipeline',body:`<div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Resumable Upload (TUS Protocol)</div><div class="step-desc">File sent in chunks. Network drop → resume from last ACK'd chunk. Google Resumable Media Upload API. Chunk size 256KB–8MB based on network speed.</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Raw Storage → Pub/Sub Trigger</div><div class="step-desc">Raw video immediately stored in GCS. Triggers transcoding pipeline via Pub/Sub. Video shows as "processing" to creator immediately.</div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Parallel Transcoding</div><div class="step-desc">Video split into 1-min segments. Each segment transcoded in parallel. 1-hour video: 60 segments × 10 quality levels = 600 parallel jobs. Segments stitched after. Dramatically reduces processing vs sequential.</div></div></div>
+      <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Per-Title Encoding</div><div class="step-desc">Action scenes need higher bitrate than static interviews. YouTube analyzes video complexity → assigns optimal bitrate per segment. Saves 15-20% bandwidth vs fixed ladder.</div></div></div>
+    </div>`},
+   ]},
+
+  // SCALING PATTERNS
+  {id:'bigfile',cat:'Scaling',label:'Large File Upload',icon:'ti-upload',badge:'problem',
+   title:'Handling Very Large File Uploads (>1GB)',
+   desc:'Why naive uploads fail and how to build resilient chunked, resumable uploads in production.',
+   metrics:[['5-10MB','Optimal chunk size'],['3-5','Parallel chunks'],['SHA-256','Integrity check']],
+   sections:[
+    {t:'Why Naive Uploads Fail',body:`<div class="cards cards-2">
+      <div class="card"><div class="card-title"><i class="ti ti-wifi-off" aria-hidden="true"></i> Network Timeouts</div><div class="card-body">5GB at 50Mbps = 13 minutes. Any hiccup = start over. Server default timeout 60s → fails. Mobile connections drop constantly.</div></div>
+      <div class="card"><div class="card-title"><i class="ti ti-server-off" aria-hidden="true"></i> Server Memory</div><div class="card-body">Streaming 10GB through a web server holds connection open for minutes. Exhausts connection pool. Even with streaming, you're memory-mapping huge files.</div></div>
+      <div class="card"><div class="card-title"><i class="ti ti-cloud-off" aria-hidden="true"></i> Load Balancer Timeout</div><div class="card-body">LB typically has 60-300s timeout. Sticky sessions required. Different chunks to different backends = coordination nightmare.</div></div>
+      <div class="card"><div class="card-title"><i class="ti ti-user-x" aria-hidden="true"></i> UX Failure</div><div class="card-body">No progress indicator. No resume. 98% done → failure → restart from zero. Enterprise users abandon product.</div></div>
+    </div>`},
+    {t:'Chunked Resumable Upload Architecture',body:`<div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Initiate Upload Session</div><div class="step-desc">Client POSTs metadata (filename, size, checksum) → server returns upload_id. DB record: {upload_id, total_chunks, received: Set(), status: PENDING}.</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Parallel Chunk Upload</div><div class="step-desc">Split file into 5-10MB chunks. Upload 3-5 in parallel. Each: PUT /upload/{id}/chunk/{n} with Content-Range. Server ACKs each. On failure: query server for received set → upload only missing chunks.</div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Direct-to-S3 Presigned URLs (Best Practice)</div><div class="step-desc"><span class="hl">Server issues presigned S3 URLs per chunk. Client uploads directly to S3 — bypasses your servers entirely.</span> Your API handles only auth/metadata, not bytes. S3 Multipart Upload API built exactly for this. Infinite throughput, no server bottleneck.</div></div></div>
+      <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Assembly & Verification</div><div class="step-desc">S3 CompleteMultipartUpload assembles server-side. Verify SHA-256 of whole file. Trigger async processing (transcode, virus scan) via queue. Chunk temp storage cleaned up after TTL.</div></div></div>
+    </div>`},
+    {t:'Content Deduplication',body:`<div class="card"><div class="card-body"><span class="hl">Before accepting any upload:</span> client computes SHA-256 of entire file. API checks if hash exists. If yes → "fast upload" — just record user owns this file. Zero bytes transferred. Dropbox pioneered this. 1 file stored once even if 10K users upload it.<br><br><span class="warn">Trade-off:</span> hash oracle attack — anyone can check if a specific file exists in your system by computing its hash. Acceptable for most B2B use cases.</div></div>`},
+    {t:'Chunk Size Decision',body:`<div class="decision">
+      <div class="d-row"><div class="d-if">Mobile / flaky network</div><div class="d-arrow">→</div><div class="d-then">1-2MB: faster retry on failure</div></div>
+      <div class="d-row"><div class="d-if">Desktop / stable broadband</div><div class="d-arrow">→</div><div class="d-then">8-10MB: less overhead per chunk</div></div>
+      <div class="d-row"><div class="d-if">Video downstream transcoding</div><div class="d-arrow">→</div><div class="d-then">GOP-aligned: enables parallel transcoding</div></div>
+    </div>`},
+   ]},
+
+  {id:'surge',cat:'Scaling',label:'Demand Surge Handling',icon:'ti-rocket',badge:'problem',
+   title:'Handling 100x Traffic Surges',
+   desc:"Black Friday, viral content, World Cup finals — survive without over-provisioning year-round.",
+   metrics:[['100x','Peak vs baseline'],['30s','Cold start target'],['99.9%','Availability target']],
+   sections:[
+    {t:'Predictable vs Unpredictable Surges',body:`<div class="tradeoffs">
+      <div class="tradeoff-card pro"><div class="tradeoff-label">Predictable (Black Friday, launches)</div><div class="tradeoff-item">Pre-scale 2 hours before expected surge</div><div class="tradeoff-item">Warm caches proactively with popular data</div><div class="tradeoff-item">Disable non-critical features beforehand</div><div class="tradeoff-item">Run chaos engineering drill beforehand</div></div>
+      <div class="tradeoff-card con"><div class="tradeoff-label">Unpredictable (viral, breaking news)</div><div class="tradeoff-item">0 to 100x in 60 seconds — no warning</div><div class="tradeoff-item">Must rely purely on reactive defenses</div><div class="tradeoff-item">Circuit breakers and load shedding are critical</div><div class="tradeoff-item">This is the hard case</div></div>
+    </div>`},
+    {t:'Defense Layers',body:`<div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">CDN Absorption</div><div class="step-desc">Well-configured CDN absorbs 90%+ before hitting origin. Static assets: infinite CDN scale. For APIs: even 60s TTL on GETs reduces origin load 80% during surge. Built-in DDoS protection.</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Auto-scaling (ASG / HPA)</div><div class="step-desc">Scale trigger: CPU >60% for 2 min OR queue depth >1000. <span class="hl">Critical:</span> bake AMIs, pre-pull Docker images. Cold start <30s. Predictive scaling for known events.</div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Rate Limiting & Load Shedding</div><div class="step-desc">At 90% capacity: rate limit to 5 req/s. At 100%: <span class="danger">load shedding</span> — reject low-priority requests (analytics, recommendations) to protect checkout/login. Return 503 with Retry-After.</div></div></div>
+      <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Queue-Based Smoothing</div><div class="step-desc">Spiky writes → queue (SQS/Kafka) → workers at sustainable rate. Checkout surge: queue the intent, return optimistic success, process async. Prevents DB connection pool exhaustion.</div></div></div>
+      <div class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-title">Circuit Breaker</div><div class="step-desc">Downstream failure >20% in 30s → open circuit → fail fast instead of waiting for timeout. Half-open: test 5% traffic to detect recovery. Prevents cascading failures.</div></div></div>
+    </div>`},
+    {t:'What to Degrade Gracefully',body:`<div class="tradeoffs">
+      <div class="tradeoff-card pro"><div class="tradeoff-label">NEVER Degrade</div><div class="tradeoff-item">Authentication & sessions</div><div class="tradeoff-item">Checkout & payment</div><div class="tradeoff-item">Core product search</div><div class="tradeoff-item">Data integrity</div></div>
+      <div class="tradeoff-card con"><div class="tradeoff-label">OK to Degrade</div><div class="tradeoff-item">Personalized recommendations → popular items</div><div class="tradeoff-item">Real-time inventory → estimated counts</div><div class="tradeoff-item">Reviews → hide or show cached</div><div class="tradeoff-item">Analytics & tracking → drop entirely</div></div>
+    </div>`},
+    {t:'Virtual Queue (Ticketmaster Pattern)',body:`<div class="card"><div class="card-body">For extreme surges (Taylor Swift tickets): <span class="hl">don't try to serve everyone simultaneously.</span> Redirect to waiting room. Assign random or arrival-order position. Release in controlled batches (1000/min). Each user gets JWT with position + expiry. Polls every 30s for position update. Converts unbounded concurrent load into bounded sequential load. Users accept waiting over crashing.</div></div>`},
+   ]},
+
+  {id:'ratelimit',cat:'Scaling',label:'Rate Limiting',icon:'ti-gauge',badge:'pattern',
+   title:'Rate Limiting Algorithms & Distributed Coordination',
+   desc:'Token bucket to sliding window — the math, trade-offs, and distributed Redis coordination.',
+   metrics:[['<1ms','Overhead target'],['Token bucket','Most expressive'],['Sliding window','Most accurate']],
+   sections:[
+    {t:'The Four Algorithms',body:`<div class="cards">
+      <div class="card"><div class="card-title">1. Fixed Window Counter</div><div class="card-body">Count requests per minute window. Simple Redis INCR + EXPIRE. <span class="danger">Problem:</span> boundary attack — 100 req at :59 + 100 at :00 = 200 in 2 seconds. Window reset causes thundering herd.</div></div>
+      <div class="card"><div class="card-title">2. Sliding Window Log</div><div class="card-body">Store timestamp of each request. Count in [now-60s, now]. Accurate, no boundary burst. <span class="danger">Problem:</span> O(requests) memory per user. At 1M users × 100 req/min = unsustainable. Good for low-traffic billing accuracy.</div></div>
+      <div class="card"><div class="card-title">3. Sliding Window Counter (Hybrid)</div><div class="card-body">Two fixed windows. Estimate: prev_count × (1 - elapsed_fraction) + current_count. ~0.003% error vs true sliding window. <span class="hl">Best trade-off.</span> Cloudflare uses this.</div></div>
+      <div class="card"><div class="card-title">4. Token Bucket</div><div class="card-body">Bucket with capacity C, refills R tokens/sec. Request consumes 1 token. Allows bursting up to C, sustained rate R. Most expressive: differentiate burst from sustained. AWS API Gateway, Stripe use this.</div></div>
+    </div>`},
+    {t:'Distributed Coordination',body:`<div class="card"><div class="card-body"><span class="hl">The hard part:</span> 10 servers each with local state → user can send 10x limit by hitting all servers.<br><br><span class="warn">Central Redis:</span> adds 1-2ms per request. At 100K req/s = 100K Redis ops/s. Single SPOF.<br><br><span class="hl">Better:</span> Each server gets 1/10th quota. Sync with Redis every second to rebalance. Locally enforce 1/10th without Redis call per request. Accept up to 2x overshoot for 1 second during sync. For abuse prevention: acceptable. For billing: use exact central counter.</div></div>`},
+   ]},
+
+  {id:'cache',cat:'Scaling',label:'Caching Strategies',icon:'ti-database',badge:'pattern',
+   title:'Caching: Strategies, Patterns & Failure Modes',
+   desc:'Cache-aside, write-through, and the cache stampede / avalanche / penetration problems.',
+   metrics:[['~1ms','Redis RTT'],['99%+','Hit rate target'],['TTL jitter','Avalanche fix']],
+   sections:[
+    {t:'Cache Strategy Comparison',body:`<div class="cards">
+      <div class="card"><div class="card-title">Cache-Aside (Lazy Loading)</div><div class="card-body">App checks cache first. Miss → load from DB → write to cache → return. <span class="hl">Most common.</span> Cache failure falls back to DB. Race condition: two simultaneous misses both load from DB. Fix: mutex lock on miss.</div></div>
+      <div class="card"><div class="card-title">Write-Through</div><div class="card-body">Every write → cache AND DB synchronously. Always fresh. Cons: write latency doubles, cache polluted with unread data. Use for: user profiles, settings (read-heavy + write consistency critical).</div></div>
+      <div class="card"><div class="card-title">Write-Behind (Write-Back)</div><div class="card-body">Write to cache only, acknowledge user. Async DB flush. Ultra-fast writes. <span class="danger">Data loss if cache crashes before flush.</span> Use for: counters, analytics, reconstructable data. Never for financial transactions.</div></div>
+    </div>`},
+    {t:'The Three Failure Modes',body:`<div class="cards">
+      <div class="card"><div class="card-title"><i class="ti ti-storm" aria-hidden="true"></i> Cache Stampede</div><div class="card-body">Popular key expires. 10K concurrent requests all miss → all query DB → DB melts. Solutions: (1) Mutex: first miss locks, loads, others wait. (2) Probabilistic early expiry: refresh before expiry with growing probability. (3) Background refresh: serve stale while refreshing async.</div></div>
+      <div class="card"><div class="card-title"><i class="ti ti-wave-sine" aria-hidden="true"></i> Cache Avalanche</div><div class="card-body">Many keys expire simultaneously (all populated at same time). Massive DB hit. Solution: <span class="hl">TTL jitter</span>: TTL = base + random(0, base × 0.1). Spreads expiry across time. Also: stagger cache warm-up after restart.</div></div>
+      <div class="card"><div class="card-title"><i class="ti ti-arrow-bounce" aria-hidden="true"></i> Cache Penetration</div><div class="card-body">Attacker queries non-existent keys. Every miss hits DB. Solutions: (1) Cache null results with short TTL (30s). (2) <span class="hl">Bloom filter:</span> definitively answer "doesn't exist" without DB call. O(1) lookup, tunable false-positive rate.</div></div>
+    </div>`},
+   ]},
+
+  {id:'dbscaling',cat:'Scaling',label:'Database Scaling',icon:'ti-table',badge:'pattern',
+   title:'Database Scaling: Replication, Sharding & CQRS',
+   desc:'When single-node hits limits — scale reads first (replicas), then writes (sharding).',
+   metrics:[['10K QPS','Single-node ceiling'],['Sharding','For write scale'],['CQRS','For query diversity']],
+   sections:[
+    {t:'Scaling Ladder',body:`<div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Vertical Scaling</div><div class="step-desc">Buy bigger hardware. Max AWS RDS: 128 vCPUs, 3.9TB RAM. Gets expensive. No HA. Good starting point — don't prematurely optimize.</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Read Replicas</div><div class="step-desc">Async replication: primary accepts writes, replicas serve reads. Route 80% of traffic to replicas. <span class="warn">Replication lag:</span> 10-100ms. Never read-your-writes from replica. Use sync replication for financial data (higher write latency cost).</div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">CQRS</div><div class="step-desc">Separate write model (normalized, ACID — PostgreSQL) from read model (denormalized, optimized — Elasticsearch for search, Redis for hot data, ClickHouse for analytics). Events drive both. Each optimized for its access pattern.</div></div></div>
+      <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Horizontal Sharding</div><div class="step-desc">Split data across instances by shard key. Each shard owns 1/N of data. <span class="danger">Complexity:</span> cross-shard JOINs, rebalancing, hotspots. Use consistent hashing with virtual nodes to distribute evenly. Avoid until necessary.</div></div></div>
+    </div>`},
+    {t:'Sharding Key Selection',body:`<div class="decision">
+      <div class="d-row"><div class="d-if">User-centric app (social, messaging)</div><div class="d-arrow">→</div><div class="d-then">user_id — co-locates user's data</div></div>
+      <div class="d-row"><div class="d-if">Multi-tenant SaaS</div><div class="d-arrow">→</div><div class="d-then">tenant_id — isolated per customer</div></div>
+      <div class="d-row"><div class="d-if">Global content (media, news)</div><div class="d-arrow">→</div><div class="d-then">content_id — even distribution</div></div>
+      <div class="d-row"><div class="d-if">Time-series (logs, events)</div><div class="d-arrow">→</div><div class="d-then">time-based shard — range queries efficient</div></div>
+    </div>
+    <div class="card" style="margin-top:8px"><div class="card-body"><span class="danger">Common mistake:</span> sequential ID or timestamp shard key → write hotspot on highest shard. Use consistent hashing to distribute evenly.</div></div>`},
+   ]},
+
+  {id:'payment',cat:'Real-World',label:'Payment System',icon:'ti-credit-card',badge:'arch',
+   title:'Payment Processing: Correctness at All Costs',
+   desc:'Idempotency keys, double-charge prevention, saga pattern, and daily reconciliation.',
+   metrics:[['99.999%','Uptime target'],['0','Acceptable double charges'],['ACID','Non-negotiable']],
+   sections:[
+    {t:'Priority Order',body:`<div class="card"><div class="card-body">Payment systems: <span class="hl">Correctness > Consistency > Availability > Performance.</span> Opposite of most internet systems. You would rather return 503 than double-charge. Availability second. Speed last. Every architectural decision flows from this.</div></div>`},
+    {t:'Idempotency — The Most Important Pattern',body:`<div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">The Problem</div><div class="step-desc">Client sends charge request. Server charges card. Network drops before response. Client retries → double charge. This is the payment hell scenario.</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Idempotency Keys</div><div class="step-desc">Client generates UUID for each payment intent. Includes in every request header. Server stores {idempotency_key → result} with UNIQUE constraint. Retry finds existing result → returns same response. Double charge blocked at DB level.</div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Implementation Details</div><div class="step-desc">Key stored atomically with charge record (same DB transaction). TTL: 24 hours (Stripe). Format: client-generated UUID v4. Server validates key matches same request payload — prevents misuse.</div></div></div>
+    </div>`},
+    {t:'Distributed Transaction (Saga Pattern)',body:`<div class="card"><div class="card-body"><span class="hl">Scenario:</span> Debit Alice + Credit Bob across different shards/services.<br><br><span class="warn">2PC:</span> Slow, coordinator SPOF, holds locks during prepare phase.<br><br><span class="hl">Saga (preferred):</span> Each step = local transaction + compensating transaction. Step 3 fails → execute compensating txns for steps 1 and 2. Example: debit Alice → (success) credit Bob → (fail) refund Alice. Steps are eventual, not atomic. Used by Uber, Airbnb.</div></div>`},
+    {t:'Reconciliation',body:`<div class="card"><div class="card-body"><span class="hl">Non-negotiable:</span> daily reconciliation comparing your ledger with bank statement. Any mismatch >$0.01 triggers investigation. Catches: PSP duplicate charges, failed refunds that PSP processed, currency conversion errors, timezone bugs at day boundaries.</div></div>`},
+   ]},
+
+  {id:'consistency',cat:'Scaling',label:'Consistency Models',icon:'ti-arrows-exchange',badge:'pattern',
+   title:'Consistency vs Availability: CAP & PACELC',
+   desc:'CAP theorem explained clearly, PACELC, and how to choose the right consistency model.',
+   sections:[
+    {t:'CAP: What It Actually Means',body:`<div class="card"><div class="card-body">During a network partition, choose:<br><br><span class="hl">CP:</span> Refuse requests that can't be consistent. Return error. ZooKeeper, HBase. Good for: banking, inventory.<br><span class="hl">AP:</span> Serve possibly stale data. Cassandra, DynamoDB. Good for: social feeds, DNS, shopping carts.<br><br><span class="warn">PACELC is more useful:</span> If no partition: trade off Latency vs Consistency. Most systems choose low latency (serve stale) in normal operation, even if they claim strong consistency.</div></div>`},
+    {t:'Consistency Levels',body:`<div class="cards">
+      <div class="card"><div class="card-title">Strong Consistency</div><div class="card-body">Every read gets the latest write. Requires sync replication or Raft/Paxos consensus. High latency. Use for: financial balances, inventory counts, auth sessions.</div></div>
+      <div class="card"><div class="card-title">Read-Your-Writes</div><div class="card-body">You always see your own writes. Others may lag. Sufficient for most social features. Implement: route reads to primary for 30s after write, or check write timestamp vs replica.</div></div>
+      <div class="card"><div class="card-title">Eventual Consistency</div><div class="card-body">All replicas converge given no new writes. "Eventually" = ms to seconds. Acceptable: profile views, like counts, recommendations. Not acceptable: balances, seat reservations, inventory.</div></div>
+      <div class="card"><div class="card-title">Causal Consistency</div><div class="card-body">Causally related ops seen in order. Alice posts, Bob comments → everyone sees post before comment. Middle ground. Used by Facebook's TAO.</div></div>
+    </div>`},
+   ]},
+
+  {id:'kafka',cat:'Scaling',label:'Kafka & Message Queues',icon:'ti-chart-sankey',badge:'pattern',
+   title:'Kafka vs Queues: When to Use Each',
+   desc:'Kafka architecture internals, consumer groups, offset management, and when RabbitMQ is better.',
+   metrics:[['1M+ msg/s','Kafka throughput'],['Weeks','Retention'],['Consumer group','Parallelism unit']],
+   sections:[
+    {t:'Queue vs Kafka',body:`<div class="tradeoffs">
+      <div class="tradeoff-card pro"><div class="tradeoff-label">RabbitMQ / SQS (Task Queue)</div><div class="tradeoff-item">Each message processed once by one worker</div><div class="tradeoff-item">Complex routing (fanout, topic exchanges)</div><div class="tradeoff-item">Dead-letter queues, TTL built-in</div><div class="tradeoff-item">Job queues, email, background tasks</div></div>
+      <div class="tradeoff-card con"><div class="tradeoff-label">Kafka (Event Log)</div><div class="tradeoff-item">Multiple consumers replay same events independently</div><div class="tradeoff-item">Long retention — replay historical data</div><div class="tradeoff-item">1M+ msg/s, ordered within partitions</div><div class="tradeoff-item">Event sourcing, CDC, audit log, stream processing</div></div>
+    </div>`},
+    {t:'Kafka Internals',body:`<div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Topics & Partitions</div><div class="step-desc">Topic = logical stream. Partitioned: each is an ordered log on one broker. Producers write by hash(key). Messages in same partition maintain order. More partitions = more parallelism. Rule: 1 partition per consumer thread target.</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Consumer Groups</div><div class="step-desc">Multiple consumers in a group share partitions: C1 gets P0+P1, C2 gets P2+P3. Add consumer → rebalance. Max parallelism = partition count. 10 partitions → max 10 consumers per group.</div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Offset Management</div><div class="step-desc"><span class="hl">At-least-once:</span> commit offset after processing. Crash before commit → reprocess. Make consumer idempotent. <span class="warn">At-most-once:</span> commit before processing. Crash during → message lost. Use only for metrics where loss is OK.</div></div></div>
+    </div>`},
+   ]},
+
+  {id:'hotspot',cat:'Scaling',label:'Hotspot Problem',icon:'ti-flame',badge:'problem',
+   title:'Database Hotspot: The Celebrity Partition Problem',
+   desc:"When one key gets 1000x more traffic — horizontal scaling doesn't help without mitigation.",
+   sections:[
+    {t:'The Problem',body:`<div class="card"><div class="card-body"><span class="hl">Scenario:</span> DB sharded by user_id. Beyoncé has 200M followers. Every post → 10M feed queries hit her shard simultaneously. Her shard: 10,000x load. Other shards: idle. Adding more shards doesn't fix it — you can't split one user across shards without app changes.</div></div>`},
+    {t:'Solutions by Layer',body:`<div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Cache Layer</div><div class="step-desc">Cache celebrity profiles + posts in Redis. TTL = 60s. 10M requests/min → 1 cache read/second to Redis vs 10M DB reads. Cache invalidation: bio change → purge key. Users see 60s stale bio (acceptable for social).</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Read Replicas per Hot Shard</div><div class="step-desc">Add 10 read replicas to the celebrity shard. Route reads round-robin. Scale replicas proportional to follower count. Write still goes to primary.</div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Counter Key Salting</div><div class="step-desc">Beyoncé's like counter: millions of increments/sec on one Redis key = hot node. Solution: shard the counter across 100 keys: like_count_{id}_{0..99}. Random increment distribution. Sum all 100 keys on read. 100x write throughput.</div></div></div>
+      <div class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Celebrity Tier</div><div class="step-desc">Instagram's approach: accounts >1M followers → separate high-capacity tier. Different fan-out logic. Operational separation protects regular traffic from celebrity surge.</div></div></div>
+    </div>`},
+   ]},
+
+  {id:'websocket',cat:'Scaling',label:'Real-time: WebSocket & SSE',icon:'ti-broadcast',badge:'pattern',
+   title:'Real-time Communication: WebSocket, SSE & Long Polling',
+   desc:'When to use each technique, connection management at scale, and presence systems.',
+   sections:[
+    {t:'Technology Comparison',body:`<div class="cards">
+      <div class="card"><div class="card-title">Long Polling</div><div class="card-body">Client sends request → server holds until event or timeout → client immediately re-requests. Works everywhere. <span class="warn">Problem:</span> at 1M users = 1M open connections. Each Nginx worker handles ~1K = 1000 servers. Very expensive.</div></div>
+      <div class="card"><div class="card-title">Server-Sent Events (SSE)</div><div class="card-body">Unidirectional push: server → client. Standard HTTP chunked encoding. Browser EventSource auto-reconnects. <span class="hl">Best for:</span> notifications, live dashboards, chat (combine SSE for receive + HTTP POST for send). Works through HTTP/2 multiplexing.</div></div>
+      <div class="card"><div class="card-title">WebSocket</div><div class="card-body">Bidirectional persistent. HTTP 101 upgrade. <span class="hl">Best for:</span> collaborative editing, multiplayer games, trading terminals. Sub-100ms bidirectional. Higher complexity: reconnection, heartbeats, state management.</div></div>
+    </div>`},
+    {t:'WebSocket at Scale',body:`<div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Connection Affinity Problem</div><div class="step-desc">User A's WebSocket on Server 1. User B on Server 2. A messages B. Server 1 doesn't have B's connection. Solution: Pub/Sub backbone (Redis). Server 1 publishes → Server 2 subscribes → delivers to B.</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Connection Registry</div><div class="step-desc">Redis map: user_id → server_id. Message for user X: look up server, publish to that server's channel. Registry TTL 60s, refreshed by heartbeat.</div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Scaling to Millions</div><div class="step-desc">Node.js / Erlang: 100K+ WebSocket connections per server with <1GB RAM. Event loop async I/O — no thread-per-connection. HAProxy layer: hash by user_id for session stickiness.</div></div></div>
+    </div>`},
+   ]},
+
+  {id:'snowflake',cat:'Scaling',label:'Distributed ID Generation',icon:'ti-fingerprint',badge:'pattern',
+   title:'Distributed ID Generation: Snowflake & Beyond',
+   desc:'Why auto-increment fails in distributed systems and how Twitter, Instagram, MongoDB solved it.',
+   metrics:[['4K IDs/ms','Per Snowflake node'],['64-bit','Standard size'],['0 coordination','The goal']],
+   sections:[
+    {t:'Why Auto-Increment Fails',body:`<div class="card"><div class="card-body">Single DB auto-increment: bottleneck at high write throughput. Distributed shards: IDs from different shards collide. UUIDs (128-bit): random → B-tree fragmentation, no ordering, unreadable in URLs.<br><br><span class="hl">Requirements:</span> globally unique, roughly time-ordered, no coordination needed, fits in 64-bit INT.</div></div>`},
+    {t:'Snowflake ID Layout',body:`<div class="code-block">64-bit integer:
+[1 bit unused][41 bits timestamp ms][10 bits machine ID][12 bits sequence]
+
+Timestamp: ms since custom epoch → 69 years of IDs
+Machine ID: configured at deploy (max 1024 machines)
+Sequence: auto-increment per ms, resets each ms (4096 IDs/ms/machine)
+
+Max: 4,096 × 1,000 = 4.1M IDs/sec per machine
+
+Instagram variant: PostgreSQL stored procedure (no separate service)
+MongoDB ObjectID: 4-byte timestamp + 5-byte random + 3-byte counter</div>
+    <div class="card" style="margin-top:8px"><div class="card-body"><span class="warn">Clock skew:</span> system clock moves backward → duplicate IDs. Fix: if now_ms < last_ms → wait until caught up. Or use logical clock. Always use NTP with leap smearing.</div></div>`},
+   ]},
+
+  {id:'cdn',cat:'Scaling',label:'CDN Architecture',icon:'ti-world',badge:'pattern',
+   title:'CDN: Edge Caching, Anycast & Cache Invalidation',
+   desc:"Cache invalidation — one of CS's hardest problems. Here's how CDNs actually solve it.",
+   sections:[
+    {t:'How CDNs Work',body:`<div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Anycast DNS</div><div class="step-desc">CDN announces same IP prefix from 200+ PoPs. BGP routes user to nearest PoP. Mumbai user → Mumbai PoP, London user → London PoP. Same URL, closest server automatically.</div></div></div>
+      <div class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Tiered Cache</div><div class="step-desc">Edge PoP miss → regional mid-tier → origin. YouTube: 99% at edge, 0.9% mid-tier, 0.1% origin. Mid-tier has larger cache, fewer locations.</div></div></div>
+      <div class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Cache Keys & Vary</div><div class="step-desc">Cache key = URL + Vary headers. Vary: Accept-Encoding → separate for gzip/brotli. <span class="danger">Anti-pattern:</span> Vary: Cookie → user-specific cache = 0% hit rate. Keep authenticated and public content at separate URLs.</div></div></div>
+    </div>`},
+    {t:'Invalidation Strategies',body:`<div class="cards">
+      <div class="card"><div class="card-title">URL Versioning (Best)</div><div class="card-body">Embed hash in filename: /app.a3f4b2.js. New deploy = new URL = new cache. Old URL persists until TTL. <span class="hl">Zero stale asset problems.</span> Works for immutable JS/CSS/images.</div></div>
+      <div class="card"><div class="card-title">Surrogate / Cache Tags</div><div class="card-body">Tag responses: product_123, user_456. On update: purge by tag. Cloudflare Cache Tags purges all 2000+ edge locations in <150ms via API. Best for dynamic content tied to entities.</div></div>
+      <div class="card"><div class="card-title">Short TTL</div><div class="card-body">TTL=60s → worst-case 60s stale but 60x less origin load. Simple, no infrastructure. Acceptable for: news, product listings, prices where near-real-time is fine.</div></div>
+    </div>`},
+   ]},
+
+  {id:'api',cat:'Scaling',label:'API Design',icon:'ti-api',badge:'pattern',
+   title:'API Design: REST, GraphQL & gRPC',
+   desc:"Choosing the right paradigm, versioning, and pagination patterns that don't scale badly.",
+   sections:[
+    {t:'When to Use Each',body:`<div class="cards">
+      <div class="card"><div class="card-title">REST</div><div class="card-body"><span class="hl">Default for public APIs.</span> Familiar, cacheable GETs, great tooling. Problems: over-fetching (unused fields), under-fetching (N+1 calls). Use: public APIs, simple CRUD, mobile clients with known query patterns.</div></div>
+      <div class="card"><div class="card-title">GraphQL</div><div class="card-body">Client specifies exact fields needed. Single endpoint. Eliminates over/under-fetching. N+1 solved by DataLoader batching. Problems: complex server, caching hard (all POSTs), query depth attacks (limit to 5-7 levels). Use: diverse client types (web vs mobile), aggregating multiple sources.</div></div>
+      <div class="card"><div class="card-title">gRPC</div><div class="card-body">Binary (Protobuf) — 10x more efficient than JSON. Strongly typed. Streaming support. IDL generates client code. Problems: not human-readable, browser support limited. Use: <span class="hl">internal microservice comms</span>, high-throughput pipelines.</div></div>
+    </div>`},
+    {t:'Pagination: Cursor vs Offset',body:`<div class="tradeoffs">
+      <div class="tradeoff-card con"><div class="tradeoff-label">Offset Pagination (?page=3&limit=20)</div><div class="tradeoff-item">Simple to implement</div><div class="tradeoff-item">OFFSET 10000: DB scans 10020 rows, discards 10000</div><div class="tradeoff-item">Missing/duplicate items if data changes between pages</div><div class="tradeoff-item">Breaks badly at scale</div></div>
+      <div class="tradeoff-card pro"><div class="tradeoff-label">Cursor Pagination (?after=xyz&limit=20)</div><div class="tradeoff-item">Cursor = opaque pointer to last item (encoded ID + timestamp)</div><div class="tradeoff-item">Consistent across data changes</div><div class="tradeoff-item">O(1) regardless of page depth</div><div class="tradeoff-item">GitHub, Stripe, Slack all use cursor pagination</div></div>
+    </div>`},
+   ]},
+
+  {id:'microservices',cat:'Architecture',label:'Microservices vs Monolith',icon:'ti-layout-board',badge:'pattern',
+   title:'Microservices vs Monolith: The Honest Trade-off',
+   desc:"Microservices aren't always better. When Conway's Law matters and when to stay monolithic.",
+   sections:[
+    {t:'When Microservices Win',body:`<div class="cards cards-2">
+      <div class="card"><div class="card-title">Team Scale (Conway's Law)</div><div class="card-body">Systems mirror org structure. 500+ engineers can't work effectively in one codebase. Microservices give team ownership boundaries. 2-pizza teams: monolith is faster.</div></div>
+      <div class="card"><div class="card-title">Independent Scaling</div><div class="card-body">Image resizing needs 100x more CPU than user profile service. Microservices: scale independently. Monolith: scale everything (wasteful).</div></div>
+      <div class="card"><div class="card-title">Technology Diversity</div><div class="card-body">ML serving needs Python. Real-time bidding needs C++. Monolith: one language. Microservices: right tool per job.</div></div>
+      <div class="card"><div class="card-title">Fault Isolation</div><div class="card-body">Recommendation crashes → users still checkout. Monolith OOM → everything down. Partial degradation vs total failure.</div></div>
+    </div>`},
+    {t:'Hidden Costs',body:`<div class="cards">
+      <div class="card"><div class="card-title"><i class="ti ti-network" aria-hidden="true"></i> Network is Now Your Problem</div><div class="card-body">Monolith: function call = nanoseconds. Microservices: service call = 1-50ms + serialization + retry logic. Every inter-service call needs timeout, retry with backoff, circuit breaker. High operational complexity.</div></div>
+      <div class="card"><div class="card-title"><i class="ti ti-arrows-exchange" aria-hidden="true"></i> No Distributed Transactions</div><div class="card-body">Monolith: BEGIN TRANSACTION. Microservices: two DBs = no ACID. Need saga pattern or accept eventual consistency. Much harder to reason about correctness.</div></div>
+      <div class="card"><div class="card-title"><i class="ti ti-search" aria-hidden="true"></i> Operational Overhead</div><div class="card-body">30 services = 30 pipelines, 30 dashboards, 30 log streams to correlate. Need service mesh (Istio), distributed tracing, container orchestration (K8s). Requires dedicated platform team.</div></div>
+    </div>`},
+   ]},
+
+  {id:'observability',cat:'Scaling',label:'Observability',icon:'ti-chart-line',badge:'pattern',
+   title:'Observability: Metrics, Tracing & Logging',
+   desc:'The three pillars, SLO/error budget design, and distributed tracing for microservices.',
+   sections:[
+    {t:'The Three Pillars',body:`<div class="cards">
+      <div class="card"><div class="card-title"><i class="ti ti-chart-bar" aria-hidden="true"></i> Metrics</div><div class="card-body">Aggregated numbers over time: CPU, request rate, error rate, latency percentiles. Fast to query, low storage. Tells you what but not why. Prometheus + Grafana. <span class="hl">Four Golden Signals:</span> latency, traffic, errors, saturation.</div></div>
+      <div class="card"><div class="card-title"><i class="ti ti-arrows-split-2" aria-hidden="true"></i> Distributed Tracing</div><div class="card-body">Follow one request across 10 microservices. Trace ID propagated in headers (W3C Trace Context). Each service adds a span. Waterfall view. OpenTelemetry → Jaeger/Tempo. <span class="hl">Essential for microservices.</span></div></div>
+      <div class="card"><div class="card-title"><i class="ti ti-file-text" aria-hidden="true"></i> Structured Logging</div><div class="card-body">JSON logs with: timestamp, level, service, trace_id, user_id, message. Never printf strings. trace_id links to traces. Centralized in Elasticsearch or Loki. Query: all logs for trace_id=abc123 across all services.</div></div>
+    </div>`},
+    {t:'SLO & Error Budget',body:`<div class="card"><div class="card-body"><span class="hl">SLI:</span> measured quantity — "% requests <200ms"<br><span class="hl">SLO:</span> target — "99.9% of requests <200ms over 30 days"<br><span class="hl">Error budget:</span> 100% - 99.9% = 0.1% = 43.8 min/month downtime<br><br>Burn rate alerts: burning 14x faster → page immediately (exhausts in 2 hours). <span class="hl">Treat error budget as a product</span> — spend it intentionally on experiments, not waste it on incidents.</div></div>`},
+   ]},
+
+  {id:'geospatial',cat:'Scaling',label:'Geospatial Systems',icon:'ti-map-pin',badge:'pattern',
+   title:'Geospatial: Location Indexing & Proximity Search',
+   desc:'How Uber, Tinder, and Google Maps find things near you using S2, Geohash, and H3.',
+   sections:[
+    {t:'Why Standard Indexes Fail',body:`<div class="card"><div class="card-body">Find all drivers within 5km of (lat, lng). Full scan: calculate distance to every driver. At 250K drivers — too slow. Can't use B-tree: coordinates are 2D, indexes are 1D. Solution: encode 2D space into 1D hierarchy where nearby locations share common prefixes.</div></div>`},
+    {t:'Three Encoding Systems',body:`<div class="cards">
+      <div class="card"><div class="card-title">Geohash</div><div class="card-body">Encodes lat/lng as Base32 string. Common prefix = neighboring region. "dr5ru" = Manhattan. Longer = smaller area. Radius search: find all cells overlapping radius, query by prefix. <span class="warn">Edge case:</span> two close points may have different prefixes at grid boundary. Must query adjacent cells too.</div></div>
+      <div class="card"><div class="card-title">Google S2</div><div class="card-body">Divides sphere (not flat map) into hierarchical square cells. Level 0 = 6 cube faces. Level 30 = ~1cm². Accurate at poles (no projection distortion). Used by Uber, Google Maps, Foursquare. Better radius coverage than Geohash.</div></div>
+      <div class="card"><div class="card-title">H3 (Uber)</div><div class="card-body">Open-source hierarchical hex grid. 15 resolution levels. Hexagons: equal area, equal distance to all 6 neighbors (unlike squares). Used for: supply/demand viz, surge zones, driver aggregation. Better "nearest neighbor" semantics.</div></div>
+    </div>`},
+   ]},
+
+  {id:'nosql',cat:'Scaling',label:'SQL vs NoSQL',icon:'ti-database-star',badge:'pattern',
+   title:'SQL vs NoSQL: Choose by Access Pattern',
+   desc:"It's not about scale — it's about access patterns, consistency requirements, and schema flexibility.",
+   sections:[
+    {t:'Decision Framework',body:`<div class="decision">
+      <div class="d-row"><div class="d-if">Complex queries, JOINs, ad-hoc analytics</div><div class="d-arrow">→</div><div class="d-then">PostgreSQL / MySQL</div></div>
+      <div class="d-row"><div class="d-if">Known access patterns, high write throughput</div><div class="d-arrow">→</div><div class="d-then">DynamoDB / Cassandra</div></div>
+      <div class="d-row"><div class="d-if">Flexible schema, nested JSON documents</div><div class="d-arrow">→</div><div class="d-then">MongoDB</div></div>
+      <div class="d-row"><div class="d-if">Cache layer, sessions, counters</div><div class="d-arrow">→</div><div class="d-then">Redis</div></div>
+      <div class="d-row"><div class="d-if">Full-text search, log aggregation</div><div class="d-arrow">→</div><div class="d-then">Elasticsearch</div></div>
+      <div class="d-row"><div class="d-if">Graph traversal (social network, fraud)</div><div class="d-arrow">→</div><div class="d-then">Neo4j / Neptune</div></div>
+      <div class="d-row"><div class="d-if">Time-series (IoT, monitoring, metrics)</div><div class="d-arrow">→</div><div class="d-then">InfluxDB / TimescaleDB</div></div>
+    </div>`},
+    {t:'Cassandra vs DynamoDB',body:`<div class="tradeoffs">
+      <div class="tradeoff-card pro"><div class="tradeoff-label">Cassandra (Self-Managed)</div><div class="tradeoff-item">Tunable consistency (ONE → QUORUM → ALL)</div><div class="tradeoff-item">Multi-region active-active replication</div><div class="tradeoff-item">No per-request cost (just ops)</div><div class="tradeoff-item">Partition key + clustering key = query contract</div></div>
+      <div class="tradeoff-card con"><div class="tradeoff-label">DynamoDB (Managed)</div><div class="tradeoff-item">Zero operational overhead — AWS manages all</div><div class="tradeoff-item">Auto-scaling, backups, global tables built-in</div><div class="tradeoff-item">Pay per request — expensive at high scale</div><div class="tradeoff-item">Single-table design forces upfront access pattern knowledge</div></div>
+    </div>`},
+   ]},
+];
+
+const CATS=['Real-World','Scaling','Architecture'];
+let currentCat='Real-World';
+let currentId=null;
+
+function renderCatBar(){
+  document.getElementById('cat-bar-wrap').innerHTML=`<div class="cat-bar">${CATS.map(c=>`<span class="cb${c===currentCat?' active':''}" onclick="setCat('${c}')">${c==='Real-World'?'🏗 Real-World Systems':c==='Scaling'?'⚡ Scaling Patterns':'🔧 Architecture'}</span>`).join('')}</div>`;
+}
+
+function setCat(c){currentCat=c;currentId=null;renderCatBar();renderList();}
+
+function onSearch(val){
+  const v=val.toLowerCase();
+  if(!v){renderList();return;}
+  const results=DESIGNS.filter(d=>(d.label+d.title+d.desc).toLowerCase().includes(v));
+  renderListItems(results);
+}
+
+function renderList(){
+  const items=DESIGNS.filter(d=>d.cat===currentCat);
+  renderListItems(items);
+}
+
+function renderListItems(items){
+  const badgeColors={arch:'color-mix(in srgb,#1a6cf5 12%,transparent)',pattern:'color-mix(in srgb,#0e9e6e 12%,transparent)',problem:'color-mix(in srgb,#d97706 12%,transparent)'};
+  const badgeText={arch:'#1a6cf5',pattern:'#0e9e6e',problem:'#d97706'};
+  const badgeLabel={arch:'Architecture',pattern:'Pattern',problem:'Problem'};
+  const html=items.map(d=>`
+    <div class="li-row" onclick="showDesign('${d.id}')">
+      <i class="ti ${d.icon}" aria-hidden="true" style="font-size:18px;flex-shrink:0;color:var(--t3)"></i>
+      <div class="li-info">
+        <div class="li-title">${d.title}</div>
+        <div class="li-desc">${d.desc}</div>
+      </div>
+      <span class="li-tag" style="background:${badgeColors[d.badge]};color:${badgeText[d.badge]}">${badgeLabel[d.badge]}</span>
+    </div>`).join('');
+  document.getElementById('content-area').innerHTML=`<div class="list-items">${html}</div>`;
+}
+
+function showDesign(id){
+  currentId=id;
+  const d=DESIGNS.find(x=>x.id===id);
+  const bc={arch:'badge-arch',pattern:'badge-pattern',problem:'badge-problem'};
+  const bl={arch:'Architecture',pattern:'Pattern',problem:'Problem & Solution'};
+  const metricsHtml=d.metrics?`<div class="metrics">${d.metrics.map(([v,l])=>`<div class="metric"><div class="metric-val">${v}</div><div class="metric-lbl">${l}</div></div>`).join('')}</div>`:'';
+  const sectionsHtml=d.sections.map(s=>`<div class="section"><div class="section-title">${s.t}</div>${s.body}</div>`).join('');
+  document.getElementById('content-area').innerHTML=`
+    <button class="back-btn" onclick="goBack()"><i class="ti ti-arrow-left" aria-hidden="true"></i> Back</button>
+    <div class="page-header">
+      <div class="page-badge ${bc[d.badge]}"><i class="ti ${d.icon}" aria-hidden="true"></i> ${bl[d.badge]}</div>
+      <div class="page-title">${d.title}</div>
+      <div class="page-desc">${d.desc}</div>
+    </div>
+    ${metricsHtml}${sectionsHtml}`;
+  document.getElementById('content-area').scrollTop=0;
+  window.scrollTo(0,0);
+}
+
+function goBack(){currentId=null;renderCatBar();renderList();}
+
+renderCatBar();
+renderList();
+</script>

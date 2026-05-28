@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT - Detailed System Design</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #21262d;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-orange: #d2991d;
+            --accent-purple: #a371f7;
+            --accent-red: #f85149;
+            --accent-cyan: #39d2c0;
+            --code-bg: #1c2128;
+            --highlight: #1f6feb22;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-sans);
+            line-height: 1.7;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Navigation ─────────────────────── */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(13, 17, 23, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        nav .logo {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #fff;
+            letter-spacing: -0.02em;
+        }
+
+        nav .logo span {
+            color: var(--accent-green);
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            color: #fff;
+        }
+
+        /* ── Container ──────────────────────── */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 32px 80px;
+        }
+
+        /* ── Typography ────────────────────── */
+        h1 {
+            font-size: 2.75rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: #fff;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 48px;
+            max-width: 700px;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #fff;
+            margin-top: 56px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+            letter-spacing: -0.02em;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #e6edf3;
+            margin-top: 32px;
+            margin-bottom: 10px;
+        }
+
+        h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-top: 20px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-size: 0.8rem;
+            color: var(--accent);
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text);
+        }
+
+        .decision-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 24px 28px;
+            margin: 20px 0;
+            border-left: 4px solid var(--accent);
+        }
+
+        .decision-block.alt {
+            border-left-color: var(--accent-purple);
+        }
+
+        .decision-block.warn {
+            border-left-color: var(--accent-orange);
+        }
+
+        .decision-block h4 {
+            margin-top: 0;
+        }
+
+        .decision-block .why {
+            color: var(--accent-green);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        /* ── Code ──────────────────────────── */
+        code {
+            background: var(--code-bg);
+            padding: 2px 7px;
+            border-radius: 5px;
+            font-family: var(--font-mono);
+            font-size: 0.88em;
+            color: var(--accent-cyan);
+            border: 1px solid var(--border);
+        }
+
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px 22px;
+            overflow-x: auto;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            line-height: 1.6;
+            color: #e6edf3;
+            margin: 16px 0;
+        }
+
+        pre .comment {
+            color: #6e7681;
+        }
+
+        pre .keyword {
+            color: #ff7b72;
+        }
+
+        pre .string {
+            color: #a5d6ff;
+        }
+
+        pre .func {
+            color: #d2a8ff;
+        }
+
+        /* ── Diagram ───────────────────────── */
+        .diagram {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px;
+            margin: 24px 0;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.5;
+            color: #c9d1d9;
+        }
+
+        .diagram .box {
+            display: inline-block;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px 14px;
+            margin: 4px;
+            white-space: nowrap;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .diagram .arrow-line {
+            color: var(--accent);
+        }
+
+        .diagram .label {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* ── Table ─────────────────────────── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--border);
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--surface2);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) td {
+            background: var(--highlight);
+        }
+
+        /* ── Callout ───────────────────────── */
+        .callout {
+            background: var(--highlight);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 16px 0;
+            color: #c9d1d9;
+        }
+
+        .callout strong {
+            color: var(--accent);
+        }
+
+        /* ── Badge ─────────────────────────── */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            margin-right: 6px;
+        }
+
+        .badge-infra {
+            background: #1f6feb33;
+            color: var(--accent);
+        }
+
+        .badge-data {
+            background: #3fb95033;
+            color: var(--accent-green);
+        }
+
+        .badge-ml {
+            background: #a371f733;
+            color: var(--accent-purple);
+        }
+
+        .badge-sec {
+            background: #f8514933;
+            color: var(--accent-red);
+        }
+
+        /* ── Responsive ────────────────────── */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 16px 60px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            nav {
+                padding: 10px 16px;
+                gap: 12px;
+            }
+
+            pre {
+                font-size: 0.7rem;
+                padding: 12px 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- NAVIGATION                             -->
+    <!-- ═══════════════════════════════════════ -->
+    <nav>
+        <div class="logo">ChatGPT <span>◆</span> System Design</div>
+        <a href="#overview">Overview</a>
+        <a href="#frontend">Frontend</a>
+        <a href="#backend">Backend</a>
+        <a href="#inference">Inference</a>
+        <a href="#training">Training</a>
+        <a href="#data">Data Pipeline</a>
+        <a href="#scaling">Scaling</a>
+        <a href="#security">Security</a>
+    </nav>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- MAIN CONTENT                          -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="container">
+
+        <!-- ── HEADER ────────────────────────── -->
+        <h1>ChatGPT: Comprehensive System Design</h1>
+        <p class="subtitle">
+            A deep-dive into the architecture, infrastructure, and design decisions behind a
+            production-grade large language model (LLM) chat service serving 100M+ users.
+            Every component is explained with the <strong>rationale</strong> behind each choice.
+        </p>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION: OVERVIEW                  -->
+        <!-- ═══════════════════════════════════ -->
+        <h2 id="overview">1. High-Level Architecture Overview</h2>
+        <p>
+            ChatGPT is a <strong>multi-tier, globally distributed, real-time conversational AI platform</strong>.
+            It serves millions of concurrent users with sub-second latency for token-by-token
+            streaming responses. The system spans:
+        </p>
+        <ul style="list-style: disc; margin-left: 24px; color: var(--text);">
+            <li><strong>Client Layer</strong> – Web (React), iOS/Android (Swift/Kotlin), API</li>
+            <li><strong>Edge / CDN</strong> – Cloudflare for static assets, DDoS protection, regional routing</li>
+            <li><strong>API Gateway</strong> – Envoy-based, handles auth, rate-limiting, request routing</li>
+            <li><strong>Backend Services</strong> – Orchestration, session management, conversation state</li>
+            <li><strong>Inference Cluster</strong> – GPU pods running optimized LLM inference (vLLM / TensorRT-LLM)</li>
+            <li><strong>Data Plane</strong> – PostgreSQL, Redis, Kafka, S3-compatible object storage</li>
+            <li><strong>ML Platform</strong> – Training (pre-training, fine-tuning, RLHF), evaluation, deployment</li>
+            <li><strong>Observability</strong> – Prometheus, Grafana, OpenTelemetry, centralized logging (Loki)</li>
+        </ul>
+
+        <!-- ASCII Architecture Diagram -->
+        <div class="diagram">
+            <pre style="background:none;border:none;padding:0;margin:0;color:#c9d1d9;">
+                ┌──────────────────────────────────────────────────────────────────┐
+                │                        CLIENTS                                    │
+                │   🌐 Web (React)   📱 iOS/Android   💻 Desktop   🔌 Public API    │
+                └─────────┬───────────────┬───────────────┬───────────────┬────────┘
+                │               │               │               │
+                ▼               ▼               ▼               ▼
+                ┌──────────────────────────────────────────────────────────────────┐
+                │                    🌍 EDGE / CDN (Cloudflare)                      │
+                │   • Static asset caching  • DDoS mitigation  • Regional routing   │
+                └──────────────────────────────────────────────────────────────────┘
+                │
+                ▼
+                ┌──────────────────────────────────────────────────────────────────┐
+                │              ⚙️ API GATEWAY (Envoy + Custom Auth)                  │
+                │   • JWT validation  • Rate limiting  • Request routing            │
+                │   • TLS termination  • WAF rules  • Observability injection       │
+                └─────────┬───────────────┬───────────────┬────────────────────────┘
+                │               │               │
+                ▼               ▼               ▼
+                ┌───────────┐ ┌───────────┐ ┌───────────────────┐
+                │  Chat     │ │  Auth     │ │  Moderation       │
+                │  Service  │ │  Service  │ │  Service          │
+                └─────┬─────┘ └─────┬─────┘ └────────┬──────────┘
+                │               │               │
+                └───────────────┼───────────────┘
+                │
+                ▼
+                ┌──────────────────────────────────────────────────────────────────┐
+                │              🧠 INFERENCE ORCHESTRATOR                            │
+                │   • Model routing  • Load-aware scheduling  • Batching            │
+                │   • Request queuing  • Fallback handling  • Token streaming       │
+                └─────────┬────────────────────────────────────────────────────────┘
+                │
+                ▼
+                ┌──────────────────────────────────────────────────────────────────┐
+                │                   🖥️ GPU INFERENCE CLUSTER                        │
+                │   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐        │
+                │   │ vLLM Pod │  │ vLLM Pod │  │ vLLM Pod │  │ vLLM Pod │  ...   │
+                │   │ (8xH100) │  │ (8xH100) │  │ (8xH100) │  │ (8xH100) │        │
+                │   └──────────┘  └──────────┘  └──────────┘  └──────────┘        │
+                └──────────────────────────────────────────────────────────────────┘
+                │
+                ▼
+                ┌──────────────────────────────────────────────────────────────────┐
+                │                    💾 DATA PLANE                                   │
+                │  ┌──────────┐ ┌──────────┐ ┌───────────┐ ┌──────────────────┐    │
+                │  │PostgreSQL│ │  Redis   │ │  Kafka    │ │  S3 / MinIO      │    │
+                │  │(user,ctx)│ │(cache,sess)│ │(events)  │ │(models,logs)     │    │
+                │  └──────────┘ └──────────┘ └───────────┘ └──────────────────┘    │
+                └──────────────────────────────────────────────────────────────────┘
+            </pre>
+        </div>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION: FRONTEND                  -->
+        <!-- ═══════════════════════════════════ -->
+        <h2 id="frontend">2. Frontend Architecture</h2>
+        <p>
+            The ChatGPT web client is a <strong>single-page application (SPA)</strong> built with
+            <strong>React</strong> and <strong>TypeScript</strong>, emphasizing real-time streaming
+            and optimistic UI updates.
+        </p>
+
+        <h3>2.1 Technology Stack & Rationale</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Technology</th>
+                    <th>Purpose</th>
+                    <th>Why Chosen</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>React 18+</code></td>
+                    <td>UI framework</td>
+                    <td>Concurrent rendering for smooth streaming; vast ecosystem; Server Components possible for SSR
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>TypeScript</code></td>
+                    <td>Type safety</td>
+                    <td>Catch errors at compile time; self-documenting API contracts; better IDE support</td>
+                </tr>
+                <tr>
+                    <td><code>Zustand</code></td>
+                    <td>State management</td>
+                    <td>Lightweight (no boilerplate like Redux); excellent for managing chat threads and streaming
+                        tokens</td>
+                </tr>
+                <tr>
+                    <td><code>Server-Sent Events (SSE)</code></td>
+                    <td>Streaming protocol</td>
+                    <td>Unidirectional server→client; native browser support; simpler than WebSockets for token
+                        streaming</td>
+                </tr>
+                <tr>
+                    <td><code>WebSocket</code> (fallback)</td>
+                    <td>Bidirectional real-time</td>
+                    <td>Used for features like shared conversations, typing indicators, or when SSE is blocked by
+                        proxies</td>
+                </tr>
+                <tr>
+                    <td><code>IndexedDB</code></td>
+                    <td>Local persistence</td>
+                    <td>Offline conversation drafts; caching conversation history locally for instant load</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="decision-block">
+            <span class="why">🔑 Key Decision</span>
+            <h4>Why SSE over WebSockets for Token Streaming?</h4>
+            <p>
+                Token-by-token generation is inherently <strong>unidirectional</strong> (server → client).
+                SSE is simpler, uses standard HTTP/2 or HTTP/3, works seamlessly with CDNs and load balancers,
+                and automatically reconnects. WebSockets add bidirectional overhead and stateful connection
+                complexity that isn't needed for the primary chat flow. However, a thin WebSocket layer is
+                maintained for features requiring client→server push (e.g., "stop generating" signals,
+                voice mode real-time audio).
+            </p>
+        </div>
+
+        <h3>2.2 Streaming Rendering Architecture</h3>
+        <p>
+            As tokens arrive via SSE, the React component performs <strong>incremental state updates</strong>
+            using <code>React.startTransition</code> to keep the UI responsive. The markdown parser
+            (<code>remark</code> / <code>rehype</code>) runs incrementally on the accumulating text,
+            and syntax highlighting is applied lazily via <code>Shiki</code> or <code>Prism.js</code>
+            in a Web Worker to avoid blocking the main thread.
+        </p>
+        <pre>
+            <span class="comment">// Simplified streaming hook</span>
+            <span class="keyword">const</span> <span class="func">useChatStream</span> = (conversationId) => {
+            <span class="keyword">const</span> [tokens, setTokens] = useState&lt;string[]&gt;([]);
+            <span class="keyword">const</span> [isStreaming, setIsStreaming] = useState(<span class="keyword">true</span>);
+
+            useEffect(() => {
+            <span class="keyword">const</span> eventSource = <span class="keyword">new</span> EventSource(
+            <span class="string">`/api/conversations/${conversationId}/stream`</span>
+            );
+            eventSource.onmessage = (event) => {
+            <span class="keyword">const</span> token = JSON.parse(event.data).token;
+            startTransition(() => setTokens(prev => [...prev, token]));
+            };
+            eventSource.addEventListener(<span class="string">'done'</span>, () => setIsStreaming(<span class="keyword">false</span>));
+            <span class="keyword">return</span> () => eventSource.close();
+            }, [conversationId]);
+            };</pre>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION: BACKEND                   -->
+        <!-- ═══════════════════════════════════ -->
+        <h2 id="backend">3. Backend Services</h2>
+        <p>
+            The backend follows a <strong>microservices architecture</strong> with clear domain boundaries,
+            communicating primarily via <strong>gRPC</strong> (internal) and <strong>REST/SSE</strong> (external).
+            Each service is containerized and runs on <strong>Kubernetes</strong>.
+        </p>
+
+        <h3>3.1 Core Services</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Service</th>
+                    <th>Responsibility</th>
+                    <th>Tech Stack</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>API Gateway</strong></td>
+                    <td>Auth, rate limiting, routing, TLS, request/response transformation</td>
+                    <td>Envoy Proxy, custom Go filters</td>
+                </tr>
+                <tr>
+                    <td><strong>Auth Service</strong></td>
+                    <td>OAuth2/OIDC, session tokens, MFA, API key management</td>
+                    <td>Go, PostgreSQL, Redis</td>
+                </tr>
+                <tr>
+                    <td><strong>Chat Orchestrator</strong></td>
+                    <td>Conversation state machine, context window assembly, tool calling</td>
+                    <td>Go (high concurrency), gRPC</td>
+                </tr>
+                <tr>
+                    <td><strong>Moderation Service</strong></td>
+                    <td>Content safety, toxicity classification, PII detection</td>
+                    <td>Python, custom fine-tuned classifiers</td>
+                </tr>
+                <tr>
+                    <td><strong>Inference Gateway</strong></td>
+                    <td>Load-aware routing to GPU pods, batching, priority queuing</td>
+                    <td>Rust (for performance), gRPC streaming</td>
+                </tr>
+                <tr>
+                    <td><strong>User Profile Service</strong></td>
+                    <td>Preferences, subscription tier, usage tracking</td>
+                    <td>Go, PostgreSQL</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="decision-block alt">
+            <span class="why">🔑 Key Decision</span>
+            <h4>Why gRPC for Internal Service Communication?</h4>
+            <p>
+                gRPC offers <strong>strongly-typed contracts</strong> via Protobuf, <strong>HTTP/2
+                    multiplexing</strong>,
+                native <strong>bidirectional streaming</strong> (critical for token relay), and excellent
+                performance with binary serialization. Compared to REST+JSON, gRPC reduces latency by ~30-40%
+                for internal calls and eliminates manual serialization code. The streaming support is
+                especially important—the Chat Orchestrator can relay inference tokens as a gRPC stream
+                directly to the API Gateway, which then converts to SSE for the client.
+            </p>
+        </div>
+
+        <h3>3.2 Conversation State Machine</h3>
+        <p>
+            Each conversation is modeled as a <strong>finite state machine</strong> with states:
+            <code>IDLE → PROCESSING → STREAMING → COMPLETED | ERROR | CANCELLED</code>.
+            This allows the system to handle interruptions gracefully (user clicks "stop", network disconnect,
+            moderation flag) and resume or rollback as needed.
+        </p>
+        <pre>
+            <span class="comment">// Conversation FSM states (Protobuf)</span>
+            <span class="keyword">enum</span> ConversationState {
+            IDLE = 0;        <span class="comment">// Waiting for user input</span>
+            QUEUED = 1;      <span class="comment">// Request queued for inference</span>
+            PROCESSING = 2;  <span class="comment">// Model is generating</span>
+            STREAMING = 3;   <span class="comment">// Tokens being sent to client</span>
+            COMPLETED = 4;   <span class="comment">// Generation finished successfully</span>
+            CANCELLED = 5;   <span class="comment">// User interrupted</span>
+            ERROR = 6;       <span class="comment">// Failure occurred</span>
+            FLAGGED = 7;     <span class="comment">// Moderation intervened</span>
+            }</pre>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION: INFERENCE                -->
+        <!-- ═══════════════════════════════════ -->
+        <h2 id="inference">4. Model Inference Infrastructure</h2>
+        <span class="badge badge-ml">ML Ops</span>
+        <span class="badge badge-infra">Infrastructure</span>
+
+        <p>
+            This is the <strong>most computationally expensive</strong> part of the system.
+            The inference cluster must deliver high throughput while maintaining low latency
+            (time-to-first-token &lt; 200ms, inter-token latency &lt; 30ms).
+        </p>
+
+        <h3>4.1 GPU Cluster Design</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Specification</th>
+                    <th>Rationale</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>GPU Nodes</strong></td>
+                    <td>NVIDIA H100 (80GB) × 8 per node, NVLink interconnected</td>
+                    <td>H100 offers ~3x inference throughput vs A100 for transformer models; NVLink enables tensor
+                        parallelism across GPUs</td>
+                </tr>
+                <tr>
+                    <td><strong>Serving Engine</strong></td>
+                    <td><strong>vLLM</strong> with PagedAttention</td>
+                    <td>PagedAttention manages KV-cache memory in non-contiguous blocks, achieving ~24x higher
+                        throughput than naive implementations by eliminating memory fragmentation</td>
+                </tr>
+                <tr>
+                    <td><strong>Quantization</strong></td>
+                    <td>INT8/FP8 weight-only quantization (AWQ / GPTQ)</td>
+                    <td>Reduces model size by ~2x with negligible quality loss; allows serving larger models or more
+                        concurrent requests per GPU</td>
+                </tr>
+                <tr>
+                    <td><strong>Orchestration</strong></td>
+                    <td>Kubernetes with GPU operator + KubeRay</td>
+                    <td>Ray enables dynamic scaling of inference workers; K8s GPU operator handles driver installation
+                        and device plugin</td>
+                </tr>
+                <tr>
+                    <td><strong>Continuous Batching</strong></td>
+                    <td>Built into vLLM</td>
+                    <td>Dynamically adds/removes requests from a running batch; maximizes GPU utilization without
+                        waiting for batch completion</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="decision-block">
+            <span class="why">🔑 Key Decision</span>
+            <h4>Why vLLM with PagedAttention over vanilla HuggingFace Transformers?</h4>
+            <p>
+                Traditional inference frameworks allocate a <strong>contiguous KV-cache</strong> per sequence
+                up to <code>max_context_length</code>. For a model with 32K context, this wastes enormous GPU
+                memory. <strong>PagedAttention</strong> borrows virtual memory paging concepts from operating
+                systems—it stores KV-cache in non-contiguous blocks and only allocates what's actually used.
+                This results in <strong>2-4× higher throughput</strong> and significantly higher GPU memory
+                utilization. In production benchmarks, vLLM serves 24× more requests/sec than HF with the
+                same hardware, which directly translates to lower cost per token.
+            </p>
+        </div>
+
+        <h3>4.2 Request Lifecycle (Inference Path)</h3>
+        <div class="diagram">
+            <pre style="background:none;border:none;padding:0;margin:0;color:#c9d1d9;">
+                User types message
+                │
+                ▼
+                1. API Gateway validates JWT, applies rate limit
+                │
+                ▼
+                2. Chat Orchestrator loads conversation context from Redis/Postgres
+                │  • Assembles full context window (last N messages + system prompt + tools)
+                │  • Truncates to model's max context length (tokenizer-aware truncation)
+                │  • Runs pre-moderation check (toxicity classifier)
+                │
+                ▼
+                3. Inference Gateway selects optimal GPU pod:
+                │  • Considers: current queue depth, GPU utilization, model version affinity
+                │  • Applies priority (paid users > free users, within rate limits)
+                │  • Routes to vLLM instance via gRPC streaming
+                │
+                ▼
+                4. vLLM processes the request:
+                │  • Tokenization (tiktoken / SentencePiece)
+                │  • Continuous batching: adds request to active batch
+                │  • PagedAttention: allocates KV-cache blocks as needed
+                │  • Autoregressive generation: samples tokens (top-p, temperature)
+                │  • Streams tokens back via gRPC stream
+                │
+                ▼
+                5. Chat Orchestrator relays tokens → API Gateway → SSE → Client
+                │  • Simultaneously buffers full response for persistence
+                │  • Runs post-moderation on complete response
+                │  • Updates conversation in PostgreSQL
+                │
+                ▼
+                6. Client renders tokens incrementally with markdown/syntax highlighting
+            </pre>
+        </div>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION: TRAINING                 -->
+        <!-- ═══════════════════════════════════ -->
+        <h2 id="training">5. Training Infrastructure</h2>
+        <span class="badge badge-ml">ML Training</span>
+
+        <p>
+            Training GPT-class models involves <strong>three distinct phases</strong>, each with
+            different infrastructure requirements:
+        </p>
+
+        <h3>5.1 Pre-Training (Self-Supervised)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Aspect</th>
+                    <th>Design Choice</th>
+                    <th>Explanation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Cluster</strong></td>
+                    <td>Thousands of H100 GPUs across multiple nodes, InfiniBand interconnect (800 Gbps)</td>
+                    <td>LLM training requires massive parallelization; InfiniBand minimizes gradient synchronization
+                        latency</td>
+                </tr>
+                <tr>
+                    <td><strong>Parallelism</strong></td>
+                    <td>3D Parallelism: Data + Tensor + Pipeline parallelism (via Megatron-LM or DeepSpeed)</td>
+                    <td>Combines all three strategies to scale beyond single-node memory limits and maximize throughput
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Framework</strong></td>
+                    <td>PyTorch + FSDP (Fully Sharded Data Parallel) + FlashAttention-2</td>
+                    <td>FSDP shards model across GPUs; FlashAttention-2 reduces memory and speeds up attention by 2-3×
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Checkpointing</strong></td>
+                    <td>Async distributed checkpointing to S3-compatible object storage</td>
+                    <td>Allows fast recovery from failures; training runs span weeks/months; fault tolerance is critical
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Scheduling</strong></td>
+                    <td>SLURM or Kubernetes with Volcano scheduler</td>
+                    <td>Gang scheduling ensures all GPUs for a job start simultaneously; preemption policies for
+                        priority</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>5.2 Fine-Tuning & RLHF Pipeline</h3>
+        <div class="diagram">
+            <pre style="background:none;border:none;padding:0;margin:0;color:#c9d1d9;">
+                ┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
+                │  Supervised      │     │  Reward Model    │     │  PPO             │
+                │  Fine-Tuning     │────▶│  Training        │────▶│  Reinforcement   │
+                │  (SFT)           │     │  (Human pref.)   │     │  Learning        │
+                └──────────────────┘     └──────────────────┘     └──────────────────┘
+                │                        │                        │
+                │  Human-written         │  Human comparisons     │  Model generates,
+                │  demonstrations        │  (A > B preferences)   │  reward model scores,
+                │  (10K-100K examples)   │  (~1M comparisons)     │  policy updated via PPO
+                └──────────────────┘     └──────────────────┘     └──────────────────┘
+            </pre>
+        </div>
+
+        <div class="decision-block warn">
+            <span class="why">🔑 Key Decision</span>
+            <h4>Why RLHF (Reinforcement Learning from Human Feedback)?</h4>
+            <p>
+                Raw pre-trained LLMs are powerful but <strong>uncalibrated for helpfulness and safety</strong>.
+                RLHF aligns the model with human values: a reward model trained on human preference comparisons
+                predicts how "good" a response is, and Proximal Policy Optimization (PPO) fine-tunes the policy
+                to maximize this reward while staying close to the original distribution (KL penalty).
+                This dramatically reduces harmful outputs, improves instruction-following, and makes the model
+                more conversational. The cost is significant human annotation effort, but the quality improvement
+                is the key differentiator for ChatGPT vs raw base models.
+            </p>
+        </div>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION: DATA PIPELINE            -->
+        <!-- ═══════════════════════════════════ -->
+        <h2 id="data">6. Data Pipeline & Storage</h2>
+        <span class="badge badge-data">Data</span>
+
+        <h3>6.1 Data Stores</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Store</th>
+                    <th>Purpose</th>
+                    <th>Why This Choice</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>PostgreSQL</strong> (sharded)</td>
+                    <td>User accounts, conversation metadata, billing</td>
+                    <td>ACID compliance for critical data; rich querying; mature ecosystem; Citus extension for
+                        horizontal scaling</td>
+                </tr>
+                <tr>
+                    <td><strong>Redis Cluster</strong></td>
+                    <td>Session cache, rate-limit counters, conversation context cache, pub/sub</td>
+                    <td>Sub-millisecond latency; supports data structures (sorted sets for rate limiting); Cluster mode
+                        for horizontal scaling</td>
+                </tr>
+                <tr>
+                    <td><strong>Apache Kafka</strong></td>
+                    <td>Event streaming: user interactions, model outputs, analytics</td>
+                    <td>Durable, high-throughput event log; decouples producers/consumers; enables replay for training
+                        data curation</td>
+                </tr>
+                <tr>
+                    <td><strong>S3 / MinIO</strong></td>
+                    <td>Model weights, training datasets, logs, backups</td>
+                    <td>Cost-effective at petabyte scale; S3 API is universal; MinIO for on-prem air-gapped deployments
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Elasticsearch</strong></td>
+                    <td>Full-text search across conversations</td>
+                    <td>Inverted index for fast search; users can search their chat history semantically</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="decision-block alt">
+            <span class="why">🔑 Key Decision</span>
+            <h4>Why Redis for Conversation Context Caching?</h4>
+            <p>
+                A conversation's recent context (last ~20 message pairs) is needed for <em>every</em> inference
+                request. Fetching this from PostgreSQL on every turn would add 10-50ms of latency. By caching
+                the serialized context window in Redis with a TTL of 1 hour (extended on each interaction),
+                the Chat Orchestrator retrieves it in &lt;1ms. Redis Cluster with consistent hashing ensures
+                the cache scales horizontally. On cache miss, it falls back to PostgreSQL and repopulates Redis.
+            </p>
+        </div>
+
+        <h3>6.2 Event-Driven Architecture</h3>
+        <p>
+            All significant events (message sent, response completed, user feedback, moderation flag)
+            are published to <strong>Kafka topics</strong>. This enables:
+        </p>
+        <ul style="list-style: disc; margin-left: 24px; color: var(--text);">
+            <li><strong>Analytics</strong> – Real-time dashboards for usage patterns, latency, error rates</li>
+            <li><strong>Training Data Curation</strong> – High-quality conversations (with user consent) flow to the
+                data warehouse for future fine-tuning</li>
+            <li><strong>Billing</strong> – Token usage aggregation for metered billing</li>
+            <li><strong>Audit Log</strong> – Immutable record for compliance and debugging</li>
+        </ul>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION: SCALING                  -->
+        <!-- ═══════════════════════════════════ -->
+        <h2 id="scaling">7. Scaling & Load Management</h2>
+        <span class="badge badge-infra">Infrastructure</span>
+
+        <h3>7.1 Multi-Region Deployment</h3>
+        <p>
+            ChatGPT is deployed across <strong>multiple geographic regions</strong> (US East, US West, Europe,
+            Asia-Pacific) to minimize latency for global users. Each region is a self-contained stack
+            with its own inference cluster, API Gateway, and data stores. <strong>GeoDNS</strong> (Route 53
+            latency-based routing) directs users to the nearest healthy region.
+        </p>
+
+        <h3>7.2 Autoscaling Strategy</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Layer</th>
+                    <th>Scaling Metric</th>
+                    <th>Mechanism</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>API Gateway</strong></td>
+                    <td>Requests per second, CPU</td>
+                    <td>Horizontal Pod Autoscaler (HPA) in K8s; target 70% CPU</td>
+                </tr>
+                <tr>
+                    <td><strong>Chat Orchestrator</strong></td>
+                    <td>gRPC request latency (p99), active connections</td>
+                    <td>KEDA (Kubernetes Event-Driven Autoscaling) with custom Prometheus metrics</td>
+                </tr>
+                <tr>
+                    <td><strong>GPU Inference Pods</strong></td>
+                    <td>Queue depth, GPU utilization</td>
+                    <td>KubeRay autoscaler; pre-warmed GPU pods in a "warm pool"; scale-up triggered when queue exceeds
+                        threshold for &gt;30s</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="decision-block warn">
+            <span class="why">🔑 Key Decision</span>
+            <h4>Why a "Warm Pool" of GPU Pods?</h4>
+            <p>
+                GPU pod startup is <strong>slow</strong> (2-5 minutes for model loading into GPU memory).
+                Traffic can spike 10× in minutes (e.g., viral social media mention). Keeping a buffer of
+                pre-loaded but idle GPU pods (warm pool) allows instant scale-up. The trade-off is higher
+                base infrastructure cost, but this is preferable to users experiencing multi-minute delays.
+                The warm pool size is dynamically adjusted based on time-of-day traffic predictions.
+            </p>
+        </div>
+
+        <h3>7.3 Rate Limiting & Fairness</h3>
+        <p>
+            A <strong>token bucket algorithm</strong> implemented in the API Gateway (using Redis for
+            distributed counters) enforces per-user rate limits. Paid tiers get larger buckets.
+            During overload, a <strong>priority queue</strong> in the Inference Gateway ensures
+            premium users experience lower latency while free users may see queuing.
+        </p>
+        <pre>
+            <span class="comment">// Redis Lua script for atomic rate limiting</span>
+            <span class="keyword">local</span> key = KEYS[1]           <span class="comment">-- rate_limit:user:{id}:minute</span>
+            <span class="keyword">local</span> limit = <span class="func">tonumber</span>(ARGV[1]) <span class="comment">-- max requests per window</span>
+            <span class="keyword">local</span> window = <span class="func">tonumber</span>(ARGV[2])<span class="comment">-- window in seconds</span>
+            <span class="keyword">local</span> current = <span class="func">redis.call</span>(<span class="string">'INCR'</span>, key)
+            <span class="keyword">if</span> current == 1 <span class="keyword">then</span>
+            <span class="func">redis.call</span>(<span class="string">'EXPIRE'</span>, key, window)
+            <span class="keyword">end</span>
+            <span class="keyword">if</span> current > limit <span class="keyword">then</span>
+            <span class="keyword">return</span> 0  <span class="comment">-- rate limited</span>
+            <span class="keyword">end</span>
+            <span class="keyword">return</span> 1      <span class="comment">-- allowed</span></pre>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION: SECURITY                 -->
+        <!-- ═══════════════════════════════════ -->
+        <h2 id="security">8. Security & Safety Architecture</h2>
+        <span class="badge badge-sec">Security</span>
+
+        <h3>8.1 Multi-Layered Defense</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Layer</th>
+                    <th>Mechanism</th>
+                    <th>Purpose</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Network</strong></td>
+                    <td>Cloudflare WAF, DDoS protection, IP reputation filtering</td>
+                    <td>Block volumetric and application-layer attacks before reaching origin</td>
+                </tr>
+                <tr>
+                    <td><strong>Authentication</strong></td>
+                    <td>OAuth2/OIDC (Google, Microsoft, Apple) + WebAuthn for passkeys</td>
+                    <td>Phishing-resistant auth; no password storage liability for social logins</td>
+                </tr>
+                <tr>
+                    <td><strong>Authorization</strong></td>
+                    <td>JWT with short expiry (15min) + refresh tokens; RBAC for internal services</td>
+                    <td>Stateless auth for horizontal scaling; fine-grained service-to-service permissions</td>
+                </tr>
+                <tr>
+                    <td><strong>Input Safety</strong></td>
+                    <td>Pre-moderation classifier; prompt injection detection; PII scrubber</td>
+                    <td>Block harmful prompts before they reach the model; detect jailbreak attempts</td>
+                </tr>
+                <tr>
+                    <td><strong>Output Safety</strong></td>
+                    <td>Post-moderation classifier; toxicity scoring; refusal mechanism</td>
+                    <td>Prevent model from generating harmful content; hallucination guardrails</td>
+                </tr>
+                <tr>
+                    <td><strong>Data</strong></td>
+                    <td>Encryption at rest (AES-256) and in transit (TLS 1.3); field-level encryption for PII</td>
+                    <td>Defense in depth for sensitive user data</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="decision-block">
+            <span class="why">🔑 Key Decision</span>
+            <h4>Why Separate Pre- and Post-Moderation?</h4>
+            <p>
+                <strong>Pre-moderation</strong> catches obviously malicious inputs (e.g., "how to build a bomb")
+                before they consume expensive GPU inference time. It uses a lightweight classifier (~50ms).
+                <strong>Post-moderation</strong> catches model outputs that are subtly harmful, hallucinated,
+                or contain PII leakage—things only detectable after full generation. Running both provides
+                defense-in-depth. If post-moderation flags a response, it's either replaced with a refusal
+                message or the conversation is terminated, depending on severity.
+            </p>
+        </div>
+
+        <h3>8.2 Data Privacy</h3>
+        <ul style="list-style: disc; margin-left: 24px; color: var(--text);">
+            <li><strong>Conversation isolation</strong> – Strict tenant isolation at the database level; no cross-user
+                data leakage</li>
+            <li><strong>Opt-out controls</strong> – Users can disable conversation history; data not used for training
+            </li>
+            <li><strong>Data residency</strong> – Regional deployments ensure data stays within legal jurisdictions
+                (GDPR, etc.)</li>
+            <li><strong>Audit logging</strong> – All data access is logged; immutable audit trail in Kafka</li>
+        </ul>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION: OBSERVABILITY            -->
+        <!-- ═══════════════════════════════════ -->
+        <h2 id="observability">9. Observability & Monitoring</h2>
+        <span class="badge badge-infra">Infrastructure</span>
+
+        <p>
+            The system follows the <strong>three pillars of observability</strong>:
+        </p>
+
+        <h3>9.1 Metrics</h3>
+        <ul style="list-style: disc; margin-left: 24px; color: var(--text);">
+            <li><strong>Prometheus</strong> scrapes metrics from all services (request rate, error rate, latency
+                percentiles, GPU utilization, token throughput)</li>
+            <li><strong>Grafana</strong> dashboards visualize real-time system health; SLO tracking (99.9% availability,
+                p99 latency &lt; 2s for full response)</li>
+            <li><strong>Alertmanager</strong> triggers PagerDuty alerts on SLO breaches</li>
+        </ul>
+
+        <h3>9.2 Logging</h3>
+        <ul style="list-style: disc; margin-left: 24px; color: var(--text);">
+            <li><strong>Structured logging</strong> (JSON format) from all services, shipped to <strong>Loki</strong>
+                via Promtail</li>
+            <li>Correlation IDs propagate through the entire request chain (API Gateway → Orchestrator → Inference →
+                back)</li>
+            <li>Log retention: 30 days hot (Loki), 1 year cold (S3)</li>
+        </ul>
+
+        <h3>9.3 Tracing</h3>
+        <ul style="list-style: disc; margin-left: 24px; color: var(--text);">
+            <li><strong>OpenTelemetry</strong> instruments all services for distributed tracing</li>
+            <li><strong>Jaeger</strong> visualizes end-to-end trace for each request, showing time spent in each
+                service, database query, and GPU inference step</li>
+            <li>Critical for debugging latency spikes and identifying bottlenecks</li>
+        </ul>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION: DEPLOYMENT               -->
+        <!-- ═══════════════════════════════════ -->
+        <h2 id="deployment">10. CI/CD & Deployment Strategy</h2>
+
+        <h3>10.1 Deployment Pipeline</h3>
+        <div class="diagram">
+            <pre style="background:none;border:none;padding:0;margin:0;color:#c9d1d9;">
+                Git Push → GitHub Actions
+                │
+                ├──▶ Lint & Type Check → Unit Tests → Build Container Image
+                │                                         │
+                │                                         ▼
+                │                              Push to Container Registry (ECR / GAR)
+                │                                         │
+                │                    ┌────────────────────┼────────────────────┐
+                │                    ▼                    ▼                    ▼
+                │              DEV Cluster         STAGING Cluster        CANARY (1%)
+                │              (smoke tests)      (integration tests)    (production traffic)
+                │                                                             │
+                │                                              ┌──────────────┴──────────────┐
+                │                                              ▼                             ▼
+                │                                     Metrics OK? (5 min)           Metrics BAD?
+                │                                              │                             │
+                │                                              ▼                             ▼
+                │                                    ROLLOUT 100%                    AUTO-ROLLBACK
+                │                                                                  (revert to prev version)
+            </pre>
+        </div>
+
+        <div class="decision-block alt">
+            <span class="why">🔑 Key Decision</span>
+            <h4>Why Canary Deployments for Model Updates?</h4>
+            <p>
+                New model versions can introduce <strong>regressions in quality</strong> that aren't caught
+                by automated tests (e.g., subtly worse reasoning, new hallucination patterns). By routing
+                1% of traffic to the new model version and comparing key metrics (user thumbs-up/down ratio,
+                response length distribution, toxicity classifier trigger rate, conversation completion rate)
+                against the stable version, we can detect quality degradations <em>before</em> they affect
+                all users. If metrics diverge negatively beyond a threshold, the canary is automatically
+                rolled back. This is essentially <strong>A/B testing for model quality</strong>.
+            </p>
+        </div>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION: CONCLUSION               -->
+        <!-- ═══════════════════════════════════ -->
+        <h2>11. Key Takeaways & Design Philosophy</h2>
+
+        <div class="callout">
+            <strong>🎯 Core Design Principles:</strong>
+            <ul style="list-style: none; margin-top: 10px; padding-left: 0;">
+                <li>✅ <strong>Latency is the product</strong> – Every millisecond matters; streaming, caching, and edge
+                    deployment are not optional</li>
+                <li>✅ <strong>GPU efficiency = cost efficiency</strong> – PagedAttention, continuous batching, and
+                    quantization directly impact the bottom line</li>
+                <li>✅ <strong>Safety is layered, not bolted on</strong> – Pre-moderation, post-moderation, RLHF
+                    alignment, and human oversight work together</li>
+                <li>✅ <strong>Observability enables velocity</strong> – Without deep tracing and metrics, debugging
+                    distributed LLM systems is impossible</li>
+                <li>✅ <strong>Graceful degradation > perfect availability</strong> – Rate limiting, priority queues, and
+                    warm pools ensure the system degrades predictably under load</li>
+                <li>✅ <strong>Data flywheel</strong> – Every interaction (with consent) feeds back into improving the
+                    model via RLHF and fine-tuning</li>
+            </ul>
+        </div>
+
+        <p style="text-align: center; margin-top: 48px; color: var(--text-secondary); font-size: 0.85rem;">
+            This system design represents a production-grade architecture for serving LLMs at scale.<br>
+            Each decision balances performance, cost, safety, and user experience — the four pillars of AI
+            infrastructure.
+        </p>
+
+    </div>
+    <!-- END CONTAINER -->
+
+</body>
+
+</html>

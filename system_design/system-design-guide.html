@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Design — Engineer's Field Manual</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface2: #16161f;
+  --border: #1e1e2e;
+  --accent: #00e5ff;
+  --accent2: #7c3aed;
+  --accent3: #f59e0b;
+  --green: #10b981;
+  --red: #ef4444;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'Syne', sans-serif;
+  --body: 'Inter', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);overflow-x:hidden;line-height:1.6}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--accent2);border-radius:2px}
+
+/* LAYOUT */
+.shell{display:flex;min-height:100vh}
+.sidebar{width:280px;min-width:280px;background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;transition:transform .3s}
+.main{margin-left:280px;flex:1;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar-header{padding:24px 20px 16px;border-bottom:1px solid var(--border)}
+.sidebar-logo{font-family:var(--sans);font-size:13px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.sidebar-sub{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.nav-section{padding:16px 0 8px 20px;font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;cursor:pointer;transition:all .15s;font-size:12.5px;color:#94a3b8;border-left:2px solid transparent;font-family:var(--body)}
+.nav-item:hover{background:var(--surface2);color:var(--text);border-left-color:var(--accent2)}
+.nav-item.active{background:rgba(0,229,255,.06);color:var(--accent);border-left-color:var(--accent)}
+.nav-item .icon{font-size:14px;min-width:18px}
+.nav-badge{margin-left:auto;background:var(--accent2);color:#fff;font-size:9px;padding:1px 6px;border-radius:10px;font-family:var(--mono)}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#0a0a0f 0%,#0d0d1a 40%,#0a0f1a 100%);padding:60px 60px 40px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:20%;width:600px;height:600px;background:radial-gradient(circle,rgba(124,58,237,.12) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-30%;right:10%;width:400px;height:400px;background:radial-gradient(circle,rgba(0,229,255,.08) 0%,transparent 70%);pointer-events:none}
+.hero-tag{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.hero-tag::before{content:'';width:24px;height:1px;background:var(--accent)}
+.hero h1{font-family:var(--sans);font-size:48px;font-weight:800;line-height:1.1;margin-bottom:16px;background:linear-gradient(135deg,#fff 0%,#94a3b8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-desc{font-size:15px;color:var(--muted);max-width:600px;line-height:1.7}
+.hero-stats{display:flex;gap:40px;margin-top:32px}
+.stat{text-align:center}
+.stat-n{font-family:var(--mono);font-size:28px;font-weight:600;color:var(--accent)}
+.stat-l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+
+/* CONTENT SECTIONS */
+.content{padding:48px 60px;max-width:1100px}
+.section{display:none;animation:fadeIn .3s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTION HEADERS */
+.section-header{margin-bottom:40px}
+.section-tag{font-family:var(--mono);font-size:10px;color:var(--accent2);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px}
+.section-title{font-family:var(--sans);font-size:36px;font-weight:800;line-height:1.2;margin-bottom:12px}
+.section-desc{color:var(--muted);font-size:14px;max-width:700px;line-height:1.7}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:28px;margin-bottom:20px;transition:border-color .2s}
+.card:hover{border-color:var(--accent2)}
+.card-title{font-family:var(--sans);font-size:16px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.card-title .tag{font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:4px;font-weight:400}
+.tag-hard{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.tag-med{background:rgba(245,158,11,.15);color:var(--accent3);border:1px solid rgba(245,158,11,.3)}
+.tag-easy{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+
+/* ARCH DIAGRAMS */
+.arch{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:24px;margin:20px 0;font-family:var(--mono);font-size:12px;overflow-x:auto}
+.arch-title{font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
+.flow{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0}
+.node{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 14px;font-size:11px;white-space:nowrap;transition:all .2s;cursor:default}
+.node:hover{border-color:var(--accent);color:var(--accent)}
+.node.db{border-color:rgba(124,58,237,.5);color:#a78bfa}
+.node.cache{border-color:rgba(0,229,255,.5);color:var(--accent)}
+.node.queue{border-color:rgba(245,158,11,.5);color:var(--accent3)}
+.node.service{border-color:rgba(16,185,129,.5);color:var(--green)}
+.node.client{border-color:#475569;color:#94a3b8}
+.node.lb{background:rgba(124,58,237,.1);border-color:var(--accent2);color:#c4b5fd}
+.arrow{color:var(--muted);font-size:14px}
+
+/* DECISION TABLE */
+.dtable{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.dtable th{background:var(--surface2);padding:10px 14px;text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
+.dtable td{padding:10px 14px;border-bottom:1px solid rgba(30,30,46,.8);vertical-align:top}
+.dtable tr:hover td{background:var(--surface2)}
+.dtable .yes{color:var(--green)}
+.dtable .no{color:var(--red)}
+.dtable .maybe{color:var(--accent3)}
+
+/* CALLOUTS */
+.callout{border-left:3px solid;padding:14px 18px;margin:16px 0;border-radius:0 6px 6px 0;font-size:13px}
+.callout.warn{border-color:var(--accent3);background:rgba(245,158,11,.07);color:#fcd34d}
+.callout.info{border-color:var(--accent);background:rgba(0,229,255,.07);color:#7dd3fc}
+.callout.danger{border-color:var(--red);background:rgba(239,68,68,.07);color:#fca5a5}
+.callout.success{border-color:var(--green);background:rgba(16,185,129,.07);color:#6ee7b7}
+.callout strong{display:block;margin-bottom:4px;font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+
+/* CODE BLOCKS */
+.code{background:#0d0d1a;border:1px solid var(--border);border-radius:6px;padding:16px 20px;font-family:var(--mono);font-size:12px;line-height:1.7;overflow-x:auto;margin:12px 0}
+.code .kw{color:#c084fc}
+.code .str{color:#86efac}
+.code .num{color:#fbbf24}
+.code .comment{color:var(--muted)}
+.code .fn{color:var(--accent)}
+
+/* NUMBERS / ESTIMATES */
+.estimates{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:16px 0}
+.est-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:14px 16px}
+.est-val{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--accent);margin-bottom:4px}
+.est-label{font-size:11px;color:var(--muted)}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:24px;overflow-x:auto}
+.tab{padding:10px 20px;font-size:12px;font-family:var(--mono);cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab:hover{color:var(--text)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* ACCORDION */
+.accordion{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.acc-header{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--surface);font-size:13px;font-weight:500;transition:background .15s}
+.acc-header:hover{background:var(--surface2)}
+.acc-icon{color:var(--muted);transition:transform .3s;font-size:16px}
+.accordion.open .acc-icon{transform:rotate(180deg)}
+.acc-body{display:none;padding:20px;background:var(--surface2);font-size:13px;line-height:1.7;color:#94a3b8;border-top:1px solid var(--border)}
+.accordion.open .acc-body{display:block}
+
+/* COMPARISON */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.compare-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:20px}
+.compare-box h4{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+.compare-box.pro h4{color:var(--green)}
+.compare-box.con h4{color:var(--red)}
+.compare-box li{list-style:none;padding:4px 0;font-size:12.5px;padding-left:16px;position:relative}
+.compare-box.pro li::before{content:'✓';position:absolute;left:0;color:var(--green)}
+.compare-box.con li::before{content:'✗';position:absolute;left:0;color:var(--red)}
+
+/* PROGRESS / SCALE BARS */
+.scale-row{display:flex;align-items:center;gap:12px;margin:8px 0;font-size:12px}
+.scale-label{min-width:120px;color:var(--muted)}
+.scale-bar{flex:1;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.scale-fill{height:100%;border-radius:3px;transition:width 1s ease}
+.scale-val{min-width:50px;font-family:var(--mono);font-size:11px;color:var(--text);text-align:right}
+
+/* MOBILE */
+.hamburger{display:none;position:fixed;top:16px;left:16px;z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 12px;cursor:pointer;color:var(--text);font-size:18px}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .hero{padding:60px 24px 32px}
+  .hero h1{font-size:32px}
+  .content{padding:32px 24px}
+  .hamburger{display:block}
+  .compare{grid-template-columns:1fr}
+  .hero-stats{gap:20px}
+}
+
+/* SEARCH */
+.search-wrap{padding:16px 20px 8px;position:relative}
+.search-inp{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 12px 8px 32px;color:var(--text);font-size:12px;font-family:var(--body);outline:none;transition:border-color .2s}
+.search-inp:focus{border-color:var(--accent2)}
+.search-icon{position:absolute;left:32px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px}
+
+/* TOOLTIP */
+[data-tip]{position:relative;cursor:help;border-bottom:1px dotted var(--muted)}
+[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1e1e2e;border:1px solid var(--border);padding:6px 10px;border-radius:4px;font-size:11px;white-space:nowrap;z-index:1000;color:var(--text);pointer-events:none}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:28px}
+.timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:1px;background:var(--border)}
+.tl-item{position:relative;margin-bottom:20px}
+.tl-dot{position:absolute;left:-25px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--accent2);border:2px solid var(--bg)}
+.tl-title{font-weight:600;font-size:13px;margin-bottom:4px}
+.tl-body{font-size:12.5px;color:#94a3b8;line-height:1.6}
+
+/* HIGHLIGHT PILL */
+.pill{display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25);color:var(--accent);font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:20px;margin:2px}
+.pill2{display:inline-flex;align-items:center;gap:4px;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);color:#a78bfa;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:20px;margin:2px}
+
+h2{font-family:var(--sans);font-size:22px;font-weight:700;margin:28px 0 12px;color:var(--text)}
+h3{font-family:var(--sans);font-size:16px;font-weight:700;margin:20px 0 10px;color:#cbd5e1}
+p{margin-bottom:12px;font-size:13.5px;color:#94a3b8;line-height:1.75}
+ul{margin:8px 0 12px 20px}
+li{font-size:13px;color:#94a3b8;margin-bottom:5px;line-height:1.6}
+strong{color:var(--text)}
+hr{border:none;border-top:1px solid var(--border);margin:28px 0}
+</style>
+</head>
+<body>
+
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+
+<div class="shell">
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">SysDesign</div>
+    <div class="sidebar-sub">// Engineer's Field Manual v2.0</div>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input class="search-inp" id="searchInp" placeholder="Search topics..." oninput="filterNav(this.value)">
+  </div>
+  <div id="navList">
+    <div class="nav-section">Core Systems</div>
+    <div class="nav-item active" onclick="show('home')" data-label="overview home"><span class="icon">⬡</span> Overview</div>
+    <div class="nav-item" onclick="show('estimation')" data-label="estimation numbers scale back-of-envelope"><span class="icon">🔢</span> Scale Estimation <span class="nav-badge">HOT</span></div>
+    <div class="nav-item" onclick="show('chatgpt')" data-label="chatgpt llm ai inference"><span class="icon">🧠</span> ChatGPT / LLM API</div>
+    <div class="nav-item" onclick="show('instagram')" data-label="instagram feed social realtime"><span class="icon">📸</span> Instagram</div>
+    <div class="nav-item" onclick="show('whatsapp')" data-label="whatsapp messaging chat websocket"><span class="icon">💬</span> WhatsApp</div>
+    <div class="nav-item" onclick="show('uber')" data-label="uber maps geolocation matching"><span class="icon">🚗</span> Uber</div>
+    <div class="nav-item" onclick="show('payment')" data-label="payment stripe transaction idempotency"><span class="icon">💳</span> Payment System</div>
+    <div class="nav-section">Hard Problems</div>
+    <div class="nav-item" onclick="show('fileupload')" data-label="file upload large image chunked s3"><span class="icon">📁</span> Large File Upload <span class="nav-badge">HOT</span></div>
+    <div class="nav-item" onclick="show('surge')" data-label="surge traffic load spike demand handling"><span class="icon">⚡</span> Traffic Surge</div>
+    <div class="nav-item" onclick="show('realtimefeed')" data-label="realtime feed news timeline push websocket"><span class="icon">📡</span> Realtime Feed</div>
+    <div class="nav-item" onclick="show('search')" data-label="search typeahead autocomplete elasticsearch"><span class="icon">🔍</span> Search & Typeahead</div>
+    <div class="nav-item" onclick="show('ratelimit')" data-label="rate limiting throttle token bucket"><span class="icon">🛡️</span> Rate Limiting</div>
+    <div class="nav-item" onclick="show('cdn')" data-label="cdn cache global delivery edge"><span class="icon">🌐</span> CDN & Caching</div>
+    <div class="nav-section">Distributed Systems</div>
+    <div class="nav-item" onclick="show('consistency')" data-label="consistency cap theorem eventual"><span class="icon">⚖️</span> CAP & Consistency</div>
+    <div class="nav-item" onclick="show('db')" data-label="database sql nosql sharding partitioning"><span class="icon">🗄️</span> DB Sharding & Replication</div>
+    <div class="nav-item" onclick="show('kafka')" data-label="kafka queue messaging async event"><span class="icon">📨</span> Message Queues</div>
+    <div class="nav-item" onclick="show('distributed_id')" data-label="distributed id snowflake uuid generator"><span class="icon">🔑</span> Distributed ID Gen</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- HOME -->
+<div id="home" class="section active">
+  <div class="hero">
+    <div class="hero-tag">System Design</div>
+    <h1>Engineer's Field Manual</h1>
+    <p class="hero-desc">Production-grade system design reasoning for senior interviews. Real tradeoffs, real numbers, real architecture — no handwaving.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-n">15+</div><div class="stat-l">Systems</div></div>
+      <div class="stat"><div class="stat-n">50+</div><div class="stat-l">Hard Problems</div></div>
+      <div class="stat"><div class="stat-n">∞</div><div class="stat-l">Tradeoffs</div></div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="section-header">
+      <div class="section-tag">// start here</div>
+      <div class="section-title">How to Approach Any Design</div>
+    </div>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">1. Clarify Requirements (5 min)</div><div class="tl-body">Functional vs Non-functional. DAU, QPS, storage needs. SLA, consistency model. Don't guess — ask explicitly. State every assumption.</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">2. Capacity Estimation (5 min)</div><div class="tl-body">Write numbers out loud. Storage/day, read:write ratio, bandwidth. Back-of-envelope before architecture — it drives decisions.</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">3. High-Level Design (10 min)</div><div class="tl-body">Core data flow. APIs, DB schema sketch. Critical path only. No over-engineering yet.</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">4. Deep Dive: Bottlenecks (15 min)</div><div class="tl-body">Pick 2–3 hard parts. Fan-out, sharding key, cache invalidation, consistency model. Show tradeoff awareness.</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">5. Operational Concerns (5 min)</div><div class="tl-body">Failure modes, monitoring, rate limiting, gradual rollout. This separates senior candidates.</div></div>
+    </div>
+    <hr>
+    <h2>Golden Rules</h2>
+    <div class="callout info"><strong>// Always Say This</strong> "For this problem, the main bottleneck is X, so I'll optimize for Y, trading off Z." — Every design is a set of deliberate tradeoffs.</div>
+    <div class="callout warn"><strong>// Don't Fall Into This</strong> Jumping to microservices immediately. Normalize first, then shard. Use a monolith, then break it.</div>
+    <div class="callout success"><strong>// Numbers That Matter</strong> SSD ~100µs read, RAM ~100ns, HDD ~10ms, cross-datacenter ~150ms. Know these cold.</div>
+  </div>
+</div>
+
+<!-- ESTIMATION -->
+<div id="estimation" class="section">
+  <div class="hero">
+    <div class="hero-tag">// scale estimation</div>
+    <h1>Back-of-Envelope</h1>
+    <p class="hero-desc">Numbers every senior engineer should be able to produce in under 60 seconds. Interviews start here.</p>
+  </div>
+  <div class="content">
+    <h2>Latency Numbers — Memorize These</h2>
+    <div class="arch">
+      <div class="arch-title">System Latency Hierarchy</div>
+      <div class="scale-row"><span class="scale-label">L1 Cache</span><div class="scale-bar"><div class="scale-fill" style="width:1%;background:#00e5ff"></div></div><span class="scale-val">~1 ns</span></div>
+      <div class="scale-row"><span class="scale-label">L2 Cache</span><div class="scale-bar"><div class="scale-fill" style="width:2%;background:#00e5ff"></div></div><span class="scale-val">~4 ns</span></div>
+      <div class="scale-row"><span class="scale-label">RAM Read</span><div class="scale-bar"><div class="scale-fill" style="width:4%;background:#7c3aed"></div></div><span class="scale-val">~100 ns</span></div>
+      <div class="scale-row"><span class="scale-label">SSD Read</span><div class="scale-bar"><div class="scale-fill" style="width:15%;background:#f59e0b"></div></div><span class="scale-val">~100 µs</span></div>
+      <div class="scale-row"><span class="scale-label">HDD Read</span><div class="scale-bar"><div class="scale-fill" style="width:35%;background:#ef4444"></div></div><span class="scale-val">~10 ms</span></div>
+      <div class="scale-row"><span class="scale-label">Same DC network</span><div class="scale-bar"><div class="scale-fill" style="width:20%;background:#f59e0b"></div></div><span class="scale-val">~1 ms</span></div>
+      <div class="scale-row"><span class="scale-label">Cross-DC (US)</span><div class="scale-bar"><div class="scale-fill" style="width:50%;background:#ef4444"></div></div><span class="scale-val">~50 ms</span></div>
+      <div class="scale-row"><span class="scale-label">Cross-continent</span><div class="scale-bar"><div class="scale-fill" style="width:80%;background:#ef4444"></div></div><span class="scale-val">~150 ms</span></div>
+    </div>
+
+    <h2>Twitter-Scale Worked Example</h2>
+    <div class="estimates">
+      <div class="est-card"><div class="est-val">300M</div><div class="est-label">Monthly Active Users</div></div>
+      <div class="est-card"><div class="est-val">100M</div><div class="est-label">Tweets/day</div></div>
+      <div class="est-card"><div class="est-val">~1,160</div><div class="est-label">Writes/second (avg)</div></div>
+      <div class="est-card"><div class="est-val">~12,000</div><div class="est-label">Reads/second (10:1 ratio)</div></div>
+      <div class="est-card"><div class="est-val">~1 TB</div><div class="est-label">New data/day (media)</div></div>
+      <div class="est-card"><div class="est-val">~365 TB</div><div class="est-label">Storage/year (media)</div></div>
+    </div>
+    <div class="callout info"><strong>// Formula</strong> Daily Active Users × actions_per_day / 86,400 = avg QPS. Peak = 3–5× avg. Always round up.</div>
+
+    <h2>Storage Quick Reference</h2>
+    <table class="dtable">
+      <tr><th>Type</th><th>Size Estimate</th><th>Use</th></tr>
+      <tr><td>Tweet / post text</td><td>~280 bytes</td><td>SQL row</td></tr>
+      <tr><td>User metadata</td><td>~1 KB</td><td>SQL</td></tr>
+      <tr><td>Profile image</td><td>~200 KB</td><td>Object store</td></tr>
+      <tr><td>HD Photo</td><td>~3 MB</td><td>Object store</td></tr>
+      <tr><td>1 min 1080p video</td><td>~150 MB</td><td>Object store + CDN</td></tr>
+      <tr><td>1 hr audio</td><td>~60 MB</td><td>Object store</td></tr>
+      <tr><td>Cache entry (avg)</td><td>~1 KB</td><td>Redis</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- CHATGPT -->
+<div id="chatgpt" class="section">
+  <div class="hero">
+    <div class="hero-tag">// case study</div>
+    <h1>ChatGPT / LLM API</h1>
+    <p class="hero-desc">High-throughput inference serving with streaming, multi-tenancy, cost isolation, and latency guarantees.</p>
+  </div>
+  <div class="content">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'cgpt-arch')">Architecture</div>
+      <div class="tab" onclick="switchTab(this,'cgpt-stream')">Streaming SSE</div>
+      <div class="tab" onclick="switchTab(this,'cgpt-scale')">Scaling</div>
+      <div class="tab" onclick="switchTab(this,'cgpt-cost')">Cost Model</div>
+    </div>
+
+    <div id="cgpt-arch" class="tab-content active">
+      <div class="arch">
+        <div class="arch-title">Request Flow</div>
+        <div class="flow">
+          <div class="node client">Browser / App</div><div class="arrow">→</div>
+          <div class="node lb">API Gateway<br><small>auth, rate limit</small></div><div class="arrow">→</div>
+          <div class="node service">Request Router</div><div class="arrow">→</div>
+          <div class="node queue">Priority Queue</div><div class="arrow">→</div>
+          <div class="node service">GPU Worker Pool</div><div class="arrow">→</div>
+          <div class="node service">Token Streamer<br><small>SSE/WebSocket</small></div>
+        </div>
+        <div class="flow" style="margin-top:12px">
+          <div class="node cache">Prompt Cache<br><small>KV store</small></div><div class="arrow">←→</div>
+          <div class="node service">GPU Worker Pool</div><div class="arrow">←→</div>
+          <div class="node db">Vector DB<br><small>embeddings</small></div>
+        </div>
+      </div>
+      <h3>Key Design Decisions</h3>
+      <div class="accordion" onclick="toggleAcc(this)">
+        <div class="acc-header">Why GPU workers pull from a queue instead of direct HTTP? <span class="acc-icon">▾</span></div>
+        <div class="acc-body">GPU inference is expensive and slow (~seconds). Accepting all requests directly would exhaust connection pools. A queue decouples acceptance from processing, lets you prioritize paying tiers, and lets workers pull at their own pace — critical for <strong>backpressure</strong>. Workers process one request at a time per GPU slot; any idle capacity is immediately consumed from queue.</div>
+      </div>
+      <div class="accordion" onclick="toggleAcc(this)">
+        <div class="acc-header">How does prompt caching work? <span class="acc-icon">▾</span></div>
+        <div class="acc-body">LLM inference has a prefill phase (processing the full input) and a decode phase (generating tokens). The prefill KV cache (key-value attention matrices) for a prompt can be stored and reused. If the same system prompt prefix is reused (common for API customers with fixed system prompts), the prefill computation is skipped — reducing latency by 40–60% and compute cost proportionally. Cache is stored in GPU VRAM or fast NVMe, keyed by a hash of the prefix.</div>
+      </div>
+      <div class="accordion" onclick="toggleAcc(this)">
+        <div class="acc-header">Multi-tenancy: how are users isolated? <span class="acc-icon">▾</span></div>
+        <div class="acc-body">At the API gateway level: each API key maps to an organization. Rate limits are enforced per key (token bucket, 2-tier: per-minute and per-day). Queues are logically separated per tier (free, plus, enterprise) with priority scheduling. Cost is tracked per request in a usage DB (Postgres). GPU workers are shared but requests are tagged with org_id for billing and observability.</div>
+      </div>
+    </div>
+
+    <div id="cgpt-stream" class="tab-content">
+      <h3>Why Streaming (SSE) is Critical for LLMs</h3>
+      <p>An LLM generates tokens one at a time. Average latency to first token (TTFT) might be 500ms; full response for 500 tokens might take 10s. Without streaming, users see nothing for 10s then full dump — terrible UX. With SSE (Server-Sent Events), the server pushes each token as generated.</p>
+      <div class="code">
+<span class="comment">// Server-Sent Events — lightweight, unidirectional, HTTP/1.1</span>
+<span class="kw">GET</span> /v1/chat/completions
+<span class="kw">Accept:</span> text/event-stream
+<span class="kw">Authorization:</span> Bearer sk-...
+
+<span class="comment">// Server responds:</span>
+data: {"id":"chatcmpl-xyz","choices":[{"delta":{"content":"Hello"}}]}
+data: {"id":"chatcmpl-xyz","choices":[{"delta":{"content":" world"}}]}
+data: [DONE]
+      </div>
+      <div class="callout warn"><strong>// WebSocket vs SSE</strong> SSE is unidirectional (server → client) over HTTP — simpler, load-balancer friendly, auto-reconnects. WebSocket is bidirectional but adds complexity. For token streaming, SSE wins. Use WebSocket for ChatGPT-style interactive features like voice or tool calls.</div>
+      <h3>Streaming Architecture Challenge: Sticky Sessions</h3>
+      <p>The GPU worker generating tokens must hold the connection open to stream back to the same client. This means <strong>connection affinity</strong>: the API gateway must route the response back to the original connection. Solutions: (1) the worker pushes tokens to a Redis pub/sub channel keyed by request_id, and a stateless streamer server subscribes and forwards to the SSE connection; (2) direct long-polling with the worker node. Option 1 is preferred at scale.</p>
+    </div>
+
+    <div id="cgpt-scale" class="tab-content">
+      <h3>Scaling GPU Inference</h3>
+      <div class="estimates">
+        <div class="est-card"><div class="est-val">~1M</div><div class="est-label">ChatGPT requests/day (est.)</div></div>
+        <div class="est-card"><div class="est-val">~11 QPS</div><div class="est-label">avg (low; peak 10x+)</div></div>
+        <div class="est-card"><div class="est-val">~500ms</div><div class="est-label">Time to first token (TTFT)</div></div>
+        <div class="est-card"><div class="est-val">~30 tok/s</div><div class="est-label">Per A100 GPU throughput</div></div>
+      </div>
+      <h3>Model Parallelism</h3>
+      <p>Large models (GPT-4 class: ~1T params) don't fit on a single GPU. Two strategies:</p>
+      <table class="dtable">
+        <tr><th>Strategy</th><th>How</th><th>When to Use</th></tr>
+        <tr><td><strong>Tensor Parallelism</strong></td><td>Split a single layer across GPUs — each GPU computes part of the matrix mult</td><td>Single large model on multiple GPUs in one machine</td></tr>
+        <tr><td><strong>Pipeline Parallelism</strong></td><td>Different layers on different GPUs/machines — pipeline stages</td><td>Model too large for tensor parallelism; adds bubble overhead</td></tr>
+        <tr><td><strong>Batching</strong></td><td>Process multiple requests simultaneously on same GPU; continuous batching fills idle decode slots</td><td>Always — critical for throughput</td></tr>
+      </table>
+      <div class="callout success"><strong>// Continuous Batching (vLLM)</strong> Traditional batching waits for slowest request. Continuous batching dynamically adds new requests to GPU as other requests finish generating — 20x+ throughput improvement. This is why vLLM is the standard serving framework.</div>
+    </div>
+
+    <div id="cgpt-cost" class="tab-content">
+      <h3>Cost Model — Why Token Pricing</h3>
+      <p>GPU time is the scarce resource. Token count (input + output) is a near-perfect proxy for GPU compute consumed. Hence pricing per 1M tokens.</p>
+      <div class="estimates">
+        <div class="est-card"><div class="est-val">$2–5</div><div class="est-label">per M input tokens (GPT-4 class)</div></div>
+        <div class="est-card"><div class="est-val">3–5×</div><div class="est-label">Output costs more than input</div></div>
+        <div class="est-card"><div class="est-val">~$30K/mo</div><div class="est-label">per A100 GPU (cloud)</div></div>
+      </div>
+      <p>Why output tokens cost more: input can be batched and cached; each output token requires an autoregressive decode step that cannot be parallelized within a sequence — strictly sequential, one token per forward pass.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- INSTAGRAM -->
+<div id="instagram" class="section">
+  <div class="hero">
+    <div class="hero-tag">// case study</div>
+    <h1>Instagram</h1>
+    <p class="hero-desc">Photo/video sharing at 2B+ users. Feed ranking, CDN delivery, stories, reels, and the fan-out problem.</p>
+  </div>
+  <div class="content">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'ig-feed')">Feed Architecture</div>
+      <div class="tab" onclick="switchTab(this,'ig-fanout')">Fan-out Problem</div>
+      <div class="tab" onclick="switchTab(this,'ig-media')">Media Pipeline</div>
+      <div class="tab" onclick="switchTab(this,'ig-stories')">Stories</div>
+    </div>
+
+    <div id="ig-feed" class="tab-content active">
+      <h3>How Instagram Generates Your Feed</h3>
+      <div class="arch">
+        <div class="arch-title">Feed Generation</div>
+        <div class="flow">
+          <div class="node client">User opens app</div><div class="arrow">→</div>
+          <div class="node lb">Feed API</div><div class="arrow">→</div>
+          <div class="node cache">Pre-computed<br>Feed Cache<br>(Redis)</div>
+        </div>
+        <div class="flow" style="margin-top:10px">
+          <div class="node service">Ranking Service<br><small>ML model</small></div><div class="arrow">→</div>
+          <div class="node service">Candidate<br>Generator</div><div class="arrow">→</div>
+          <div class="node db">Social Graph DB<br><small>(followees)</small></div>
+        </div>
+        <div class="flow" style="margin-top:10px">
+          <div class="node queue">Post Event Queue<br><small>(Kafka)</small></div><div class="arrow">→</div>
+          <div class="node service">Fan-out Worker</div><div class="arrow">→</div>
+          <div class="node cache">User Feed Caches<br><small>(millions)</small></div>
+        </div>
+      </div>
+      <h3>Feed Ranking Pipeline</h3>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">1. Candidate Retrieval</div><div class="tl-body">Get ~1000 recent posts from all accounts you follow. Pulled from user post index sharded by user_id. Also includes "interest graph" candidates from accounts you don't follow (Explore/Reels).</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">2. Multi-stage Ranking</div><div class="tl-body">Stage 1: lightweight model filters 1000 → 200. Stage 2: heavy ML model scores 200 posts on probability of like, comment, share, save, watch-time. Feature store pulls user embeddings + post embeddings.</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">3. Diversity & Business Logic</div><div class="tl-body">De-duplicate (same author, similar content). Insert sponsored posts at fixed intervals. Filter content policy violations. Final top-N.</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">4. Serve from Cache</div><div class="tl-body">Top 50 posts cached per user. Next page lazily loaded on scroll. Cache TTL: 5–15 mins. Stale feed is acceptable (eventual consistency).</div></div>
+      </div>
+    </div>
+
+    <div id="ig-fanout" class="tab-content">
+      <h3>The Fan-out Problem — Celebrity Edition</h3>
+      <div class="callout danger"><strong>// The Problem</strong> Selena Gomez posts a photo. She has 400M followers. If each post triggers 400M cache writes, that's 400M operations in seconds. At 10µs per write = 4,000 seconds of compute. Traditional fan-out-on-write breaks at celebrity scale.</div>
+
+      <h3>Two Fan-out Strategies</h3>
+      <div class="compare">
+        <div class="compare-box pro">
+          <h4>Fan-out on Write (Push)</h4>
+          <ul>
+            <li>Write to all follower caches on post creation</li>
+            <li>Feed reads are O(1) — instant cache hit</li>
+            <li>Good for users with few followers (&lt;10K)</li>
+          </ul>
+        </div>
+        <div class="compare-box con">
+          <h4>Fan-out on Read (Pull)</h4>
+          <ul>
+            <li>Compute feed at read time by fetching posts from all followees</li>
+            <li>Expensive reads for users following 1000+ accounts</li>
+            <li>But correct for celebrities — no 400M writes</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Instagram's Hybrid Approach</h3>
+      <p><strong>Regular users (&lt;10K followers):</strong> Fan-out on write. Post lands in Kafka → fan-out workers write to Redis feed caches of all followers within seconds.</p>
+      <p><strong>Celebrities (&gt;10K followers):</strong> Fan-out on read. Celebrity posts are NOT pushed to follower caches. When you open your feed, the system merges (a) your pre-computed cache from regular followees + (b) live-fetched recent posts from your celebrity followees.</p>
+      <div class="callout success"><strong>// Key Insight</strong> The threshold is configurable. A "hot user" flag is set when follower count exceeds threshold. Feed service knows to merge strategies. This is classic <strong>write-amplification vs read-amplification</strong> tradeoff.</div>
+
+      <h3>Feed Cache Schema (Redis)</h3>
+      <div class="code">
+<span class="comment">// Redis sorted set — score = timestamp</span>
+ZADD feed:{user_id} {timestamp} {post_id}
+ZREVRANGE feed:{user_id} 0 49  <span class="comment">// get top 50</span>
+
+<span class="comment">// Post metadata stored separately</span>
+HSET post:{post_id} author_id media_url like_count ...
+
+<span class="comment">// Feed entry example</span>
+key: "feed:123456"
+members: ["post:789", "post:456", ...]  <span class="comment">// sorted by score (timestamp)</span>
+      </div>
+    </div>
+
+    <div id="ig-media" class="tab-content">
+      <h3>Photo/Video Upload Pipeline</h3>
+      <div class="arch">
+        <div class="arch-title">Media Ingestion</div>
+        <div class="flow">
+          <div class="node client">App (client-side compress)</div><div class="arrow">→</div>
+          <div class="node service">Upload Service</div><div class="arrow">→</div>
+          <div class="node db">Object Store<br>(S3 / Blob)</div>
+        </div>
+        <div class="flow" style="margin-top:10px">
+          <div class="node queue">Kafka: media.uploaded</div><div class="arrow">→</div>
+          <div class="node service">Transcoding Workers<br><small>async</small></div><div class="arrow">→</div>
+          <div class="node db">Multi-resolution<br>Object Store</div>
+        </div>
+        <div class="flow" style="margin-top:10px">
+          <div class="node service">CDN Ingestion</div><div class="arrow">→</div>
+          <div class="node cache">Edge PoPs<br>(100+ locations)</div><div class="arrow">→</div>
+          <div class="node client">Viewers worldwide</div>
+        </div>
+      </div>
+      <h3>Multi-Resolution Strategy</h3>
+      <p>Original photo is 12MP / 8MB. Instagram generates multiple variants asynchronously after upload:</p>
+      <table class="dtable">
+        <tr><th>Variant</th><th>Resolution</th><th>Use Case</th></tr>
+        <tr><td>thumbnail</td><td>150×150</td><td>Grid view, search results</td></tr>
+        <tr><td>low</td><td>320×320</td><td>Fast initial load (LQIP)</td></tr>
+        <tr><td>standard</td><td>1080×1080</td><td>Feed view</td></tr>
+        <tr><td>original</td><td>as-uploaded</td><td>Download/zoom</td></tr>
+      </table>
+      <div class="callout info"><strong>// Progressive Loading Pattern</strong> Client first fetches tiny blurred LQIP (Low Quality Image Placeholder ~200 bytes), shows it instantly, then replaces with full-res as it loads. Perceived load time drops dramatically.</div>
+    </div>
+
+    <div id="ig-stories" class="tab-content">
+      <h3>Stories — Ephemeral Content at Scale</h3>
+      <p>Stories are visible for 24 hours, then expire. 500M+ people use Stories daily. Design constraints: fast expiry, view counts, who-viewed-it.</p>
+      <div class="arch">
+        <div class="arch-title">Stories Data Flow</div>
+        <div class="flow">
+          <div class="node db">Stories DB<br><small>TTL = 24h</small></div><div class="arrow">→</div>
+          <div class="node service">Story Service</div><div class="arrow">→</div>
+          <div class="node cache">Stories Ring Cache<br><small>Redis sorted set</small></div>
+        </div>
+      </div>
+      <h3>Key Problems</h3>
+      <div class="accordion" onclick="toggleAcc(this)">
+        <div class="acc-header">Who viewed my story — at 100M viewers? <span class="acc-icon">▾</span></div>
+        <div class="acc-body"><strong>Problem:</strong> Storing every viewer for a celebrity story = 100M rows per story. <strong>Solution:</strong> For normal users, store exact viewer list in Redis set. For celebrities, use a <strong>HyperLogLog</strong> (probabilistic cardinality estimator, ~12KB, ~0.81% error) for count, and a Cassandra table for recent viewers only. The exact viewer list is truncated after 1000 entries for celebrities — Instagram doesn't show you if Kylie Jenner saw your story, and vice versa they cap the displayed viewer list.</div>
+      </div>
+      <div class="accordion" onclick="toggleAcc(this)">
+        <div class="acc-header">How are stories expired efficiently? <span class="acc-icon">▾</span></div>
+        <div class="acc-body">Two-pronged: (1) <strong>TTL in Redis/Cassandra</strong>: set expiry on insertion. Storage auto-reclaims. (2) <strong>Soft-delete + background job</strong>: a scheduled job runs every hour, deletes media from object store, removes from all follower story queues. On read, stale story IDs are checked and skipped. Object store deletion is delayed 48h for replay/appeals.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHATSAPP -->
+<div id="whatsapp" class="section">
+  <div class="hero">
+    <div class="hero-tag">// case study</div>
+    <h1>WhatsApp</h1>
+    <p class="hero-desc">2B users, 100B messages/day. Real-time delivery, E2E encryption, offline message queuing, read receipts.</p>
+  </div>
+  <div class="content">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'wa-arch')">Core Architecture</div>
+      <div class="tab" onclick="switchTab(this,'wa-delivery')">Message Delivery</div>
+      <div class="tab" onclick="switchTab(this,'wa-group')">Group Messaging</div>
+      <div class="tab" onclick="switchTab(this,'wa-e2e')">E2E Encryption</div>
+    </div>
+
+    <div id="wa-arch" class="tab-content active">
+      <div class="estimates">
+        <div class="est-card"><div class="est-val">2B</div><div class="est-label">Monthly Active Users</div></div>
+        <div class="est-card"><div class="est-val">100B</div><div class="est-label">Messages/day</div></div>
+        <div class="est-card"><div class="est-val">~1.16M</div><div class="est-label">Messages/second (avg)</div></div>
+        <div class="est-card"><div class="est-val">~50KB</div><div class="est-label">Avg message size (with media)</div></div>
+      </div>
+      <div class="arch">
+        <div class="arch-title">WhatsApp Architecture Overview</div>
+        <div class="flow">
+          <div class="node client">Phone A</div><div class="arrow">──WebSocket──</div>
+          <div class="node lb">Connection<br>Service</div><div class="arrow">→</div>
+          <div class="node service">Chat Service</div><div class="arrow">→</div>
+          <div class="node queue">Message Queue<br>(Kafka)</div>
+        </div>
+        <div class="flow" style="margin-top:10px">
+          <div class="node queue">Message Queue</div><div class="arrow">→</div>
+          <div class="node service">Delivery Service</div><div class="arrow">→</div>
+          <div class="node lb">Connection<br>Service</div><div class="arrow">──push──</div>
+          <div class="node client">Phone B</div>
+        </div>
+        <div class="flow" style="margin-top:10px">
+          <div class="node db">Message Store<br>(Cassandra)</div><div class="arrow">←</div>
+          <div class="node service">Offline Queue<br>Service</div>
+        </div>
+      </div>
+      <h3>Why WebSocket (not HTTP polling)?</h3>
+      <p>HTTP polling (client checks every N seconds) wastes bandwidth and adds latency. WebSocket maintains a persistent bidirectional TCP connection — server can push messages to client at any time. Each server handles ~100K concurrent WebSocket connections. With 2B users and ~20% online simultaneously = 400M connections = ~4000 servers minimum (just for connections).</p>
+      <div class="callout info"><strong>// Why Erlang</strong> WhatsApp was built on Erlang/BEAM. Erlang's lightweight processes (~500 bytes each), non-blocking I/O, and supervisor trees make it ideal for millions of concurrent connections. A single 20-core box could handle 2M connections. This is why 50 engineers ran 2B-user scale before Facebook acquisition.</div>
+    </div>
+
+    <div id="wa-delivery" class="tab-content">
+      <h3>Exactly-Once Delivery Semantics</h3>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">1. Sender → Server (sent ✓)</div><div class="tl-body">Phone A sends message. Server acknowledges with message_id. App shows single grey tick. Message stored in Cassandra with status=PENDING.</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">2. Server → Recipient (delivered ✓✓)</div><div class="tl-body">Server pushes to recipient's WebSocket. Recipient client ACKs. Server updates status=DELIVERED. Notifies sender → double grey ticks.</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">3. Recipient reads (read ✓✓ blue)</div><div class="tl-body">User opens chat → client sends READ receipt. Server updates → blue ticks shown to sender. Read receipts can be disabled — then server never sends that event.</div></div>
+      </div>
+
+      <h3>Offline Message Handling</h3>
+      <p>If Phone B is offline: message stored in <strong>offline queue</strong> (Cassandra, TTL = 30 days). When Phone B comes online, on WebSocket connect, server pushes all queued messages in order. Client ACKs each; server marks delivered and flushes queue.</p>
+      <div class="callout warn"><strong>// Message Ordering Guarantee</strong> Messages use a per-conversation sequence number (not timestamp) to handle clock skew across devices. Cassandra stores messages by (conversation_id, seq_num) — guarantees order even with out-of-order network delivery.</div>
+
+      <h3>Media Messages</h3>
+      <p>Images/videos are NOT stored on WhatsApp servers long-term. Flow: (1) Phone A encrypts media client-side → uploads to WhatsApp CDN (BLOB server). (2) Message contains encrypted URL + decryption key. (3) Phone B downloads and decrypts. Media is deleted from CDN after delivery or after 30 days. This keeps server storage manageable — WhatsApp doesn't store your media.</p>
+    </div>
+
+    <div id="wa-group" class="tab-content">
+      <h3>Group Messaging Architecture</h3>
+      <p>Groups up to 1024 members. Naive approach: 1 message → 1024 pushes per message. Problems arise at scale.</p>
+      <div class="arch">
+        <div class="arch-title">Group Message Fan-out</div>
+        <div class="flow">
+          <div class="node client">Sender</div><div class="arrow">→</div>
+          <div class="node service">Group Service</div><div class="arrow">→</div>
+          <div class="node db">Group Membership<br>DB</div>
+        </div>
+        <div class="flow" style="margin-top:10px">
+          <div class="node service">Group Service</div><div class="arrow">→</div>
+          <div class="node queue">Fan-out Workers<br>(async)</div><div class="arrow">→</div>
+          <div class="node service">Per-member<br>delivery</div>
+        </div>
+      </div>
+      <h3>Group Delivery Receipt Problem</h3>
+      <p>For individual messages: 1 delivered receipt. For 1024-member group: 1024 receipts. Aggregating them: server must track per-(message_id, member_id) delivery. At 100M group messages/day × 500 avg members = 50B delivery events/day. Solution: <strong>aggregate in Redis first</strong> (counter per message), persist to Cassandra asynchronously in batches.</p>
+      <div class="callout warn"><strong>// Delivery vs Read at Group Scale</strong> WhatsApp shows "delivered to N, read by M" not individual read status in groups. Counting is done with approximate counting (counter increments) not full member enumeration. Exact per-member read receipts shown only in Info page, fetched lazily on demand.</div>
+    </div>
+
+    <div id="wa-e2e" class="tab-content">
+      <h3>End-to-End Encryption (Signal Protocol)</h3>
+      <p>WhatsApp uses the Signal Protocol. Server never sees plaintext messages.</p>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">Key Registration</div><div class="tl-body">On install, device generates identity key pair, signed prekey, and 100 one-time prekeys. Public keys uploaded to WhatsApp key server. Private keys NEVER leave device.</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">Session Establishment (X3DH)</div><div class="tl-body">First message: sender fetches recipient's prekeys from server. Performs X3DH (Extended Triple Diffie-Hellman) key agreement → shared secret. Derives message encryption key. Consumes one-time prekey (deleted from server).</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">Double Ratchet Algorithm</div><div class="tl-body">Every message derives a new key using Double Ratchet. Forward secrecy: compromise of current key can't decrypt past messages. Break-in recovery: compromise can't decrypt future messages after ratchet advances.</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">Group Keys (Sender Keys)</div><div class="tl-body">For groups: each sender distributes a "Sender Key" to all members. Only one encryption per message (not N). New member = new Sender Key distribution (forward secrecy maintained).</div></div>
+      </div>
+      <div class="callout info"><strong>// What WhatsApp CAN See</strong> Metadata: who messaged whom, when, how often, group membership, IP addresses, phone numbers. Not message content or media. This metadata alone is extremely valuable for intelligence/ad purposes.</div>
+    </div>
+  </div>
+</div>
+
+<!-- UBER -->
+<div id="uber" class="section">
+  <div class="hero">
+    <div class="hero-tag">// case study</div>
+    <h1>Uber</h1>
+    <p class="hero-desc">Geo-spatial matching, real-time location tracking, dynamic pricing, dispatch at global scale.</p>
+  </div>
+  <div class="content">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'ub-arch')">Architecture</div>
+      <div class="tab" onclick="switchTab(this,'ub-match')">Matching Algorithm</div>
+      <div class="tab" onclick="switchTab(this,'ub-geo')">Geo Indexing</div>
+      <div class="tab" onclick="switchTab(this,'ub-surge')">Surge Pricing</div>
+    </div>
+
+    <div id="ub-arch" class="tab-content active">
+      <div class="estimates">
+        <div class="est-card"><div class="est-val">25M</div><div class="est-label">Trips/day</div></div>
+        <div class="est-card"><div class="est-val">5M</div><div class="est-label">Active drivers (peak)</div></div>
+        <div class="est-card"><div class="est-val">~4/sec</div><div class="est-label">Location updates/driver</div></div>
+        <div class="est-card"><div class="est-val">20M/s</div><div class="est-label">Location writes (peak)</div></div>
+      </div>
+      <div class="arch">
+        <div class="arch-title">Uber Core Services</div>
+        <div class="flow">
+          <div class="node client">Rider App</div><div class="arrow">→</div>
+          <div class="node lb">API Gateway</div><div class="arrow">→</div>
+          <div class="node service">Dispatch Service</div><div class="arrow">→</div>
+          <div class="node service">Matching Engine</div>
+        </div>
+        <div class="flow" style="margin-top:10px">
+          <div class="node client">Driver App<br><small>4/sec GPS</small></div><div class="arrow">→</div>
+          <div class="node service">Location Service</div><div class="arrow">→</div>
+          <div class="node cache">Geo Index<br>(Redis + geohash)</div>
+        </div>
+        <div class="flow" style="margin-top:10px">
+          <div class="node service">Matching Engine</div><div class="arrow">→</div>
+          <div class="node service">ETA Service<br><small>routing</small></div><div class="arrow">→</div>
+          <div class="node db">Map DB<br>(road graph)</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="ub-match" class="tab-content">
+      <h3>Driver Matching Algorithm</h3>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">1. Find Candidates</div><div class="tl-body">Query Redis geo index for all available drivers within N km radius of rider. Start with 1km, expand to 3km, 5km if not enough candidates. Return up to 50 candidates.</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">2. Compute ETA (not straight-line distance)</div><div class="tl-body">Critical: straight-line distance is useless in a city. Real road-network ETA computed for top 10 candidates using pre-computed routing graph. Uber H3 (hexagonal grid) hierarchically narrows routing candidates.</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">3. Rank Drivers</div><div class="tl-body">Score = f(ETA, driver rating, acceptance rate, trip duration estimate). ML model trained on historical completions. ETA is weighted 80%.</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">4. Offer & Timeout</div><div class="tl-body">Best driver gets trip offer (15-second window). If declined or timeout, offer to next candidate. Concurrently offer to top-3 to reduce latency — first accept wins, others notified.</div></div>
+      </div>
+      <div class="callout warn"><strong>// Consistency Challenge</strong> Two riders could both match the same driver simultaneously. Uber uses optimistic locking on driver status: driver row has version column. UPDATE driver SET status=DISPATCHED WHERE id=X AND status=AVAILABLE AND version=N — if 0 rows updated, driver taken, retry with next candidate.</div>
+    </div>
+
+    <div id="ub-geo" class="tab-content">
+      <h3>Geospatial Indexing — The Core Problem</h3>
+      <p>Finding nearest drivers efficiently. Naive solution: scan all 5M drivers, compute distance — O(N), too slow.</p>
+      <h3>Geohash</h3>
+      <p>Encode lat/lng into a string where common prefix = geographic proximity. Precision levels:</p>
+      <table class="dtable">
+        <tr><th>Geohash Length</th><th>Area</th><th>Use</th></tr>
+        <tr><td>4 chars</td><td>~40km × 40km</td><td>Country-level</td></tr>
+        <tr><td>6 chars</td><td>~1.2km × 0.6km</td><td>Neighborhood</td></tr>
+        <tr><td>8 chars</td><td>~38m × 19m</td><td>Driver matching</td></tr>
+      </table>
+      <p>Drivers indexed in Redis sorted set by geohash. To find nearby drivers: compute rider's geohash + 8 neighboring cells (to avoid edge-case where nearby driver is in adjacent cell). Redis <code>GEORADIUS</code> command does this natively.</p>
+
+      <h3>H3 — Uber's Hexagonal Grid</h3>
+      <div class="callout info"><strong>// Why Hexagons over Geohash</strong> Hexagons have equal-distance neighbors (all 6 neighbors equidistant from center). Squares/rectangles have 8 neighbors with 2 different distances (orthogonal vs diagonal). For spatial operations like surge pricing zone calculation and demand heatmaps, hexagons are more accurate. Uber open-sourced H3.</div>
+      <p>H3 hierarchical resolution: resolution 9 cells (~0.1 km²) for matching, resolution 7 (~5 km²) for surge zones, resolution 4 (~288 km²) for city-level analytics.</p>
+
+      <h3>Location Update at 20M writes/sec</h3>
+      <p>Each of 5M drivers sends GPS every 250ms = 20M writes/sec. Strategy: (1) Driver app sends to <strong>location kafka topic</strong>. Kafka absorbs the burst. (2) Location consumer updates Redis geo index and writes to Cassandra for trip replay/audit. (3) Redis TTL: driver location expires after 60s of no update (driver went offline). Never write to primary DB directly from driver app — Kafka acts as buffer.</p>
+    </div>
+
+    <div id="ub-surge" class="tab-content">
+      <h3>Surge Pricing System</h3>
+      <p>Surge multiplier balances supply (drivers) and demand (riders) in real-time per geographic zone.</p>
+      <div class="arch">
+        <div class="arch-title">Surge Calculation Pipeline</div>
+        <div class="flow">
+          <div class="node service">Demand Service<br><small>ride requests/min/cell</small></div><div class="arrow">→</div>
+          <div class="node service">Supply Service<br><small>available drivers/cell</small></div><div class="arrow">→</div>
+          <div class="node service">Surge Engine</div>
+        </div>
+        <div class="flow" style="margin-top:10px">
+          <div class="node service">Surge Engine</div><div class="arrow">→</div>
+          <div class="node db">Surge Config DB</div><div class="arrow">→</div>
+          <div class="node cache">Surge Cache<br><small>TTL: 30s</small></div><div class="arrow">→</div>
+          <div class="node client">App shows surge</div>
+        </div>
+      </div>
+      <h3>Surge Formula</h3>
+      <div class="code">
+surge_multiplier = f(demand_supply_ratio, elasticity_model)
+
+<span class="comment">// Simplified:</span>
+ratio = active_requests / available_drivers  <span class="comment">// per H3 cell</span>
+<span class="kw">if</span> ratio &lt; 1.5: surge = 1.0x
+<span class="kw">if</span> ratio &lt; 2.5: surge = 1.5x
+<span class="kw">if</span> ratio &lt; 4.0: surge = 2.0x
+...
+
+<span class="comment">// In practice: ML model trained on historical data</span>
+<span class="comment">// accounts for time-of-day, weather, events, elasticity</span>
+      </div>
+      <div class="callout warn"><strong>// Price Lock</strong> Rider sees surge price, which is locked for 2 minutes once they see the estimate. This is implemented as a session token with price embedded, signed server-side. Protects rider from bait-and-switch and protects Uber from giving trips at stale surge price.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT -->
+<div id="payment" class="section">
+  <div class="hero">
+    <div class="hero-tag">// case study</div>
+    <h1>Payment System</h1>
+    <p class="hero-desc">Idempotency, distributed transactions, double-spend prevention, reconciliation, compliance at scale.</p>
+  </div>
+  <div class="content">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'pay-arch')">Architecture</div>
+      <div class="tab" onclick="switchTab(this,'pay-idem')">Idempotency</div>
+      <div class="tab" onclick="switchTab(this,'pay-txn')">Distributed Txn</div>
+      <div class="tab" onclick="switchTab(this,'pay-recon')">Reconciliation</div>
+    </div>
+
+    <div id="pay-arch" class="tab-content active">
+      <div class="arch">
+        <div class="arch-title">Payment Processing Flow</div>
+        <div class="flow">
+          <div class="node client">Client</div><div class="arrow">→</div>
+          <div class="node lb">Payment API<br><small>TLS 1.3, auth</small></div><div class="arrow">→</div>
+          <div class="node service">Payment Service</div><div class="arrow">→</div>
+          <div class="node service">Idempotency<br>Check</div>
+        </div>
+        <div class="flow" style="margin-top:10px">
+          <div class="node service">Payment Service</div><div class="arrow">→</div>
+          <div class="node service">Risk Engine<br><small>fraud check</small></div><div class="arrow">→</div>
+          <div class="node service">PSP Gateway<br><small>Stripe/Adyen</small></div><div class="arrow">→</div>
+          <div class="node service">Bank/Card Network</div>
+        </div>
+        <div class="flow" style="margin-top:10px">
+          <div class="node service">Webhook Handler<br><small>PSP callback</small></div><div class="arrow">→</div>
+          <div class="node queue">Event Queue<br><small>Kafka</small></div><div class="arrow">→</div>
+          <div class="node db">Ledger DB<br><small>Postgres</small></div>
+        </div>
+      </div>
+      <div class="callout danger"><strong>// NEVER</strong> Store raw card numbers (PAN) on your servers. Use a PSP vault and store only tokens. PCI-DSS compliance mandates this. A breach of cardholder data = massive fines + lawsuits.</div>
+    </div>
+
+    <div id="pay-idem" class="tab-content">
+      <h3>Idempotency — The Single Most Critical Concept</h3>
+      <div class="callout danger"><strong>// The Failure Scenario</strong> Client sends payment request. Network times out at 28s. Client retries. Server already processed the first request (it just took long). Without idempotency, customer is charged twice.</div>
+      <h3>Solution: Idempotency Keys</h3>
+      <div class="code">
+POST /v1/payments
+Idempotency-Key: <span class="str">"client-generated-uuid-abc123"</span>
+{
+  "amount": 5000,
+  "currency": <span class="str">"USD"</span>,
+  "source": <span class="str">"card_token_xyz"</span>
+}
+
+<span class="comment">// Server logic:</span>
+<span class="fn">processPayment</span>(idempotency_key, request):
+  <span class="kw">existing</span> = redis.get(<span class="str">"idem:"</span> + idempotency_key)
+  <span class="kw">if</span> existing:
+    <span class="kw">return</span> existing.response  <span class="comment">// replay cached response</span>
+  
+  <span class="comment">// Atomic lock — prevents concurrent duplicate execution</span>
+  lock = redis.set(<span class="str">"idem:"</span> + idempotency_key, <span class="str">"PROCESSING"</span>, NX, EX=300)
+  <span class="kw">if</span> !lock: <span class="kw">return</span> <span class="str">"409 Conflict - concurrent request"</span>
+  
+  result = executePayment(request)
+  redis.set(<span class="str">"idem:"</span> + idempotency_key, result, EX=<span class="num">86400</span>)
+  <span class="kw">return</span> result
+      </div>
+      <div class="callout info"><strong>// TTL on Idempotency Keys</strong> Keys expire after 24h. After that, the same key could trigger a new charge — clients must use fresh keys for new payments. Keys should be client-generated UUIDs (not server), ensuring uniqueness without coordination.</div>
+      <h3>At-least-once vs Exactly-once</h3>
+      <p>Kafka delivers at-least-once. Payment events may be delivered twice. At the consumer (ledger update), use the same idempotency_key to prevent double-crediting: <code>INSERT INTO ledger ... ON CONFLICT (idempotency_key) DO NOTHING</code>.</p>
+    </div>
+
+    <div id="pay-txn" class="tab-content">
+      <h3>Distributed Transactions — The Transfer Problem</h3>
+      <p>Debit account A, credit account B. If they're in different databases/services, you can't use a single ACID transaction.</p>
+      <h3>Two-Phase Commit (2PC) — What Banks Used To Do</h3>
+      <div class="compare">
+        <div class="compare-box pro"><h4>2PC Pros</h4><ul><li>True atomicity — all or nothing</li><li>Strong consistency guarantee</li></ul></div>
+        <div class="compare-box con"><h4>2PC Cons</h4><ul><li>Blocking: if coordinator crashes, participants block forever</li><li>Low throughput — tight lock coordination</li><li>Not practical across microservices at scale</li></ul></div>
+      </div>
+      <h3>SAGA Pattern — Modern Solution</h3>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">1. Debit sender</div><div class="tl-body">Execute local transaction, publish "SenderDebited" event to Kafka.</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">2. Credit receiver (on event)</div><div class="tl-body">Payment service consumes event, credits receiver account, publishes "ReceiverCredited".</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">3. Failure → Compensating Transaction</div><div class="tl-body">If step 2 fails, publish "CreditFailed" → compensating transaction reverses step 1 (re-credits sender). Compensation must also be idempotent.</div></div>
+      </div>
+      <div class="callout warn"><strong>// SAGA Tradeoff</strong> No true atomicity — briefly inconsistent state is visible (sender debited but receiver not yet credited). Acceptable for payments if eventual consistency window is short (&lt;100ms). Not acceptable for inventory (oversell). Know when to use which.</div>
+    </div>
+
+    <div id="pay-recon" class="tab-content">
+      <h3>Reconciliation — How Banks Catch Discrepancies</h3>
+      <p>PSPs (Stripe, Adyen) settle payments asynchronously. Your ledger may not match. Reconciliation is the process of comparing your internal records with PSP settlement reports.</p>
+      <div class="arch">
+        <div class="arch-title">Reconciliation Pipeline</div>
+        <div class="flow">
+          <div class="node service">PSP Settlement<br>Report (daily CSV)</div><div class="arrow">→</div>
+          <div class="node service">Recon Service</div><div class="arrow">→</div>
+          <div class="node db">Internal Ledger</div>
+        </div>
+        <div class="flow" style="margin-top:10px">
+          <div class="node service">Recon Service<br><small>match by txn_id</small></div><div class="arrow">→</div>
+          <div class="node db">Discrepancy Table</div><div class="arrow">→</div>
+          <div class="node service">Alert / Manual Review</div>
+        </div>
+      </div>
+      <h3>Discrepancy Types</h3>
+      <table class="dtable">
+        <tr><th>Type</th><th>Cause</th><th>Resolution</th></tr>
+        <tr><td>Missing in PSP</td><td>Network lost, PSP never received</td><td>Re-initiate payment or refund customer</td></tr>
+        <tr><td>Missing internally</td><td>Webhook not received / processed</td><td>Re-process webhook, update ledger</td></tr>
+        <tr><td>Amount mismatch</td><td>Currency conversion, fees</td><td>Investigate fee schedule</td></tr>
+        <tr><td>Duplicate charge</td><td>Idempotency bug</td><td>Issue refund, fix bug</td></tr>
+      </table>
+      <div class="callout success"><strong>// Ledger Design</strong> Use append-only, double-entry bookkeeping: every transaction has a debit row AND a credit row. Sum of all rows must always = 0. This makes errors immediately visible and provides full audit trail. Never UPDATE a ledger row — only INSERT.</div>
+    </div>
+  </div>
+</div>
+
+<!-- LARGE FILE UPLOAD -->
+<div id="fileupload" class="section">
+  <div class="hero">
+    <div class="hero-tag">// hard problem</div>
+    <h1>Large File Upload</h1>
+    <p class="hero-desc">Handling 10GB video uploads reliably. Resumable, concurrent, distributed — at any failure point.</p>
+  </div>
+  <div class="content">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'fu-naive')">Naive vs Proper</div>
+      <div class="tab" onclick="switchTab(this,'fu-chunked')">Chunked Upload</div>
+      <div class="tab" onclick="switchTab(this,'fu-s3')">Direct-to-S3</div>
+      <div class="tab" onclick="switchTab(this,'fu-process')">Processing Pipeline</div>
+    </div>
+
+    <div id="fu-naive" class="tab-content active">
+      <h3>Why Naive Single-PUT Upload Fails</h3>
+      <div class="callout danger"><strong>// Problems with single HTTP upload</strong> (1) Network interruption at 99% → restart from 0. (2) 10GB through your backend server = bottleneck, memory pressure. (3) No progress feedback. (4) Load balancer / proxy timeouts (default 60s). (5) No parallelism. For 10GB at 10 Mbps = 133 minutes — any dropout restarts.</div>
+
+      <h3>Requirements for Production Upload</h3>
+      <ul>
+        <li><strong>Resumable:</strong> Network drops mid-upload → resume from last successful chunk</li>
+        <li><strong>Parallel:</strong> Upload multiple chunks simultaneously for speed</li>
+        <li><strong>Bypass backend:</strong> Direct upload to object store — don't saturate your servers</li>
+        <li><strong>Progress:</strong> Client shows real % progress</li>
+        <li><strong>Deduplication:</strong> Same file uploaded twice → don't store twice (content hash)</li>
+      </ul>
+    </div>
+
+    <div id="fu-chunked" class="tab-content">
+      <h3>Chunked Multipart Upload Protocol</h3>
+      <div class="code">
+<span class="comment">// Phase 1: Initiate upload</span>
+POST /api/upload/initiate
+{ file_name, file_size, content_type, chunk_size: <span class="num">5242880</span> }  <span class="comment">// 5MB chunks</span>
+
+<span class="comment">// Server response</span>
+{ upload_id: <span class="str">"upl_abc123"</span>, total_chunks: <span class="num">2048</span> }
+
+<span class="comment">// Phase 2: Upload chunks (parallel)</span>
+<span class="kw">for</span> chunk_index <span class="kw">in</span> [0..2048] <span class="comment">// 16 concurrent uploads</span>:
+  PUT /api/upload/{upload_id}/chunk/{chunk_index}
+  Content-Range: bytes 0-5242879/10737418240
+  Body: [binary chunk data]
+  
+  <span class="comment">// Server stores chunk, returns checksum</span>
+  { etag: <span class="str">"md5-abc..."</span>, chunk_index: <span class="num">0</span> }
+
+<span class="comment">// Phase 3: Complete</span>
+POST /api/upload/{upload_id}/complete
+{ parts: [{ chunk_index: 0, etag: <span class="str">"..."</span> }, ...] }
+
+<span class="comment">// Phase 4: Resuming after failure</span>
+GET /api/upload/{upload_id}/status
+{ completed_chunks: [0,1,2,5,6], missing: [3,4,7..2047] }
+<span class="comment">// Client re-uploads only missing chunks</span>
+      </div>
+      <h3>Chunk Storage Tracking</h3>
+      <div class="code">
+<span class="comment">-- Upload state table</span>
+uploads: (upload_id, user_id, filename, total_chunks, status, created_at)
+upload_chunks: (upload_id, chunk_index, etag, size, uploaded_at)
+
+<span class="comment">-- Check completeness</span>
+SELECT COUNT(*) FROM upload_chunks WHERE upload_id = ?
+<span class="comment">-- == total_chunks → trigger assembly job</span>
+      </div>
+      <div class="callout success"><strong>// Chunk Size Tradeoff</strong> Smaller chunks = more overhead (more HTTP requests, more DB rows). Larger chunks = more to re-upload on failure. Industry standard: 5–10 MB per chunk. AWS S3 minimum part size is 5MB.</div>
+    </div>
+
+    <div id="fu-s3" class="tab-content">
+      <h3>Direct-to-S3 with Pre-signed URLs</h3>
+      <p>Never route large file uploads through your backend. Backend becomes bottleneck + cost center. Use pre-signed URLs to let clients upload directly to S3.</p>
+      <div class="arch">
+        <div class="arch-title">Pre-signed URL Flow</div>
+        <div class="flow">
+          <div class="node client">Client</div><div class="arrow">→ 1. Request upload URLs</div><div class="node service">Your Backend</div>
+        </div>
+        <div class="flow" style="margin-top:8px">
+          <div class="node service">Backend</div><div class="arrow">→ 2. Generate pre-signed URLs</div><div class="node db">AWS S3</div>
+        </div>
+        <div class="flow" style="margin-top:8px">
+          <div class="node service">Backend</div><div class="arrow">→ 3. Return URLs to client</div><div class="node client">Client</div>
+        </div>
+        <div class="flow" style="margin-top:8px">
+          <div class="node client">Client</div><div class="arrow">→ 4. PUT chunks DIRECTLY to S3</div><div class="node db">AWS S3</div>
+        </div>
+        <div class="flow" style="margin-top:8px">
+          <div class="node db">S3</div><div class="arrow">→ 5. Event notification</div><div class="node queue">SQS/SNS</div><div class="arrow">→</div><div class="node service">Processing Workers</div>
+        </div>
+      </div>
+      <div class="code">
+<span class="comment">// Backend: generate presigned URL for each chunk (Python boto3)</span>
+presigned_url = s3_client.<span class="fn">generate_presigned_url</span>(
+  <span class="str">'put_object'</span>,
+  Params={<span class="str">'Bucket'</span>: <span class="str">'uploads'</span>, <span class="str">'Key'</span>: f<span class="str">'uploads/{upload_id}/chunk_{i}'</span>},
+  ExpiresIn=<span class="num">3600</span>  <span class="comment"># 1 hour</span>
+)
+<span class="comment">// Client uses this URL directly — no auth needed (URL is auth)</span>
+      </div>
+      <div class="callout info"><strong>// Security</strong> Pre-signed URLs are time-limited (1h). Client uploads directly but can only PUT to exactly that S3 key — not read or write elsewhere. Backend validates file after completion via S3 event trigger (check file type, virus scan, etc.).</div>
+    </div>
+
+    <div id="fu-process" class="tab-content">
+      <h3>Post-Upload Processing Pipeline</h3>
+      <div class="arch">
+        <div class="arch-title">Media Processing (async)</div>
+        <div class="flow">
+          <div class="node db">S3: raw upload</div><div class="arrow">→</div>
+          <div class="node queue">SQS Queue</div><div class="arrow">→</div>
+          <div class="node service">Assembly Worker<br><small>merge chunks</small></div>
+        </div>
+        <div class="flow" style="margin-top:10px">
+          <div class="node service">Assembly Worker</div><div class="arrow">→</div>
+          <div class="node queue">Processing Queue</div><div class="arrow">→</div>
+          <div class="node service">Transcoder Pool<br><small>FFmpeg workers</small></div>
+        </div>
+        <div class="flow" style="margin-top:10px">
+          <div class="node service">Transcoder Pool</div><div class="arrow">→</div>
+          <div class="node db">S3: multi-res outputs<br><small>360p/720p/1080p/4K</small></div><div class="arrow">→</div>
+          <div class="node cache">CDN Propagation</div>
+        </div>
+      </div>
+      <h3>Virus Scanning & Content Policy</h3>
+      <p>Before making any file public: (1) ClamAV or cloud-native scan (AWS GuardDuty). (2) Content hash checked against known-bad hash DB (PhotoDNA for CSAM). (3) For video: ML content moderation (nudity, violence) runs asynchronously — video stays in "processing" state until cleared. Never serve unscanned content.</p>
+      <div class="callout warn"><strong>// Zombie Uploads</strong> Users who start uploads and never complete waste storage. Run a daily cleanup job: DELETE FROM uploads WHERE status='IN_PROGRESS' AND created_at &lt; NOW() - INTERVAL '7 days'. Also delete orphaned S3 objects via lifecycle policy (abort multipart uploads after 7 days).</div>
+    </div>
+  </div>
+</div>
+
+<!-- TRAFFIC SURGE -->
+<div id="surge" class="section">
+  <div class="hero">
+    <div class="hero-tag">// hard problem</div>
+    <h1>Traffic Surge Handling</h1>
+    <p class="hero-desc">Black Friday, Super Bowl, product launches — 100x normal traffic in seconds. How to survive without burning money.</p>
+  </div>
+  <div class="content">
+    <h2>Tiered Defense Strategy</h2>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">Tier 1: CDN Absorbs Static Load</div><div class="tl-body">80% of traffic is static assets (JS, CSS, images, HTML shells). All served from CDN edge (Cloudflare/Fastly). These requests never hit your origin. CDN handles essentially unlimited scale. Your task: cache everything possible.</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">Tier 2: Rate Limiting & Traffic Shaping</div><div class="tl-body">API gateway enforces per-IP, per-user rate limits. Token bucket algorithm. Burst allowance for legitimate spikes, sustained rate limit for abuse. Queue excess requests don't reject them — return 429 with Retry-After header.</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">Tier 3: Horizontal Auto-scaling</div><div class="tl-body">Kubernetes HPA scales stateless services on CPU/RPS. Pre-warm: for known events (Super Bowl kickoff), scale out 15 mins early. Cold start is too slow — pre-provisioned instances. AWS Target Tracking: maintain 60% CPU, scale when breached.</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">Tier 4: Circuit Breakers & Graceful Degradation</div><div class="tl-body">If DB is overwhelmed: serve stale cached data. If recommendation service is down: show popular items. If payment service is slow: queue the request, don't timeout user. Always define what "degraded" looks like before it happens.</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">Tier 5: Load Shedding (Last Resort)</div><div class="tl-body">If all else fails, reject non-essential requests explicitly. Show "We're experiencing high demand" page (served from CDN, no backend needed). Priority: paying customers > free users > unauthenticated. Queue for virtual waiting room.</div></div>
+    </div>
+
+    <hr>
+    <h2>Queue-Based Virtual Waiting Room</h2>
+    <p>Used by Ticketmaster, government vaccine booking sites. Instead of 503 errors:</p>
+    <div class="code">
+<span class="comment">// User hits checkout during surge</span>
+<span class="kw">if</span> queue_depth &gt; threshold:
+  token = <span class="fn">issue_queue_token</span>(user_id)
+  position = redis.incr(<span class="str">"queue:position"</span>)
+  redis.set(f<span class="str">"queue:token:{token}"</span>, position, EX=<span class="num">3600</span>)
+  <span class="kw">return</span> { status: <span class="str">"queued"</span>, token, position, estimated_wait: position * avg_service_time }
+
+<span class="comment">// User polls with token every 5s</span>
+GET /queue/status?token=xyz
+<span class="kw">if</span> current_serving &gt;= token.position:
+  <span class="kw">return</span> { status: <span class="str">"ready"</span>, session: <span class="fn">generate_session</span>() }
+<span class="kw">else</span>:
+  <span class="kw">return</span> { status: <span class="str">"waiting"</span>, position: token.position - current_serving }
+    </div>
+
+    <hr>
+    <h2>Database Surge Protection</h2>
+    <table class="dtable">
+      <tr><th>Technique</th><th>What it Does</th><th>Tradeoff</th></tr>
+      <tr><td>Read Replicas</td><td>Route reads to replicas</td><td>Replication lag (eventual consistency)</td></tr>
+      <tr><td>Connection Pooling (PgBouncer)</td><td>Reuse connections, absorb spikes</td><td>Adds hop latency</td></tr>
+      <tr><td>Cache-Aside (Redis)</td><td>Serve hot data from memory</td><td>Cache invalidation complexity</td></tr>
+      <tr><td>Write-Behind Cache</td><td>Acknowledge write, async flush to DB</td><td>Data loss on cache crash</td></tr>
+      <tr><td>CQRS</td><td>Separate read/write models</td><td>Complexity, sync overhead</td></tr>
+    </table>
+
+    <div class="callout warn"><strong>// Thundering Herd</strong> Cache expires → 10K requests simultaneously hit DB. Prevention: (1) Staggered TTLs (add random jitter to expiry). (2) Mutex lock: first request acquires lock, recomputes cache; others wait. (3) Probabilistic early expiry (PER): probabilistically refresh before TTL — no hard stampede boundary.</div>
+  </div>
+</div>
+
+<!-- REALTIME FEED -->
+<div id="realtimefeed" class="section">
+  <div class="hero">
+    <div class="hero-tag">// hard problem</div>
+    <h1>Realtime Feed</h1>
+    <p class="hero-desc">How Instagram, Twitter, and LinkedIn push fresh content without you polling. Push vs pull, SSE, WebSocket, long-polling.</p>
+  </div>
+  <div class="content">
+    <h2>The Three Paradigms</h2>
+    <table class="dtable">
+      <tr><th>Method</th><th>How</th><th>Latency</th><th>Server Load</th><th>Use When</th></tr>
+      <tr><td><strong>Short Polling</strong></td><td>Client requests every N seconds</td><td>Up to N seconds</td><td>High (useless requests)</td><td>Never for realtime</td></tr>
+      <tr><td><strong>Long Polling</strong></td><td>Client requests, server holds until data ready (or timeout)</td><td>~100ms–1s</td><td>Medium</td><td>Simple realtime, fallback</td></tr>
+      <tr><td><strong>SSE</strong></td><td>HTTP persistent stream, server pushes events</td><td>&lt;100ms</td><td>Low (1 connection)</td><td>Feeds, notifications (server→client)</td></tr>
+      <tr><td><strong>WebSocket</strong></td><td>Full duplex TCP over HTTP upgrade</td><td>&lt;50ms</td><td>Low (1 connection)</td><td>Chat, collaborative editing (bidirectional)</td></tr>
+    </table>
+
+    <h2>Instagram Realtime Feed Architecture</h2>
+    <div class="arch">
+      <div class="arch-title">Realtime Push Pipeline</div>
+      <div class="flow">
+        <div class="node service">User posts photo</div><div class="arrow">→</div>
+        <div class="node queue">Kafka: new_post_events</div><div class="arrow">→</div>
+        <div class="node service">Fan-out Worker</div>
+      </div>
+      <div class="flow" style="margin-top:10px">
+        <div class="node service">Fan-out Worker</div><div class="arrow">→ updates</div>
+        <div class="node cache">Redis Feed Cache<br>(per follower)</div><div class="arrow">→ pub/sub</div>
+        <div class="node service">Push Notification<br>Service</div>
+      </div>
+      <div class="flow" style="margin-top:10px">
+        <div class="node service">Push Service</div><div class="arrow">→</div>
+        <div class="node service">APNs / FCM<br>(iOS/Android)</div><div class="arrow">→</div>
+        <div class="node client">Device receives push</div>
+      </div>
+    </div>
+
+    <h3>What "Realtime Feed" Actually Means</h3>
+    <p>Instagram doesn't show you posts the millisecond they're posted. The feed is refreshed when you (a) pull to refresh, (b) tap "New Posts" banner, or (c) app foregrounds. The "realtime" element is the <strong>notification that new posts exist</strong>, not the feed itself being pushed.</p>
+    <p>The banner "2 New Posts" = a push notification (APNs/FCM) or SSE event sent to all online followers. Actual feed refresh = client re-fetches from API (with updated pre-computed cache).</p>
+
+    <h3>Online Presence Detection</h3>
+    <div class="code">
+<span class="comment">// When user opens app → mark online</span>
+redis.setex(<span class="str">"presence:{user_id}"</span>, <span class="num">300</span>, <span class="str">"online"</span>)  <span class="comment">// TTL 5 min</span>
+<span class="comment">// Client sends heartbeat every 60s while app open</span>
+redis.setex(<span class="str">"presence:{user_id}"</span>, <span class="num">300</span>, <span class="str">"online"</span>)  <span class="comment">// refresh TTL</span>
+
+<span class="comment">// Fan-out worker: only push to online users</span>
+<span class="kw">for</span> follower_id <span class="kw">in</span> followers:
+  <span class="kw">if</span> redis.exists(<span class="str">"presence:{follower_id}"</span>):
+    push_notification(follower_id, new_post_preview)
+  <span class="comment">// offline users: just update their feed cache (they see it on next open)</span>
+    </div>
+
+    <hr>
+    <h2>Twitter/X Timeline Architecture</h2>
+    <p>Twitter's "Home Timeline" mixes: (1) tweets from people you follow, (2) tweets liked by people you follow (amplification), (3) algorithmic recommendations (For You). This is computed differently from Instagram's approach.</p>
+    <div class="accordion" onclick="toggleAcc(this)">
+      <div class="acc-header">Twitter's "For You" vs "Following" — different architectures <span class="acc-icon">▾</span></div>
+      <div class="acc-body"><strong>Following tab:</strong> Strict chronological fan-out. Pre-computed, push model (same as Instagram). Low latency, simple. <strong>For You tab:</strong> ML ranking over a candidate pool of ~1500 tweets, scored on engagement prediction. This runs at query time (read path) not write path — can't pre-compute for every user since ranking depends on current state, not just post time. More compute but more relevant.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div id="search" class="section">
+  <div class="hero">
+    <div class="hero-tag">// hard problem</div>
+    <h1>Search & Typeahead</h1>
+    <p class="hero-desc">Inverted indexes, autocomplete under 50ms, ranking, distributed search clusters.</p>
+  </div>
+  <div class="content">
+    <h2>Full-Text Search — Inverted Index</h2>
+    <div class="code">
+<span class="comment">// Document store</span>
+doc_1: "The quick brown fox"
+doc_2: "The lazy brown dog"
+doc_3: "A quick dog"
+
+<span class="comment">// Inverted index (term → posting list)</span>
+quick  → [doc_1, doc_3]
+brown  → [doc_1, doc_2]
+dog    → [doc_2, doc_3]
+fox    → [doc_1]
+
+<span class="comment">// Query "quick brown" → intersection of posting lists</span>
+<span class="comment">// → doc_1 (appears in both)</span>
+    </div>
+    <p>Elasticsearch / OpenSearch manages this automatically. Shards the inverted index across nodes. Each shard is a Lucene instance.</p>
+
+    <h2>Typeahead Autocomplete (&lt;50ms)</h2>
+    <p>Requirements: sub-50ms, personalized, handles typos, trending boosts.</p>
+    <h3>Trie-Based Approach (in-memory)</h3>
+    <div class="code">
+<span class="comment">// Trie node with frequency count</span>
+TrieNode { char, children: {}, frequency, is_end }
+
+search(<span class="str">"app"</span>) →
+  traverse: a → p → p (prefix node)
+  DFS from prefix node → [<span class="str">"apple"</span>(1M), <span class="str">"app"</span>(500K), <span class="str">"application"</span>(200K)]
+  <span class="kw">return</span> top-5 by frequency
+
+<span class="comment">// Updated on each search to boost trending terms</span>
+    </div>
+    <p>Problem: full trie in-memory for all search terms = 10s of GB. Not practical at Google scale. Solution: use Redis sorted sets for popular prefix caching.</p>
+
+    <h3>Redis Prefix Cache Approach</h3>
+    <div class="code">
+<span class="comment">// For each term, store all prefixes in sorted set scored by frequency</span>
+ZADD autocomplete:a 1000000 <span class="str">"apple"</span>
+ZADD autocomplete:ap 1000000 <span class="str">"apple"</span>
+ZADD autocomplete:app 1000000 <span class="str">"apple"</span>
+ZADD autocomplete:appl 1000000 <span class="str">"apple"</span>
+
+<span class="comment">// Query:</span>
+ZREVRANGE autocomplete:app 0 4  <span class="comment">// O(log N) — sub-millisecond</span>
+<span class="comment">// → ["apple", "application", "apple music", ...]</span>
+    </div>
+    <div class="callout warn"><strong>// Tradeoff</strong> Redis approach uses O(L × N) storage (L = avg term length, N = terms). For 100M terms, avg length 8: 800M Redis entries. At ~50 bytes each = 40GB Redis — feasible on a cluster. Trie is more memory efficient but harder to distribute.</div>
+
+    <h2>Search Ranking Signals</h2>
+    <table class="dtable">
+      <tr><th>Signal</th><th>Weight</th><th>Notes</th></tr>
+      <tr><td>Text relevance (BM25)</td><td>High</td><td>Term frequency × inverse document frequency</td></tr>
+      <tr><td>Freshness</td><td>Medium</td><td>Exponential decay by age</td></tr>
+      <tr><td>Click-through rate</td><td>High</td><td>Historical CTR on this query → result pair</td></tr>
+      <tr><td>User personalization</td><td>Medium</td><td>User's language, location, search history</td></tr>
+      <tr><td>Page authority</td><td>High</td><td>PageRank / domain authority</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- RATE LIMITING -->
+<div id="ratelimit" class="section">
+  <div class="hero">
+    <div class="hero-tag">// hard problem</div>
+    <h1>Rate Limiting</h1>
+    <p class="hero-desc">Token bucket, sliding window, distributed counters — protecting APIs at the edge without coordination overhead.</p>
+  </div>
+  <div class="content">
+    <h2>Four Algorithms</h2>
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'rl-token')">Token Bucket</div>
+      <div class="tab" onclick="switchTab(this,'rl-sliding')">Sliding Window</div>
+      <div class="tab" onclick="switchTab(this,'rl-fixed')">Fixed Window</div>
+      <div class="tab" onclick="switchTab(this,'rl-dist')">Distributed</div>
+    </div>
+    <div id="rl-token" class="tab-content active">
+      <h3>Token Bucket — Best for APIs</h3>
+      <p>Bucket holds N tokens. Each request consumes 1 token. Tokens refill at rate R/second. Allows burst up to N, then limits to sustained R.</p>
+      <div class="code">
+<span class="kw">class</span> <span class="fn">TokenBucket</span>:
+  tokens: float = capacity
+  last_refill: float = now()
+  
+  <span class="fn">consume</span>(n=1) → bool:
+    elapsed = now() - self.last_refill
+    self.tokens = min(capacity, self.tokens + elapsed * refill_rate)
+    self.last_refill = now()
+    <span class="kw">if</span> self.tokens &gt;= n:
+      self.tokens -= n
+      <span class="kw">return</span> True  <span class="comment"># allowed</span>
+    <span class="kw">return</span> False    <span class="comment"># rate limited</span>
+
+<span class="comment">// Example: capacity=100, refill=10/sec</span>
+<span class="comment">// Can burst 100 requests, then sustained 10/sec</span>
+      </div>
+      <div class="callout success"><strong>// Why Token Bucket</strong> It allows natural bursts (user activity is bursty). Smooth rate limiting that doesn't penalize legitimate burst patterns. Used by AWS API Gateway, Stripe.</div>
+    </div>
+
+    <div id="rl-sliding" class="tab-content">
+      <h3>Sliding Window Log — Most Accurate</h3>
+      <div class="code">
+<span class="comment">// Store timestamps of all requests in last window</span>
+<span class="fn">is_allowed</span>(user_id, limit=100, window=60):
+  now = time.time()
+  key = f<span class="str">"rl:{user_id}"</span>
+  
+  <span class="comment">// Remove expired entries</span>
+  redis.<span class="fn">zremrangebyscore</span>(key, 0, now - window)
+  
+  count = redis.<span class="fn">zcard</span>(key)
+  <span class="kw">if</span> count &gt;= limit:
+    <span class="kw">return</span> False
+  
+  redis.<span class="fn">zadd</span>(key, {now: now})
+  redis.<span class="fn">expire</span>(key, window)
+  <span class="kw">return</span> True
+
+<span class="comment">// Memory: O(limit) per user (at most `limit` entries)</span>
+      </div>
+      <p>Most accurate but uses more memory. For 100K users with limit=1000: 100M Redis entries = ~10GB. Sliding window counter (approximate) uses less memory.</p>
+    </div>
+
+    <div id="rl-fixed" class="tab-content">
+      <h3>Fixed Window Counter — Simple, Has Edge Case</h3>
+      <div class="code">
+<span class="fn">is_allowed</span>(user_id):
+  key = f<span class="str">"rl:{user_id}:{current_minute}"</span>
+  count = redis.<span class="fn">incr</span>(key)
+  redis.<span class="fn">expire</span>(key, 60)
+  <span class="kw">return</span> count &lt;= 100
+      </div>
+      <div class="callout danger"><strong>// The Boundary Bug</strong> Limit: 100 req/min. User sends 100 at 00:59 and 100 at 01:01. Both are within their respective minute windows (allowed) but 200 requests hit your API in 2 seconds. Fixed window allows 2× burst at boundaries.</div>
+      <p>Sliding window log or sliding window counter fix this. The counter approach uses Redis INCR with a rolling key — 2x the storage but much less than log.</p>
+    </div>
+
+    <div id="rl-dist" class="tab-content">
+      <h3>Distributed Rate Limiting</h3>
+      <p>Multiple API gateway nodes. User's requests hit different nodes. Local in-memory counters are wrong — each node sees only its fraction of traffic.</p>
+      <h3>Solutions</h3>
+      <div class="accordion" onclick="toggleAcc(this)">
+        <div class="acc-header">Centralized Redis (most common) <span class="acc-icon">▾</span></div>
+        <div class="acc-body">All nodes query central Redis. Atomic INCR + EXPIRE. Accurate. Adds ~1ms per request (Redis round-trip). Risk: Redis becomes single point. Mitigate with Redis Cluster + local fallback. Used by Nginx rate limit module, Kong.</div>
+      </div>
+      <div class="accordion" onclick="toggleAcc(this)">
+        <div class="acc-header">Local approximation with sync <span class="acc-icon">▾</span></div>
+        <div class="acc-body">Each node maintains local counter. Periodically (every 100ms) sync to central store and fetch updated global count. Allows brief over-limit (within 100ms window) — acceptable for most use cases. Huge latency win: no Redis on hot path.</div>
+      </div>
+      <div class="accordion" onclick="toggleAcc(this)">
+        <div class="acc-header">Sticky sessions (simple but limited) <span class="acc-icon">▾</span></div>
+        <div class="acc-body">Route each user to the same gateway node via consistent hashing on user_id. Local counters are accurate. Problem: uneven load, hot users, node failure loses counter state. Only viable at small scale.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CDN & CACHING -->
+<div id="cdn" class="section">
+  <div class="hero">
+    <div class="hero-tag">// hard problem</div>
+    <h1>CDN & Caching</h1>
+    <p class="hero-desc">Multi-layer caching, cache invalidation, CDN purge strategies, write-through vs write-back.</p>
+  </div>
+  <div class="content">
+    <h2>Caching Layers (Application Stack)</h2>
+    <div class="flow" style="flex-direction:column;gap:12px;align-items:flex-start;padding:20px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:12px"><div class="node client" style="min-width:160px">Browser Cache</div><span style="font-size:12px;color:var(--muted)">Cache-Control headers, service workers. ~ms. Eliminates round-trip.</span></div>
+      <div style="display:flex;align-items:center;gap:12px"><div class="node cache" style="min-width:160px">CDN Edge Cache</div><span style="font-size:12px;color:var(--muted)">Cloudflare/Fastly PoPs. ~5-20ms globally. Eliminates origin hits for static.</span></div>
+      <div style="display:flex;align-items:center;gap:12px"><div class="node lb" style="min-width:160px">API Gateway Cache</div><span style="font-size:12px;color:var(--muted)">Response caching at gateway. ~1ms. Eliminates backend for hot GET endpoints.</span></div>
+      <div style="display:flex;align-items:center;gap:12px"><div class="node service" style="min-width:160px">Application Cache (Redis)</div><span style="font-size:12px;color:var(--muted)">In-process or Redis. ~0.1-1ms. Eliminates DB queries.</span></div>
+      <div style="display:flex;align-items:center;gap:12px"><div class="node db" style="min-width:160px">DB Buffer Pool</div><span style="font-size:12px;color:var(--muted)">Postgres shared_buffers. ~10µs. Eliminates disk I/O for hot data.</span></div>
+    </div>
+
+    <h2>Cache Invalidation Strategies</h2>
+    <div class="callout danger"><strong>// Phil Karlton</strong> "There are only two hard things in Computer Science: cache invalidation and naming things." — This is genuinely hard. Here's the toolkit.</div>
+    <table class="dtable">
+      <tr><th>Strategy</th><th>How</th><th>Consistency</th><th>Use When</th></tr>
+      <tr><td>TTL Expiry</td><td>Cache entry auto-expires after N seconds</td><td>Eventual (lag = TTL)</td><td>Tolerate stale data; read-heavy</td></tr>
+      <tr><td>Write-Through</td><td>Write to cache AND DB synchronously</td><td>Strong</td><td>Read-heavy, write-tolerant latency</td></tr>
+      <tr><td>Write-Behind (Async)</td><td>Write to cache, async flush to DB</td><td>Weak (data loss risk)</td><td>High-write throughput, loss acceptable</td></tr>
+      <tr><td>Cache-Aside (Lazy)</td><td>Read miss → fetch from DB → cache</td><td>Eventually consistent</td><td>Most common; flexible</td></tr>
+      <tr><td>Event-Driven Invalidation</td><td>DB change event → invalidate specific cache keys</td><td>Near-strong</td><td>Complex data dependencies</td></tr>
+    </table>
+
+    <h2>CDN Cache-Control Headers</h2>
+    <div class="code">
+<span class="comment">// Static assets (images, JS bundles with content hash in filename)</span>
+Cache-Control: public, max-age=<span class="num">31536000</span>, immutable
+<span class="comment">// → cached for 1 year. Content hash in filename = natural versioning</span>
+
+<span class="comment">// HTML pages (frequently updated)</span>
+Cache-Control: public, max-age=<span class="num">60</span>, stale-while-revalidate=<span class="num">3600</span>
+<span class="comment">// → serve fresh for 1 min. Serve stale for 1hr while revalidating in background</span>
+
+<span class="comment">// API responses (user-specific)</span>
+Cache-Control: private, max-age=<span class="num">0</span>, no-store
+<span class="comment">// → never cache (contains user data)</span>
+
+<span class="comment">// CDN purge by tag (Cloudflare)</span>
+DELETE /zones/{zone_id}/purge_cache
+{ "tags": ["user-123", "post-456"] }
+    </div>
+
+    <div class="callout info"><strong>// stale-while-revalidate</strong> Serve cached content immediately (fast), while asynchronously revalidating in the background. User gets fast response; next user gets fresh. This is the best pattern for tolerable-staleness scenarios — no perceptible latency while staying relatively fresh.</div>
+  </div>
+</div>
+
+<!-- CAP THEOREM -->
+<div id="consistency" class="section">
+  <div class="hero">
+    <div class="hero-tag">// distributed systems</div>
+    <h1>CAP Theorem & Consistency</h1>
+    <p class="hero-desc">The real tradeoffs between consistency, availability, and partition tolerance in distributed systems.</p>
+  </div>
+  <div class="content">
+    <div class="callout info"><strong>// CAP Theorem</strong> In a distributed system, you can only guarantee 2 of 3: Consistency (every read gets most recent write), Availability (every request gets a response), Partition Tolerance (system works despite network partitions). Since network partitions are inevitable, you really choose: CP or AP.</div>
+
+    <h2>Real-World DB Placement</h2>
+    <table class="dtable">
+      <tr><th>Database</th><th>Type</th><th>Consistency Model</th><th>Use Case</th></tr>
+      <tr><td>PostgreSQL</td><td>CP</td><td>Strong (ACID)</td><td>Financial, user auth, payments</td></tr>
+      <tr><td>MySQL (InnoDB)</td><td>CP</td><td>Strong (ACID)</td><td>General transactional</td></tr>
+      <tr><td>Cassandra</td><td>AP</td><td>Eventual (tunable)</td><td>Time-series, messages, logs</td></tr>
+      <tr><td>DynamoDB</td><td>AP (default)</td><td>Eventual (strong optional)</td><td>High-scale key-value</td></tr>
+      <tr><td>MongoDB</td><td>CP</td><td>Strong (default)</td><td>Documents, flexible schema</td></tr>
+      <tr><td>Redis</td><td>CP (single) / AP (cluster)</td><td>Strong (single node)</td><td>Cache, sessions, leaderboard</td></tr>
+      <tr><td>Zookeeper</td><td>CP</td><td>Sequential consistency</td><td>Distributed coordination, config</td></tr>
+    </table>
+
+    <h2>Consistency Levels (Cassandra Example)</h2>
+    <div class="code">
+<span class="comment">// Write quorum: W + R > N → strong consistency</span>
+N = <span class="num">3</span>  <span class="comment">// replication factor</span>
+W = <span class="num">2</span>  <span class="comment">// write to 2 nodes before ACK</span>
+R = <span class="num">2</span>  <span class="comment">// read from 2 nodes → W+R=4 > N=3 → strong</span>
+
+<span class="comment">// Tradeoff: W=1, R=1 → high throughput, eventual consistency</span>
+<span class="comment">// W=3, R=1 → slow writes, fast consistent reads</span>
+<span class="comment">// W=1, R=3 → fast writes, slower consistent reads</span>
+
+<span class="comment">// Instagram: W=ANY (1), R=ONE for feed (eventual OK)</span>
+<span class="comment">// Payment: W=QUORUM, R=QUORUM (strong required)</span>
+    </div>
+
+    <h2>Distributed Transactions — 2PC vs Saga (Revisited)</h2>
+    <div class="compare">
+      <div class="compare-box pro"><h4>When Strong Consistency (2PC / XA)</h4><ul><li>Financial transactions — can't lose money</li><li>Inventory decrement — can't oversell</li><li>User registration — duplicate email</li></ul></div>
+      <div class="compare-box con"><h4>When Eventual OK (Saga / BASE)</h4><ul><li>Social likes/follows — small lag acceptable</li><li>Analytics counters — approximate fine</li><li>Cache updates — staleness tolerant</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- DB SHARDING -->
+<div id="db" class="section">
+  <div class="hero">
+    <div class="hero-tag">// distributed systems</div>
+    <h1>DB Sharding & Replication</h1>
+    <p class="hero-desc">When a single database can't hold the data or handle the QPS. Horizontal partitioning done right.</p>
+  </div>
+  <div class="content">
+    <h2>When to Shard</h2>
+    <div class="callout warn"><strong>// Don't shard prematurely</strong> Every additional shard adds: cross-shard query complexity, rebalancing overhead, distributed transaction pain. Single Postgres with read replicas handles most workloads to 100M users. Shard only when you can quantify the bottleneck.</div>
+    <p>Indicators: (1) Single DB CPU/IO consistently &gt;70%. (2) Table size &gt;1TB. (3) Write throughput saturated even with connection pooling. (4) Hot row contention (everyone writes to same user row).</p>
+
+    <h2>Sharding Strategies</h2>
+    <table class="dtable">
+      <tr><th>Strategy</th><th>How</th><th>Pro</th><th>Con</th></tr>
+      <tr><td>Range-based</td><td>Shard by value range (user_id 0-1M → shard 1)</td><td>Range queries fast</td><td>Hot shards if distribution skewed</td></tr>
+      <tr><td>Hash-based</td><td>shard = hash(user_id) % N</td><td>Even distribution</td><td>Range queries require all shards</td></tr>
+      <tr><td>Directory-based</td><td>Lookup table: user → shard mapping</td><td>Flexible, rebalance-friendly</td><td>Lookup table = bottleneck + SPOF</td></tr>
+      <tr><td>Geo-based</td><td>US users → US shard, EU → EU</td><td>GDPR, latency</td><td>Uneven load by region</td></tr>
+    </table>
+
+    <h2>Hotspot Problem</h2>
+    <div class="callout danger"><strong>// Celebrity Problem in DBs</strong> User Elon Musk has 150M followers. All their activity maps to shard containing his user_id. That shard gets 100× load. Solutions: (1) Shard by content_id not author_id (for timelines). (2) Add shard suffix: user_id:1, user_id:2 for hot users. (3) Dedicated shard tier for VIP accounts.</div>
+
+    <h2>Replication Topology</h2>
+    <div class="arch">
+      <div class="arch-title">Primary-Replica Setup</div>
+      <div class="flow">
+        <div class="node service">App Server</div><div class="arrow">Writes→</div><div class="node db">Primary DB</div><div class="arrow">→async replication</div><div class="node db">Replica 1</div>
+      </div>
+      <div class="flow" style="margin-top:8px">
+        <div class="node service">App Server</div><div class="arrow">Reads→</div><div class="node lb">Read Load Balancer</div><div class="arrow">→</div><div class="node db">Replica 1/2/3</div>
+      </div>
+    </div>
+    <p><strong>Replication lag:</strong> Async replication means replicas can be 10-100ms behind primary. Reads to replicas may return stale data. For operations requiring strong consistency (read-your-writes), route to primary.</p>
+    <div class="code">
+<span class="comment">// Read-your-writes pattern</span>
+<span class="kw">if</span> request.user_id == wrote_user_id AND age &lt; 5s:
+  route_to_primary()  <span class="comment">// ensure user sees their own write</span>
+<span class="kw">else</span>:
+  route_to_replica()  <span class="comment">// stale read OK</span>
+    </div>
+  </div>
+</div>
+
+<!-- KAFKA -->
+<div id="kafka" class="section">
+  <div class="hero">
+    <div class="hero-tag">// distributed systems</div>
+    <h1>Message Queues & Kafka</h1>
+    <p class="hero-desc">Async decoupling, guaranteed delivery, ordering, consumer groups, and why Kafka beats Redis for durability.</p>
+  </div>
+  <div class="content">
+    <h2>Why Message Queues</h2>
+    <div class="compare">
+      <div class="compare-box pro"><h4>Synchronous (Direct HTTP)</h4><ul><li>Simple, immediate response</li><li>Easy to trace/debug</li><li>Tight coupling: if downstream is slow, upstream waits</li></ul></div>
+      <div class="compare-box con"><h4>Async (Queue)</h4><ul><li>Decoupled: producer doesn't wait</li><li>Buffer against traffic spikes</li><li>Retry on failure without client involvement</li><li>Fan-out to multiple consumers</li></ul></div>
+    </div>
+
+    <h2>Kafka Architecture</h2>
+    <div class="arch">
+      <div class="arch-title">Kafka Core Concepts</div>
+      <div class="flow">
+        <div class="node service">Producer</div><div class="arrow">→ append</div>
+        <div class="node queue">Topic: "payments"<br>Partition 0: [0,1,2,3,4...]<br>Partition 1: [0,1,2,3,4...]<br>Partition 2: [0,1,2,3,4...]</div>
+        <div class="arrow">← poll</div>
+        <div class="node service">Consumer Group A<br>(3 consumers)<br>each owns 1 partition</div>
+      </div>
+    </div>
+
+    <h3>Key Properties</h3>
+    <ul>
+      <li><strong>Partitions = parallelism:</strong> More partitions = more consumers = higher throughput. Each partition is consumed by exactly one consumer in a group.</li>
+      <li><strong>Offset tracking:</strong> Consumers track their own position (offset) per partition. On failure, restart from last committed offset. No data loss.</li>
+      <li><strong>Durability:</strong> Messages written to disk, replicated across brokers. Retained for configurable period (default 7 days). Can replay history.</li>
+      <li><strong>Ordering:</strong> Strict ordering within a partition. No global ordering across partitions. Choose partition key carefully (e.g., user_id → same user's events always ordered).</li>
+    </ul>
+
+    <h3>Kafka vs SQS vs Redis Pub/Sub</h3>
+    <table class="dtable">
+      <tr><th>Feature</th><th>Kafka</th><th>SQS</th><th>Redis Pub/Sub</th></tr>
+      <tr><td>Durability</td><td class="yes">✓ (disk, replicated)</td><td class="yes">✓ (managed)</td><td class="no">✗ (in-memory, fire-and-forget)</td></tr>
+      <tr><td>Replay history</td><td class="yes">✓ (by retention period)</td><td class="no">✗ (deleted on consume)</td><td class="no">✗</td></tr>
+      <tr><td>Multiple consumers</td><td class="yes">✓ (consumer groups)</td><td class="maybe">~ (competing consumers)</td><td class="yes">✓ (fan-out)</td></tr>
+      <tr><td>Ordering</td><td class="yes">✓ (per partition)</td><td class="maybe">~ (FIFO queue only)</td><td class="yes">✓</td></tr>
+      <tr><td>Latency</td><td>~5ms</td><td>~20ms</td><td>~0.1ms</td></tr>
+    </table>
+
+    <div class="callout success"><strong>// Rule of Thumb</strong> Use Kafka for: high-throughput event streams, audit logs, event sourcing, cross-service fan-out. Use SQS for: simpler task queues in AWS ecosystem. Use Redis pub/sub for: ephemeral realtime notifications where message loss is acceptable (notifications where user isn't online).</div>
+  </div>
+</div>
+
+<!-- DISTRIBUTED ID -->
+<div id="distributed_id" class="section">
+  <div class="hero">
+    <div class="hero-tag">// distributed systems</div>
+    <h1>Distributed ID Generation</h1>
+    <p class="hero-desc">Globally unique IDs without coordination. Snowflake IDs, ULIDs, and why auto-increment breaks at scale.</p>
+  </div>
+  <div class="content">
+    <h2>Why Auto-increment Fails</h2>
+    <div class="callout danger"><strong>// Auto-increment Problems</strong> (1) Single DB sequence = bottleneck (only primary DB can generate IDs). (2) Reveals business metrics (order #1000 tells competitors scale). (3) Insecure/guessable (user_id=1, 2, 3...). (4) Cross-shard conflicts when merging DBs.</div>
+
+    <h2>Twitter Snowflake — The Industry Standard</h2>
+    <div class="arch">
+      <div class="arch-title">64-bit Snowflake ID Layout</div>
+      <div class="flow" style="flex-direction:column">
+        <div style="display:flex;gap:4px;font-family:var(--mono);font-size:11px;align-items:center;flex-wrap:wrap">
+          <div style="background:rgba(0,229,255,.15);border:1px solid rgba(0,229,255,.3);padding:8px 12px;border-radius:4px;color:var(--accent)">41 bits<br>timestamp</div>
+          <div style="background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);padding:8px 12px;border-radius:4px;color:#a78bfa">10 bits<br>machine ID</div>
+          <div style="background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);padding:8px 12px;border-radius:4px;color:var(--accent3)">12 bits<br>sequence</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px">= 41 + 10 + 12 = 63 bits usable (1 sign bit = 0)</div>
+      </div>
+    </div>
+    <div class="code">
+<span class="comment">// Snowflake ID properties:</span>
+timestamp_bits = <span class="num">41</span>   <span class="comment">// 69 years from epoch (custom epoch: ~2010)</span>
+machine_bits   = <span class="num">10</span>   <span class="comment">// 1024 unique machines/datacenters</span>
+sequence_bits  = <span class="num">12</span>   <span class="comment">// 4096 IDs per millisecond per machine</span>
+
+<span class="comment">// Throughput: 1024 machines × 4096/ms = 4.1M IDs/ms = 4.1B IDs/sec</span>
+
+<span class="kw">def</span> <span class="fn">generate_id</span>():
+  ts = current_ms() - EPOCH
+  seq = atomic_increment(sequence) % <span class="num">4096</span>
+  <span class="kw">if</span> same_ms_as_last:
+    seq = next  <span class="comment"># increment within same ms</span>
+  <span class="kw">else</span>:
+    seq = 0     <span class="comment"># reset on new ms</span>
+  <span class="kw">return</span> (ts &lt;&lt; <span class="num">22</span>) | (machine_id &lt;&lt; <span class="num">12</span>) | seq
+
+<span class="comment">// IDs are k-sortable by time (important for DB indexing!)</span>
+    </div>
+
+    <h3>Why Sortability Matters</h3>
+    <p>Random UUIDs (v4) cause <strong>index fragmentation</strong> — each insert is at a random B-tree position, causing page splits and cache misses. Snowflake IDs are monotonically increasing (k-sorted) — new inserts always go to the end of the B-tree. 10–100× faster insert performance on large tables.</p>
+
+    <h2>ULID — Snowflake Alternative</h2>
+    <div class="code">
+<span class="comment">// ULID: 128-bit (26 Crockford base32 chars)</span>
+01ARZ3NDEKTSV4RRFFQ69G5FAV
+<span class="comment">// First 10 chars = timestamp (ms precision)</span>
+<span class="comment">// Last 16 chars = random</span>
+<span class="comment">// URL-safe, case-insensitive, sortable</span>
+<span class="comment">// No machine coordination needed (random component)</span>
+    </div>
+    <p>ULIDs are simpler to implement (no machine registration), but slightly more collision-prone (random vs sequence). For most applications, ULIDs are easier to operate. Snowflake is better for very high single-machine throughput.</p>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if(n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) n.classList.add('active');
+  });
+  if(window.innerWidth <= 900) {
+    document.getElementById('sidebar').classList.remove('open');
+  }
+  window.scrollTo(0,0);
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function switchTab(el, contentId) {
+  const parent = el.closest('.content') || el.closest('.section');
+  parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  parent.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const target = parent.querySelector('#'+contentId) || document.getElementById(contentId);
+  if(target) target.classList.add('active');
+}
+
+function toggleAcc(el) {
+  el.classList.toggle('open');
+}
+
+function filterNav(q) {
+  const items = document.querySelectorAll('.nav-item');
+  items.forEach(item => {
+    const label = (item.getAttribute('data-label') || '').toLowerCase();
+    const text = item.textContent.toLowerCase();
+    item.style.display = (!q || label.includes(q.toLowerCase()) || text.includes(q.toLowerCase())) ? 'flex' : 'none';
+  });
+}
+
+// Animate scale bars on load
+setTimeout(() => {
+  document.querySelectorAll('.scale-fill').forEach(el => {
+    const w = el.style.width;
+    el.style.width = '0';
+    setTimeout(() => el.style.width = w, 100);
+  });
+}, 200);
+
+// Close sidebar on outside click
+document.addEventListener('click', e => {
+  const sidebar = document.getElementById('sidebar');
+  const hamburger = document.querySelector('.hamburger');
+  if(window.innerWidth <= 900 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && !hamburger.contains(e.target)) {
+    sidebar.classList.remove('open');
+  }
+});
+</script>
+</body>
+</html>

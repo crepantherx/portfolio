@@ -240,6 +240,15 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--paper3);border-radius:3px}
+/* ─── MAIN NAV ───────────────────────────────────────── */
+.main-nav{display:flex;gap:1.5rem;padding:0 2.5rem;border-bottom:1px solid var(--border-strong);background:var(--paper2);overflow-x:auto;scrollbar-width:none}
+.main-nav::-webkit-scrollbar{display:none}
+.main-tab{padding:1rem 0;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:var(--ink3);background:transparent;border:none;border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;letter-spacing:-.01em}
+.main-tab:hover{color:var(--ink)}
+.main-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-content{display:none;animation:fadeUp .3s ease}
+.tab-content.active{display:block}
+.tab-panel-inner{padding:2rem 2.5rem;max-width:1000px;margin:0 auto}
 </style>
 </head>
 <body>
@@ -257,6 +266,17 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
   </div>
 </header>
+<!-- ═══ MAIN NAV ═════════════════════════════════════ -->
+<nav class="main-nav" id="mainNav">
+  <button class="main-tab active" onclick="switchMainTab('blueprint')">1-Hour Blueprint</button>
+  <button class="main-tab" onclick="switchMainTab('tools')">Tools Arsenal</button>
+  <button class="main-tab" onclick="switchMainTab('diagrams')">System Designs</button>
+  <button class="main-tab" onclick="switchMainTab('quickref')">Quick Reference</button>
+  <button class="main-tab" onclick="switchMainTab('communication')">Communication</button>
+</nav>
+
+<!-- ═══ TAB CONTENT: BLUEPRINT ═══════════════════════ -->
+<div class="tab-content active" id="tab-blueprint">
 
 <!-- ═══ PHASE RIBBON ══════════════════════════════════ -->
 <nav class="phase-ribbon" id="phaseRibbon">
@@ -1088,9 +1108,801 @@ Same DC network RTT: 0.5ms | US→EU: 75ms | US→Asia: 150ms</div>
 </aside>
 
 </div><!-- end layout -->
+</div><!-- end tab-blueprint -->
+
+<!-- ═══ TAB CONTENT: TOOLS ARSENAL ═══════════════════ -->
+<div class="tab-content" id="tab-tools">
+<div class="tab-panel-inner" id="panel-tools">
+            <div class="section-title">🔧 Interactive Tools Hierarchy</div>
+            <p style="color:var(--text3);margin-bottom:16px;">
+                <strong>How it works:</strong> Start from User Requirements → Non-Functional Requirements → Click each
+                category to reveal the specific tools & techniques available. This mirrors the interview decision flow.
+            </p>
+
+            <div class="tool-forest" id="toolsTree">
+                <!-- Root: User Requirements -->
+                <div class="tool-category" data-node="root">
+                    <div class="tool-node-header" style="font-size:1.1rem;color:#fff;">
+                         📝 <strong>User Requirements Gathering</strong>
+                        <span class="cct" style="background:#334155;color:#e2e8f0;">Starting Point</span>
+                    </div>
+                    <div class="tool-node-children open">
+                        <!-- Functional -->
+                        <div class="tool-category" data-node="func">
+                            <div class="tool-node-header">
+                                 ✅ Functional Requirements (What the system does)
+                                <span class="cct" style="background:#1e3a5f;color:#60a5fa;">Features</span>
+                            </div>
+                            <div class="tool-node-children open">
+                                <div style="padding:8px 14px;color:var(--text2);font-size:0.85rem;">
+                                    Core features, user stories, API endpoints, data models, business logic.
+                                    <br>→ <span class="cct" style="display:inline-block; margin:2px;">CRUD Operations</span> <span
+                                        class="cct" style="display:inline-block; margin:2px;">Search</span> <span class="cct" style="display:inline-block; margin:2px;">Auth</span> <span
+                                        class="cct" style="display:inline-block; margin:2px;">Notifications</span> <span class="cct" style="display:inline-block; margin:2px;">Analytics</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Non-Functional -->
+                        <div class="tool-category" data-node="nfr">
+                            <div class="tool-node-header">
+                                 ⚡ Non-Functional Requirements (Quality Attributes)
+                                <span class="cct" style="background:#3f2e1e;color:#fbbf24;">Critical for
+                                    Design</span>
+                            </div>
+                            <div class="tool-node-children open">
+                                <!-- Scalability -->
+                                <div class="tool-node" data-node="scalability">
+                                    <div class="tool-node-header">
+                                         📈 Scalability
+                                        <span class="cct">Handle Growth</span>
+                                    </div>
+                                    <div class="tool-node-children open">
+                                        <div style="padding:6px 10px;">
+                                            <span class="cct" style="display:inline-block; margin:2px;">Horizontal Scaling</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Vertical Scaling</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Database Sharding</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Range-based Sharding</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Hash-based Sharding</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Directory-based Sharding</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Data Partitioning</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Read Replicas</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Consistent Hashing</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Auto-scaling Groups</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Kubernetes HPA</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Availability -->
+                                <div class="tool-node" data-node="availability">
+                                    <div class="tool-node-header">
+                                         🟢 High Availability
+                                        <span class="cct">Stay Up</span>
+                                    </div>
+                                    <div class="tool-node-children open">
+                                        <div style="padding:6px 10px;">
+                                            <span class="cct" style="display:inline-block; margin:2px;">Load Balancers</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Round-Robin LB</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Least Connections LB</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Master-Slave Replication</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Master-Master Replication</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Active-Passive Failover</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Active-Active Failover</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Multi-Region Deployment</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Circuit Breakers</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Health Checks</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Service Mesh (Istio)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Consistency -->
+                                <div class="tool-node" data-node="consistency">
+                                    <div class="tool-node-header">
+                                         🔒 Consistency
+                                        <span class="cct">Data Correctness</span>
+                                    </div>
+                                    <div class="tool-node-children open">
+                                        <div style="padding:6px 10px;">
+                                            <span class="cct" style="display:inline-block; margin:2px;">Strong Consistency</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Eventual Consistency</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Paxos Algorithm</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Raft Consensus</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">2-Phase Commit (2PC)</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Saga Pattern</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Quorum (R+W > N)</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Vector Clocks</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">CRDTs</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Linearizability</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Latency -->
+                                <div class="tool-node" data-node="latency">
+                                    <div class="tool-node-header">
+                                         ⚡ Low Latency
+                                        <span class="cct">Speed</span>
+                                    </div>
+                                    <div class="tool-node-children open">
+                                        <div style="padding:6px 10px;">
+                                            <span class="cct" style="display:inline-block; margin:2px;">Redis Cache</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Memcached</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">CDN (CloudFront/Cloudflare)</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Connection Pooling</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Message Queues (Kafka/RabbitMQ)</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Async Processing</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Data Denormalization</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Edge Computing</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">HTTP/2 & gRPC</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Lazy Loading</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Durability -->
+                                <div class="tool-node" data-node="durability">
+                                    <div class="tool-node-header">
+                                         💾 Durability
+                                        <span class="cct">Never Lose Data</span>
+                                    </div>
+                                    <div class="tool-node-children open">
+                                        <div style="padding:6px 10px;">
+                                            <span class="cct" style="display:inline-block; margin:2px;">Write-Ahead Logging (WAL)</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Replication (sync/async)</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Snapshots & Backups</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Object Storage (S3/Blob)</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">RAID Configurations</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Checksums</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Append-only Logs</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Security -->
+                                <div class="tool-node" data-node="security">
+                                    <div class="tool-node-header">
+                                         🔐 Security
+                                        <span class="cct">Protect</span>
+                                    </div>
+                                    <div class="tool-node-children open">
+                                        <div style="padding:6px 10px;">
+                                            <span class="cct" style="display:inline-block; margin:2px;">TLS/SSL Encryption</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Encryption at Rest</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">OAuth 2.0 / JWT</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">API Gateway</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Rate Limiting (Token Bucket)</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Rate Limiting (Sliding Window)</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">DDoS Protection</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">WAF (Web App Firewall)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Cost -->
+                                <div class="tool-node" data-node="cost">
+                                    <div class="tool-node-header">
+                                         💰 Cost Efficiency
+                                        <span class="cct">Optimize Spend</span>
+                                    </div>
+                                    <div class="tool-node-children open">
+                                        <div style="padding:6px 10px;">
+                                            <span class="cct" style="display:inline-block; margin:2px;">Object Storage (Cheap & Durable)</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Serverless Functions (Lambda)</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Spot/Preemptible Instances</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Data Tiering (Hot/Warm/Cold)</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">CDN for Egress Savings</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Compression</span>
+                                            <span class="cct" style="display:inline-block; margin:2px;">Caching to Reduce DB Load</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p style="color:var(--text3);margin-top:12px;font-size:0.8rem;">💡 <strong>Interview Tip:</strong> Always
+                map the non-functional requirements to the specific tools you choose. Say <em>"Because we need high
+                    availability, I'm adding read replicas and a load balancer with health checks."</em></p>
+        </div>
+</div>
+
+<!-- ═══ TAB CONTENT: SYSTEM DESIGNS ══════════════════ -->
+<div class="tab-content" id="tab-diagrams">
+<div class="tab-panel-inner" id="panel-diagrams">
+            <div class="section-title">📐 Commonly Asked System Design Architectures</div>
+            <p style="color:var(--text3);margin-bottom:12px;">Click through the tabs to see interactive architecture
+                diagrams. Hover over components for details.</p>
+
+            <div class="nfr-grid" style="margin-bottom:1rem;" id="diagramTabs">
+                <button class="nfr-chip active" data-diagram="urlshortener">🔗 URL Shortener</button>
+                <button class="nfr-chip" data-diagram="chat">💬 Chat System</button>
+                <button class="nfr-chip" data-diagram="newsfeed">📰 News Feed</button>
+                <button class="nfr-chip" data-diagram="videostream">🎬 Video Streaming</button>
+                <button class="nfr-chip" data-diagram="ratelimiter">🛡️ Rate Limiter</button>
+            </div>
+
+            <!-- URL Shortener Diagram -->
+            <div class="diagram-panel active" id="diag-urlshortener">
+                <div class="arch-diagram" style="margin-bottom:1rem;">
+                    <div class="section-title"> URL Shortener — TinyURL / Bitly Style
+                    </div>
+                    <svg class="svg-diagram" viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                <polygon points="0 0, 8 3, 0 6" fill="#38bdf8" />
+                            </marker>
+                            <marker id="arrowGray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                <polygon points="0 0, 8 3, 0 6" fill="#94a3b8" />
+                            </marker>
+                            <linearGradient id="gradAPI" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#2563eb" />
+                                <stop offset="100%" stop-color="#1d4ed8" />
+                            </linearGradient>
+                            <linearGradient id="gradCache" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#dc2626" />
+                                <stop offset="100%" stop-color="#b91c1c" />
+                            </linearGradient>
+                            <linearGradient id="gradDB" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#059669" />
+                                <stop offset="100%" stop-color="#047857" />
+                            </linearGradient>
+                        </defs>
+                        <!-- Client -->
+                        <rect x="20" y="160" width="80" height="50" rx="8" fill="#334155" stroke="#475569"
+                            stroke-width="2" />
+                        <text x="60" y="190" text-anchor="middle" fill="#e2e8f0" font-size="13"
+                            font-weight="600">Client</text>
+                        <!-- Arrow Client->LB -->
+                        <line x1="100" y1="185" x2="145" y2="185" stroke="#94a3b8" stroke-width="2"
+                            marker-end="url(#arrowGray)" />
+                        <!-- Load Balancer -->
+                        <rect x="150" y="155" width="90" height="60" rx="10" fill="#1e293b" stroke="#38bdf8"
+                            stroke-width="2.5" />
+                        <text x="195" y="180" text-anchor="middle" fill="#38bdf8" font-size="11"
+                            font-weight="700">Load</text>
+                        <text x="195" y="198" text-anchor="middle" fill="#38bdf8" font-size="11"
+                            font-weight="700">Balancer</text>
+                        <!-- Arrow LB->API -->
+                        <line x1="240" y1="185" x2="285" y2="185" stroke="#94a3b8" stroke-width="2"
+                            marker-end="url(#arrowGray)" />
+                        <!-- API Servers -->
+                        <rect x="290" y="130" width="100" height="35" rx="6" fill="url(#gradAPI)" stroke="#3b82f6"
+                            stroke-width="1.5" />
+                        <text x="340" y="152" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">API
+                            Server 1</text>
+                        <rect x="290" y="175" width="100" height="35" rx="6" fill="url(#gradAPI)" stroke="#3b82f6"
+                            stroke-width="1.5" />
+                        <text x="340" y="197" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">API
+                            Server 2</text>
+                        <rect x="290" y="220" width="100" height="35" rx="6" fill="url(#gradAPI)" stroke="#3b82f6"
+                            stroke-width="1.5" />
+                        <text x="340" y="242" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">API
+                            Server N</text>
+                        <!-- Arrow API->Cache -->
+                        <line x1="390" y1="155" x2="440" y2="120" stroke="#dc2626" stroke-width="2"
+                            marker-end="url(#arrowGray)" />
+                        <!-- Cache -->
+                        <rect x="445" y="95" width="100" height="50" rx="8" fill="url(#gradCache)" stroke="#ef4444"
+                            stroke-width="2" />
+                        <text x="495" y="118" text-anchor="middle" fill="#fff" font-size="12"
+                            font-weight="700">Redis</text>
+                        <text x="495" y="136" text-anchor="middle" fill="#fecaca" font-size="10">Cache</text>
+                        <!-- Arrow API->DB -->
+                        <line x1="390" y1="200" x2="440" y2="220" stroke="#059669" stroke-width="2"
+                            marker-end="url(#arrowGray)" />
+                        <!-- Database -->
+                        <rect x="445" y="195" width="110" height="55" rx="8" fill="url(#gradDB)" stroke="#34d399"
+                            stroke-width="2" />
+                        <text x="500" y="218" text-anchor="middle" fill="#fff" font-size="11"
+                            font-weight="700">PostgreSQL</text>
+                        <text x="500" y="236" text-anchor="middle" fill="#d1fae5" font-size="10">(Sharded)</text>
+                        <!-- Arrow to ZK -->
+                        <line x1="555" y1="222" x2="620" y2="222" stroke="#a78bfa" stroke-width="2"
+                            marker-end="url(#arrowGray)" />
+                        <!-- ZooKeeper -->
+                        <rect x="625" y="200" width="100" height="45" rx="8" fill="#2e1e3f" stroke="#a78bfa"
+                            stroke-width="2" />
+                        <text x="675" y="227" text-anchor="middle" fill="#c4b5fd" font-size="11"
+                            font-weight="700">ZooKeeper</text>
+                        <!-- ID Generator -->
+                        <rect x="625" y="130" width="100" height="45" rx="8" fill="#1e3a3f" stroke="#f59e0b"
+                            stroke-width="2" />
+                        <text x="675" y="150" text-anchor="middle" fill="#fbbf24" font-size="10"
+                            font-weight="700">Snowflake</text>
+                        <text x="675" y="166" text-anchor="middle" fill="#fbbf24" font-size="10">ID Generator</text>
+                        <line x1="625" y1="152" x2="570" y2="140" stroke="#f59e0b" stroke-width="1.5"
+                            stroke-dasharray="4,3" marker-end="url(#arrowGray)" />
+                        <!-- Legend -->
+                        <text x="30" y="310" fill="#94a3b8" font-size="11">🔑 <tspan fill="#f59e0b" font-weight="600">
+                                Key:</tspan> Base62 encoding of Snowflake ID → short URL</text>
+                        <text x="30" y="330" fill="#94a3b8" font-size="11">📊 <tspan fill="#38bdf8" font-weight="600">
+                                Sharding:</tspan> By short URL hash → consistent hashing ring</text>
+                        <text x="30" y="350" fill="#94a3b8" font-size="11">⚡ <tspan fill="#ef4444" font-weight="600">
+                                Cache:</tspan> Cache-aside; 24h TTL for popular URLs</text>
+                        <text x="30" y="370" fill="#94a3b8" font-size="11">🔄 <tspan fill="#a78bfa" font-weight="600">
+                                ZK:</tspan> Coordinates shard assignments & leader election</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Chat System Diagram -->
+            <div class="diagram-panel" id="diag-chat">
+                <div class="arch-diagram" style="margin-bottom:1rem;">
+                    <div class="section-title"> Chat/Messaging System — WhatsApp /
+                        Messenger Style</div>
+                    <svg class="svg-diagram" viewBox="0 0 900 440" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                <polygon points="0 0, 8 3, 0 6" fill="#10b981" />
+                            </marker>
+                            <marker id="arrowGray2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                <polygon points="0 0, 8 3, 0 6" fill="#94a3b8" />
+                            </marker>
+                        </defs>
+                        <!-- User A -->
+                        <rect x="15" y="100" width="70" height="40" rx="20" fill="#334155" stroke="#10b981"
+                            stroke-width="2" />
+                        <text x="50" y="125" text-anchor="middle" fill="#10b981" font-size="12" font-weight="700">User
+                            A</text>
+                        <!-- User B -->
+                        <rect x="15" y="250" width="70" height="40" rx="20" fill="#334155" stroke="#818cf8"
+                            stroke-width="2" />
+                        <text x="50" y="275" text-anchor="middle" fill="#818cf8" font-size="12" font-weight="700">User
+                            B</text>
+                        <!-- WebSocket -->
+                        <rect x="110" y="100" width="100" height="40" rx="8" fill="#1e3a3f" stroke="#38bdf8"
+                            stroke-width="2" />
+                        <text x="160" y="125" text-anchor="middle" fill="#38bdf8" font-size="11"
+                            font-weight="700">WebSocket</text>
+                        <rect x="110" y="250" width="100" height="40" rx="8" fill="#1e3a3f" stroke="#38bdf8"
+                            stroke-width="2" />
+                        <text x="160" y="275" text-anchor="middle" fill="#38bdf8" font-size="11"
+                            font-weight="700">WebSocket</text>
+                        <!-- Chat Servers -->
+                        <rect x="250" y="80" width="110" height="45" rx="8" fill="#1e293b" stroke="#f59e0b"
+                            stroke-width="2" />
+                        <text x="305" y="100" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">Chat
+                            Server 1</text>
+                        <text x="305" y="116" text-anchor="middle" fill="#94a3b8" font-size="9">(Stateful)</text>
+                        <rect x="250" y="260" width="110" height="45" rx="8" fill="#1e293b" stroke="#f59e0b"
+                            stroke-width="2" />
+                        <text x="305" y="280" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">Chat
+                            Server 2</text>
+                        <text x="305" y="296" text-anchor="middle" fill="#94a3b8" font-size="9">(Stateful)</text>
+                        <!-- Kafka -->
+                        <rect x="420" y="150" width="120" height="55" rx="8" fill="#2e1e3f" stroke="#a78bfa"
+                            stroke-width="2.5" />
+                        <text x="480" y="175" text-anchor="middle" fill="#c4b5fd" font-size="12"
+                            font-weight="700">Apache Kafka</text>
+                        <text x="480" y="193" text-anchor="middle" fill="#a78bfa" font-size="10">Message Queue</text>
+                        <!-- DB -->
+                        <rect x="600" y="90" width="100" height="45" rx="8" fill="#064e3b" stroke="#34d399"
+                            stroke-width="2" />
+                        <text x="650" y="110" text-anchor="middle" fill="#34d399" font-size="11"
+                            font-weight="700">Cassandra</text>
+                        <text x="650" y="126" text-anchor="middle" fill="#6ee7b7" font-size="9">Message Store</text>
+                        <rect x="600" y="250" width="100" height="45" rx="8" fill="#1e3a5f" stroke="#60a5fa"
+                            stroke-width="2" />
+                        <text x="650" y="270" text-anchor="middle" fill="#60a5fa" font-size="11"
+                            font-weight="700">Redis</text>
+                        <text x="650" y="286" text-anchor="middle" fill="#93c5fd" font-size="9">Presence/Status</text>
+                        <!-- Object Storage -->
+                        <rect x="740" y="160" width="110" height="50" rx="8" fill="#3f2e1e" stroke="#f97316"
+                            stroke-width="2" />
+                        <text x="795" y="182" text-anchor="middle" fill="#fb923c" font-size="11" font-weight="700">S3 /
+                            Blob</text>
+                        <text x="795" y="200" text-anchor="middle" fill="#fdba74" font-size="9">Media Files</text>
+                        <!-- Arrows -->
+                        <line x1="85" y1="120" x2="108" y2="120" stroke="#10b981" stroke-width="2"
+                            marker-end="url(#arrowGreen)" />
+                        <line x1="210" y1="120" x2="248" y2="105" stroke="#94a3b8" stroke-width="2"
+                            marker-end="url(#arrowGray2)" />
+                        <line x1="360" y1="105" x2="418" y2="165" stroke="#a78bfa" stroke-width="2"
+                            marker-end="url(#arrowGray2)" />
+                        <line x1="540" y1="178" x2="598" y2="115" stroke="#34d399" stroke-width="2"
+                            marker-end="url(#arrowGray2)" />
+                        <line x1="480" y1="210" x2="480" y2="248" stroke="#a78bfa" stroke-width="1.5"
+                            stroke-dasharray="5,3" />
+                        <line x1="700" y1="115" x2="738" y2="175" stroke="#f97316" stroke-width="1.5"
+                            marker-end="url(#arrowGray2)" />
+                        <text x="440" y="330" fill="#94a3b8" font-size="11">💬 <tspan fill="#fbbf24" font-weight="600">
+                                Chat Servers:</tspan> Stateful WebSocket connections; each server holds active user
+                            sessions</text>
+                        <text x="440" y="350" fill="#94a3b8" font-size="11">📨 <tspan fill="#a78bfa" font-weight="600">
+                                Kafka:</tspan> Decouples send & receive; guarantees message ordering per
+                            partition</text>
+                        <text x="440" y="370" fill="#94a3b8" font-size="11">🗄️ <tspan fill="#34d399" font-weight="600">
+                                Cassandra:</tspan> High write throughput; partitioned by conversation_id</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- News Feed Diagram -->
+            <div class="diagram-panel" id="diag-newsfeed">
+                <div class="arch-diagram" style="margin-bottom:1rem;">
+                    <div class="section-title"> News Feed — Twitter / Facebook Style
+                    </div>
+                    <svg class="svg-diagram" viewBox="0 0 900 430" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                <polygon points="0 0, 8 3, 0 6" fill="#818cf8" />
+                            </marker>
+                        </defs>
+                        <!-- User -->
+                        <rect x="20" y="160" width="70" height="40" rx="20" fill="#334155" stroke="#818cf8"
+                            stroke-width="2" />
+                        <text x="55" y="185" text-anchor="middle" fill="#c4b5fd" font-size="12"
+                            font-weight="700">User</text>
+                        <!-- LB -->
+                        <rect x="120" y="155" width="70" height="50" rx="8" fill="#1e293b" stroke="#38bdf8"
+                            stroke-width="2" />
+                        <text x="155" y="185" text-anchor="middle" fill="#38bdf8" font-size="11"
+                            font-weight="700">LB</text>
+                        <!-- API -->
+                        <rect x="220" y="140" width="90" height="35" rx="6" fill="#1d4ed8" stroke="#3b82f6"
+                            stroke-width="1.5" />
+                        <text x="265" y="162" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">API
+                            Gateway</text>
+                        <!-- Feed Service -->
+                        <rect x="220" y="190" width="90" height="35" rx="6" fill="#5b21b6" stroke="#8b5cf6"
+                            stroke-width="1.5" />
+                        <text x="265" y="212" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">Feed
+                            Service</text>
+                        <!-- Fanout -->
+                        <rect x="350" y="130" width="110" height="50" rx="8" fill="#3f1e2e" stroke="#ec4899"
+                            stroke-width="2" />
+                        <text x="405" y="152" text-anchor="middle" fill="#f472b6" font-size="10"
+                            font-weight="700">Fanout Service</text>
+                        <text x="405" y="170" text-anchor="middle" fill="#f9a8d4" font-size="9">(On Write)</text>
+                        <!-- Redis Feed Cache -->
+                        <rect x="350" y="210" width="110" height="45" rx="8" fill="#991b1b" stroke="#ef4444"
+                            stroke-width="2" />
+                        <text x="405" y="230" text-anchor="middle" fill="#fca5a5" font-size="10"
+                            font-weight="700">Redis</text>
+                        <text x="405" y="246" text-anchor="middle" fill="#fecaca" font-size="9">Feed Cache</text>
+                        <!-- Graph DB -->
+                        <rect x="520" y="120" width="100" height="40" rx="8" fill="#064e3b" stroke="#34d399"
+                            stroke-width="2" />
+                        <text x="570" y="145" text-anchor="middle" fill="#34d399" font-size="10" font-weight="700">Neo4j
+                            / Graph</text>
+                        <!-- Post DB -->
+                        <rect x="520" y="180" width="100" height="40" rx="8" fill="#1e3a5f" stroke="#60a5fa"
+                            stroke-width="2" />
+                        <text x="570" y="205" text-anchor="middle" fill="#60a5fa" font-size="10"
+                            font-weight="700">Cassandra</text>
+                        <!-- Object Storage -->
+                        <rect x="520" y="240" width="100" height="40" rx="8" fill="#3f2e1e" stroke="#f97316"
+                            stroke-width="2" />
+                        <text x="570" y="265" text-anchor="middle" fill="#fb923c" font-size="10" font-weight="700">S3
+                            Media</text>
+                        <!-- Arrows -->
+                        <line x1="90" y1="180" x2="118" y2="180" stroke="#94a3b8" stroke-width="2"
+                            marker-end="url(#arrowPurple)" />
+                        <line x1="190" y1="180" x2="218" y2="160" stroke="#94a3b8" stroke-width="2" />
+                        <line x1="310" y1="160" x2="348" y2="148" stroke="#ec4899" stroke-width="2" />
+                        <line x1="310" y1="210" x2="348" y2="228" stroke="#ef4444" stroke-width="2" />
+                        <line x1="460" y1="155" x2="518" y2="140" stroke="#34d399" stroke-width="1.5" />
+                        <line x1="460" y1="200" x2="518" y2="200" stroke="#60a5fa" stroke-width="1.5" />
+                        <text x="30" y="320" fill="#94a3b8" font-size="11">📢 <tspan fill="#ec4899" font-weight="600">
+                                Fanout on Write:</tspan> Push new posts to all followers' feed caches (good for
+                            celebrities with millions of followers? No — use hybrid)</text>
+                        <text x="30" y="342" fill="#94a3b8" font-size="11">🔀 <tspan fill="#f59e0b" font-weight="600">
+                                Hybrid Approach:</tspan> Fanout-on-write for active users; fanout-on-read for
+                            inactive/celebrity users</text>
+                        <text x="30" y="364" fill="#94a3b8" font-size="11">🗄️ <tspan fill="#60a5fa" font-weight="600">
+                                Cassandra:</tspan> Posts partitioned by user_id; timeline ordered by created_at
+                            DESC</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Video Streaming Diagram -->
+            <div class="diagram-panel" id="diag-videostream">
+                <div class="arch-diagram" style="margin-bottom:1rem;">
+                    <div class="section-title"> Video Streaming — YouTube / Netflix
+                        Style</div>
+                    <svg class="svg-diagram" viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <marker id="arrowOrange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                <polygon points="0 0, 8 3, 0 6" fill="#f97316" />
+                            </marker>
+                        </defs>
+                        <!-- Uploader -->
+                        <rect x="15" y="140" width="70" height="40" rx="8" fill="#334155" stroke="#f97316"
+                            stroke-width="2" />
+                        <text x="50" y="165" text-anchor="middle" fill="#fb923c" font-size="11"
+                            font-weight="700">Uploader</text>
+                        <!-- Viewer -->
+                        <rect x="15" y="250" width="70" height="40" rx="20" fill="#334155" stroke="#38bdf8"
+                            stroke-width="2" />
+                        <text x="50" y="275" text-anchor="middle" fill="#38bdf8" font-size="11"
+                            font-weight="700">Viewer</text>
+                        <!-- Upload API -->
+                        <rect x="120" y="130" width="90" height="35" rx="6" fill="#1d4ed8" stroke="#3b82f6"
+                            stroke-width="1.5" />
+                        <text x="165" y="152" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">Upload
+                            API</text>
+                        <!-- Transcoding -->
+                        <rect x="250" y="115" width="110" height="50" rx="8" fill="#3f2e1e" stroke="#f59e0b"
+                            stroke-width="2" />
+                        <text x="305" y="137" text-anchor="middle" fill="#fbbf24" font-size="10"
+                            font-weight="700">Transcoding</text>
+                        <text x="305" y="155" text-anchor="middle" fill="#fcd34d" font-size="9">Pipeline (FFmpeg)</text>
+                        <!-- S3 -->
+                        <rect x="410" y="110" width="100" height="55" rx="8" fill="#1e3a3f" stroke="#14b8a6"
+                            stroke-width="2" />
+                        <text x="460" y="133" text-anchor="middle" fill="#5eead4" font-size="10"
+                            font-weight="700">Object Storage</text>
+                        <text x="460" y="151" text-anchor="middle" fill="#99f6e4" font-size="9">(S3 / Blob)</text>
+                        <!-- CDN -->
+                        <rect x="570" y="115" width="100" height="50" rx="20" fill="#2e1e3f" stroke="#a78bfa"
+                            stroke-width="2.5" />
+                        <text x="620" y="137" text-anchor="middle" fill="#c4b5fd" font-size="11"
+                            font-weight="700">CDN</text>
+                        <text x="620" y="155" text-anchor="middle" fill="#ddd6fe" font-size="9">CloudFront</text>
+                        <!-- Streaming API -->
+                        <rect x="120" y="245" width="90" height="35" rx="6" fill="#1d4ed8" stroke="#3b82f6"
+                            stroke-width="1.5" />
+                        <text x="165" y="267" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">Stream
+                            API</text>
+                        <!-- Metadata DB -->
+                        <rect x="250" y="235" width="100" height="40" rx="8" fill="#064e3b" stroke="#34d399"
+                            stroke-width="2" />
+                        <text x="300" y="260" text-anchor="middle" fill="#34d399" font-size="10"
+                            font-weight="700">PostgreSQL</text>
+                        <!-- Adaptive Bitrate -->
+                        <rect x="720" y="140" width="130" height="45" rx="8" fill="#1e293b" stroke="#f59e0b"
+                            stroke-width="2" />
+                        <text x="785" y="160" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="700">HLS /
+                            DASH</text>
+                        <text x="785" y="176" text-anchor="middle" fill="#fcd34d" font-size="9">Adaptive Bitrate</text>
+                        <!-- Arrows -->
+                        <line x1="85" y1="160" x2="118" y2="148" stroke="#f97316" stroke-width="2"
+                            marker-end="url(#arrowOrange)" />
+                        <line x1="210" y1="148" x2="248" y2="135" stroke="#f59e0b" stroke-width="2" />
+                        <line x1="360" y1="138" x2="408" y2="130" stroke="#14b8a6" stroke-width="2" />
+                        <line x1="510" y1="135" x2="568" y2="132" stroke="#a78bfa" stroke-width="2" />
+                        <line x1="85" y1="270" x2="118" y2="262" stroke="#38bdf8" stroke-width="2" />
+                        <line x1="670" y1="140" x2="718" y2="155" stroke="#f59e0b" stroke-width="1.5" />
+                        <line x1="210" y1="265" x2="248" y2="255" stroke="#34d399" stroke-width="1.5" />
+                        <text x="30" y="330" fill="#94a3b8" font-size="11">🎬 <tspan fill="#f59e0b" font-weight="600">
+                                Transcoding:</tspan> Convert uploaded video to multiple resolutions (1080p, 720p, 480p,
+                            360p)</text>
+                        <text x="30" y="350" fill="#94a3b8" font-size="11">🌐 <tspan fill="#a78bfa" font-weight="600">
+                                CDN:</tspan> Edge caching for low-latency streaming worldwide</text>
+                        <text x="30" y="370" fill="#94a3b8" font-size="11">📡 <tspan fill="#fbbf24" font-weight="600">
+                                HLS/DASH:</tspan> Chunked streaming; client adapts quality based on bandwidth</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Rate Limiter Diagram -->
+            <div class="diagram-panel" id="diag-ratelimiter">
+                <div class="arch-diagram" style="margin-bottom:1rem;">
+                    <div class="section-title"> Rate Limiter — API Gateway Pattern</div>
+                    <svg class="svg-diagram" viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <marker id="arrowPink" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                <polygon points="0 0, 8 3, 0 6" fill="#ec4899" />
+                            </marker>
+                        </defs>
+                        <!-- Client -->
+                        <rect x="20" y="140" width="70" height="40" rx="8" fill="#334155" stroke="#ec4899"
+                            stroke-width="2" />
+                        <text x="55" y="165" text-anchor="middle" fill="#f472b6" font-size="11"
+                            font-weight="700">Client</text>
+                        <!-- Rate Limiter Middleware -->
+                        <rect x="140" y="120" width="130" height="55" rx="10" fill="#831843" stroke="#ec4899"
+                            stroke-width="2.5" />
+                        <text x="205" y="145" text-anchor="middle" fill="#f9a8d4" font-size="11" font-weight="700">Rate
+                            Limiter</text>
+                        <text x="205" y="163" text-anchor="middle" fill="#fce7f3" font-size="9">Middleware</text>
+                        <!-- Token Bucket -->
+                        <rect x="310" y="90" width="100" height="40" rx="6" fill="#1e3a5f" stroke="#60a5fa"
+                            stroke-width="1.5" />
+                        <text x="360" y="115" text-anchor="middle" fill="#93c5fd" font-size="10" font-weight="600">Token
+                            Bucket</text>
+                        <!-- Sliding Window -->
+                        <rect x="310" y="145" width="100" height="40" rx="6" fill="#1e3a5f" stroke="#60a5fa"
+                            stroke-width="1.5" />
+                        <text x="360" y="170" text-anchor="middle" fill="#93c5fd" font-size="9"
+                            font-weight="600">Sliding Window</text>
+                        <!-- Redis -->
+                        <rect x="460" y="115" width="100" height="50" rx="8" fill="#991b1b" stroke="#ef4444"
+                            stroke-width="2" />
+                        <text x="510" y="138" text-anchor="middle" fill="#fca5a5" font-size="11"
+                            font-weight="700">Redis</text>
+                        <text x="510" y="156" text-anchor="middle" fill="#fecaca" font-size="9">Counter Store</text>
+                        <!-- API -->
+                        <rect x="610" y="130" width="90" height="40" rx="8" fill="#1d4ed8" stroke="#3b82f6"
+                            stroke-width="2" />
+                        <text x="655" y="155" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">API
+                            Server</text>
+                        <!-- Rejected -->
+                        <rect x="310" y="220" width="100" height="35" rx="6" fill="#7f1d1d" stroke="#ef4444"
+                            stroke-width="1.5" />
+                        <text x="360" y="242" text-anchor="middle" fill="#fca5a5" font-size="10" font-weight="600">429
+                            Rejected</text>
+                        <!-- Arrows -->
+                        <line x1="90" y1="160" x2="138" y2="148" stroke="#ec4899" stroke-width="2"
+                            marker-end="url(#arrowPink)" />
+                        <line x1="270" y1="145" x2="308" y2="110" stroke="#60a5fa" stroke-width="1.5" />
+                        <line x1="410" y1="115" x2="458" y2="130" stroke="#ef4444" stroke-width="1.5" />
+                        <line x1="560" y1="140" x2="608" y2="148" stroke="#3b82f6" stroke-width="2" />
+                        <line x1="360" y1="185" x2="360" y2="218" stroke="#ef4444" stroke-width="1.5"
+                            stroke-dasharray="4,3" />
+                        <!-- Response headers -->
+                        <text x="620" y="210" fill="#94a3b8" font-size="10">Headers:</text>
+                        <text x="620" y="228" fill="#fbbf24" font-size="9"
+                            font-family="monospace">X-RateLimit-Remaining</text>
+                        <text x="620" y="244" fill="#fbbf24" font-size="9"
+                            font-family="monospace">X-RateLimit-Reset</text>
+                        <text x="620" y="260" fill="#fbbf24" font-size="9" font-family="monospace">Retry-After</text>
+                        <text x="30" y="300" fill="#94a3b8" font-size="11">🪣 <tspan fill="#60a5fa" font-weight="600">
+                                Token Bucket:</tspan> Tokens refill at fixed rate; burst allowed up to bucket
+                            size</text>
+                        <text x="30" y="320" fill="#94a3b8" font-size="11">🪟 <tspan fill="#60a5fa" font-weight="600">
+                                Sliding Window:</tspan> Count requests in last N seconds; smoother than fixed
+                            window</text>
+                        <text x="30" y="340" fill="#94a3b8" font-size="11">⚡ <tspan fill="#ef4444" font-weight="600">
+                                Redis:</tspan> Atomic INCR + EXPIRE for distributed rate limiting</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+</div>
+
+<!-- ═══ TAB CONTENT: QUICK REFERENCE ═════════════════ -->
+<div class="tab-content" id="tab-quickref">
+    <div class="tab-panel-inner" id="panel-quickref">
+        <div class="section-title">⚡ Quick Reference — Numbers, Patterns & Trade-offs</div>
+        <div class="component-grid">
+
+            <!-- Card 1 -->
+            <div class="component-card">
+                <div class="cc-name">📊 Latency Numbers (Know These!)</div>
+                <div class="cc-desc">
+                    <ul style="padding-left:16px;color:var(--ink3);font-size:0.85rem;">
+                        <li>L1 cache ref: <strong>0.5 ns</strong></li>
+                        <li>L2 cache ref: <strong>7 ns</strong></li>
+                        <li>Main memory: <strong>100 ns</strong></li>
+                        <li>SSD random read: <strong>100 μs</strong></li>
+                        <li>Disk seek: <strong>10 ms</strong></li>
+                        <li>Network round trip (same DC): <strong>0.5 ms</strong></li>
+                        <li>Network round trip (cross-US): <strong>60 ms</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="component-card">
+                <div class="cc-name">💾 Storage & Throughput Estimates</div>
+                <div class="cc-desc">
+                    <ul style="padding-left:16px;color:var(--ink3);font-size:0.85rem;">
+                        <li>1M DAU ≈ <strong>~12 RPS avg</strong></li>
+                        <li>Char = <strong>1 byte</strong> (ASCII)</li>
+                        <li>UUID = <strong>16 bytes</strong></li>
+                        <li>1M rows in DB ≈ <strong>~100 MB</strong></li>
+                        <li>Video: 1 hour HD ≈ <strong>~2 GB</strong></li>
+                        <li>Image thumbnail ≈ <strong>~50 KB</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="component-card">
+                <div class="cc-name">🔄 CAP Theorem Guide</div>
+                <div class="cc-desc">
+                    <ul style="padding-left:16px;color:var(--ink3);font-size:0.85rem;">
+                        <li><strong>CP:</strong> Banking, payments (strong consistency)</li>
+                        <li><strong>AP:</strong> Social media feeds, CDN (always available)</li>
+                        <li><strong>CA:</strong> Single-node DB (no partition tolerance needed)</li>
+                        <li>In practice: <strong>Choose CP or AP</strong> for distributed systems</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="component-card">
+                <div class="cc-name">🗄️ Database Selection Cheat Sheet</div>
+                <div class="cc-desc">
+                    <ul style="padding-left:16px;color:var(--ink3);font-size:0.85rem;">
+                        <li><strong>SQL (PostgreSQL/MySQL):</strong> ACID, joins, complex queries</li>
+                        <li><strong>Cassandra:</strong> High write throughput, time-series</li>
+                        <li><strong>MongoDB:</strong> Flexible schema, document model</li>
+                        <li><strong>Redis:</strong> Caching, counters, pub/sub, rate limiting</li>
+                        <li><strong>Elasticsearch:</strong> Full-text search, aggregations</li>
+                        <li><strong>S3/Blob:</strong> Large files, backups, static assets</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="component-card">
+                <div class="cc-name">📈 Scaling Patterns</div>
+                <div class="cc-desc">
+                    <ul style="padding-left:16px;color:var(--ink3);font-size:0.85rem;">
+                        <li><strong>Read-heavy:</strong> Read replicas + caching</li>
+                        <li><strong>Write-heavy:</strong> Sharding + async writes</li>
+                        <li><strong>Hot keys:</strong> Key splitting + local caching</li>
+                        <li><strong>Thundering herd:</strong> Staggered TTL + request coalescing</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="component-card">
+                <div class="cc-name">💬 Communication Power Phrases</div>
+                <div class="cc-desc">
+                    <ul style="padding-left:16px;color:var(--ink3);font-size:0.85rem;">
+                        <li>"Let me think out loud for a moment..."</li>
+                        <li>"The trade-off here is between X and Y..."</li>
+                        <li>"At scale, this would become a bottleneck because..."</li>
+                        <li>"One way to mitigate this is..."</li>
+                        <li>"In a real production system, I'd also add..."</li>
+                        <li>"Does that align with what you were thinking?"</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ═══ TAB CONTENT: COMMUNICATION ═══════════════════ -->
+<div class="tab-content" id="tab-communication">
+                <table style="width:100%; border-collapse:collapse; margin-top:12px; font-size:0.75rem; color:var(--ink);" style="width:100%; border-collapse:collapse; margin-top:12px;">
+                    <tr><td style="padding:10px; border-bottom:1px solid var(--border);">"Can you confirm if this is read‑mostly or write‑mostly?"</td><td style="color:var(--accent); font-weight:600;">Scale</td></tr>
+                    <tr><td style="padding:10px; border-bottom:1px solid var(--border);">"Are we optimizing for strong or eventual consistency?"</td><td style="color:var(--accent2); font-weight:600;">Consistency</td></tr>
+                    <tr><td style="padding:10px; border-bottom:1px solid var(--border);">"How many bytes per record? Monthly data growth?"</td><td style="color:var(--gold); font-weight:600;">Storage</td></tr>
+                    <tr><td style="padding:10px; border-bottom:1px solid var(--border);">"Do we need full‑text search or just key lookups?"</td><td style="color:var(--pink); font-weight:600;">Search</td></tr>
+                    <tr><td style="padding:10px;">"Real‑time updates or a few seconds delay okay?"</td><td style="color:var(--green); font-weight:600;">Latency</td></tr>
+                </table>
+            </div>
+
+            <div class="script-box" style="margin-bottom:1rem; border:1px solid var(--border);">
+                <div class="section-title"> 3️⃣ Diplomacy & Professional Pivots</div>
+                <ul style="padding-left:18px;">
+                    <li style="margin-bottom:8px;"><strong>Need time to think:</strong> <span style="font-style:italic;">"That's an interesting constraint. Let me consider the best approach."</span></li>
+                    <li style="margin-bottom:8px;"><strong>Unfamiliar tech:</strong> <em>"I'm not deeply familiar with that tool, but conceptually a message queue like Kafka would work."</em></li>
+                    <li style="margin-bottom:8px;"><strong>Pushing back politely:</strong> <em>"Microservices add complexity; a modular monolith might be simpler initially. What are your thoughts?"</em></li>
+                    <li><strong>Disagreement:</strong> <em>"I hear your consistency concern. Event sourcing gives auditability but adds complexity. Which is more critical now?"</em></li>
+                </ul>
+            </div>
+
+            <div class="script-box" style="margin-bottom:1rem; border:1px solid var(--border);">
+                <div class="section-title"> 4️⃣ Full 1‑Hour Script Skeleton</div>
+                <ul style="padding-left:18px;">
+                    <li style="margin-bottom:6px;"><strong>0‑5 min:</strong> "Thank you. May I ask a few clarifying questions? ..."</li>
+                    <li style="margin-bottom:6px;"><strong>5‑10 min:</strong> "Based on what you've shared, we're looking at X million DAU, Y RPS, Z TB/year."</li>
+                    <li style="margin-bottom:6px;"><strong>10‑20 min:</strong> "High‑level: load‑balanced API, caching, database. I'm leaning toward [choice] because..."</li>
+                    <li style="margin-bottom:6px;"><strong>20‑35 min:</strong> "Let's deep‑dive into the data model. Sharding key distributes writes evenly..."</li>
+                    <li style="margin-bottom:6px;"><strong>35‑50 min:</strong> "At 10x, the cache could cause a thundering herd. I'd add request coalescing."</li>
+                    <li><strong>50‑60 min:</strong> "To recap: we balanced consistency/availability by ... The main trade‑off is ..."</li>
+                </ul>
+            </div>
+        </div>
+</div>
 
 <!-- ═══ JAVASCRIPT ════════════════════════════════ -->
 <script>
+// ─── Main Tab switching ──────────────────────────────
+function switchMainTab(tabId) {
+  document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tabId).classList.add('active');
+}
+
+
+// ─── Diagram Tabs ───────────────────────────
+document.querySelectorAll('.nfr-chip').forEach(tab => {
+  if(!tab.dataset.diagram) return;
+  tab.addEventListener('click', () => {
+      document.querySelectorAll('.nfr-chip[data-diagram]').forEach(t => t.classList.remove('selected', 'active'));
+      tab.classList.add('selected', 'active');
+      document.querySelectorAll('.diagram-panel').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById('diag-' + tab.dataset.diagram);
+      if (target) target.classList.add('active');
+  });
+});
+
 // ─── Phase Management ───────────────────────────────
 let currentPhase = 0;
 const phaseNames = [
