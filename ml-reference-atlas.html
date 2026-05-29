@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ML Reference Atlas</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.29.0/dist/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff;
+  --bg2: #f7f6f2;
+  --bg3: #edecea;
+  --text: #111110;
+  --text2: #5c5b57;
+  --text3: #99978f;
+  --border: rgba(0,0,0,0.10);
+  --border2: rgba(0,0,0,0.22);
+  --blue-bg:#E6F1FB; --blue-t:#0C447C; --blue-b:#185FA5;
+  --coral-bg:#FAECE7; --coral-t:#712B13; --coral-b:#993C1D;
+  --amber-bg:#FAEEDA; --amber-t:#633806; --amber-b:#854F0B;
+  --teal-bg:#E1F5EE; --teal-t:#085041; --teal-b:#0F6E56;
+  --purple-bg:#EEEDFE; --purple-t:#3C3489; --purple-b:#534AB7;
+  --green-bg:#EAF3DE; --green-t:#27500A; --green-b:#3B6D11;
+  --red-bg:#FCEBEB; --red-t:#501313; --red-b:#A32D2D;
+  --mono:'JetBrains Mono',monospace;
+  --r-md:8px; --r-lg:12px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#141412; --bg2:#1c1c19; --bg3:#242420;
+    --text:#f0ede5; --text2:#a09e96; --text3:#6a6860;
+    --border:rgba(255,255,255,0.09); --border2:rgba(255,255,255,0.20);
+    --blue-bg:#042C53; --blue-t:#B5D4F4; --blue-b:#378ADD;
+    --coral-bg:#4A1B0C; --coral-t:#F5C4B3; --coral-b:#D85A30;
+    --amber-bg:#412402; --amber-t:#FAC775; --amber-b:#EF9F27;
+    --teal-bg:#04342C; --teal-t:#9FE1CB; --teal-b:#1D9E75;
+    --purple-bg:#26215C; --purple-t:#CECBF6; --purple-b:#7F77DD;
+    --green-bg:#173404; --green-t:#C0DD97; --green-b:#639922;
+    --red-bg:#501313; --red-t:#F7C1C1; --red-b:#E24B4A;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.6;min-height:100vh}
+/* Header */
+.hdr{padding:1.5rem 1.5rem 0;border-bottom:0.5px solid var(--border)}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.hdr-title h1{font-size:22px;font-weight:500;margin-bottom:2px}
+.hdr-title p{font-size:13px;color:var(--text2)}
+.stats{display:flex;gap:1.5rem}
+.stat-n{font-size:24px;font-weight:500;line-height:1;margin-bottom:1px}
+.stat-l{font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em}
+.stat-n.bl{color:var(--blue-t)} .stat-n.co{color:var(--coral-t)} .stat-n.am{color:var(--amber-t)}
+/* Tabs */
+.tab-nav{display:flex;overflow-x:auto;margin:0 -1.5rem;padding:0 1.5rem}
+.tb{padding:.75rem 1.1rem;background:none;border:none;border-bottom:2px solid transparent;font-size:13px;color:var(--text2);cursor:pointer;white-space:nowrap;font-family:inherit;display:flex;align-items:center;gap:6px;margin-bottom:-0.5px;transition:color .15s}
+.tb:hover{color:var(--text)}
+.tb.on{color:var(--text);border-bottom-color:var(--text)}
+/* Panes */
+.pane{display:none;padding:1.5rem}
+.pane.on{display:block}
+.pane-intro{font-size:13px;color:var(--text2);margin-bottom:1.25rem;max-width:700px;line-height:1.65}
+/* Table */
+.tbl-wrap{overflow-x:auto;border:0.5px solid var(--border);border-radius:var(--r-lg)}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:740px}
+thead tr{border-bottom:0.5px solid var(--border);background:var(--bg2)}
+thead th{padding:.7rem 1rem;text-align:left;font-weight:500;font-size:11px;color:var(--text2);font-family:var(--mono);white-space:nowrap}
+thead th:first-child{border-radius:var(--r-lg) 0 0 0}
+thead th:last-child{border-radius:0 var(--r-lg) 0 0}
+tbody tr{border-bottom:0.5px solid var(--border)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--bg2)}
+tbody td{padding:.8rem 1rem;vertical-align:top}
+.a-name{font-weight:500;display:block}
+.a-abbr{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.uc{font-size:11.5px;color:var(--text2);max-width:175px;line-height:1.5}
+.cx{font-family:var(--mono);font-size:11px;color:var(--amber-t)}
+/* Chips */
+.chip{display:inline-flex;align-items:center;padding:1px 7px;border-radius:4px;font-size:10.5px;font-weight:500;font-family:var(--mono);margin:1px;white-space:nowrap}
+.c-bl{background:var(--blue-bg);color:var(--blue-t)}
+.c-co{background:var(--coral-bg);color:var(--coral-t)}
+.c-am{background:var(--amber-bg);color:var(--amber-t)}
+.c-tl{background:var(--teal-bg);color:var(--teal-t)}
+.c-pu{background:var(--purple-bg);color:var(--purple-t)}
+.c-gr{background:var(--green-bg);color:var(--green-t)}
+/* Algo Cards */
+.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:10px}
+.ac{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;transition:border-color .15s}
+.ac:hover{border-color:var(--border2)}
+.ac.open{border-color:var(--border2)}
+.ac-head{padding:1rem 1.25rem .5rem;display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+.ac-num{font-size:22px;font-weight:500;color:var(--bg3);font-family:var(--mono);line-height:1;flex-shrink:0}
+.ac-name{font-size:15px;font-weight:500;margin-bottom:3px}
+.ac-abbr{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.ac-sum{padding:0 1.25rem .6rem;font-size:12.5px;color:var(--text2);line-height:1.6}
+.ac-chips{padding:0 1.25rem .9rem;display:flex;flex-wrap:wrap;gap:2px}
+.ac-toggle{padding:.45rem 1.25rem;background:var(--bg2);border:none;border-top:0.5px solid var(--border);width:100%;text-align:left;font-size:11.5px;color:var(--text3);cursor:pointer;font-family:inherit;display:flex;justify-content:space-between;align-items:center;transition:color .15s}
+.ac-toggle:hover{color:var(--text2)}
+.ac-detail{display:none;border-top:0.5px solid var(--border);padding:1rem 1.25rem}
+.ac.open .ac-detail{display:block}
+.ac.open .ac-toggle i{transform:rotate(180deg)}
+.dl{margin-bottom:.85rem}
+.dl:last-child{margin-bottom:0}
+.dlabel{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);margin-bottom:3px}
+.dtext{font-size:12.5px;color:var(--text);line-height:1.65}
+.formula{background:var(--bg2);border:0.5px solid var(--border);border-left:2px solid var(--blue-b);border-radius:0 var(--r-md) var(--r-md) 0;padding:7px 11px;font-family:var(--mono);font-size:11.5px;color:var(--blue-t);overflow-x:auto;white-space:pre;margin:5px 0}
+.pc-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:5px}
+.pc-box{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r-md);padding:8px 10px}
+.pc-box.p{border-top:2px solid var(--green-b)}
+.pc-box.c{border-top:2px solid var(--coral-b)}
+.pc-lbl{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;margin-bottom:5px}
+.pc-box.p .pc-lbl{color:var(--green-t)} .pc-box.c .pc-lbl{color:var(--coral-t)}
+.pc-ul{list-style:none;font-size:11.5px;color:var(--text2)}
+.pc-ul li{padding:1px 0 1px 13px;position:relative}
+.pc-box.p .pc-ul li::before{content:'+';position:absolute;left:0;color:var(--green-t)}
+.pc-box.c .pc-ul li::before{content:'−';position:absolute;left:0;color:var(--coral-t)}
+.cx-row{display:flex;gap:1rem;flex-wrap:wrap}
+.cx-item{font-family:var(--mono);font-size:11px;color:var(--text2)}
+.cx-item span{color:var(--amber-t);font-weight:500}
+/* Fn Cards */
+.fn-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.fn-head{padding:.9rem 1.25rem;border-bottom:0.5px solid var(--border);background:var(--bg2);display:flex;align-items:center;gap:10px}
+.fn-ico{width:36px;height:36px;border-radius:var(--r-md);border:0.5px solid;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:500;flex-shrink:0;text-align:center;line-height:1.2}
+.ico-loss{background:var(--coral-bg);color:var(--coral-t);border-color:var(--coral-b)}
+.ico-opt{background:var(--amber-bg);color:var(--amber-t);border-color:var(--amber-b)}
+.fn-name{font-size:15px;font-weight:500;margin-bottom:1px}
+.fn-type{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.fn-body{padding:1rem 1.25rem}
+.fn-desc{font-size:12.5px;color:var(--text2);line-height:1.65;margin-bottom:10px}
+.fn-formula{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r-md);padding:7px 11px;font-family:var(--mono);font-size:11.5px;overflow-x:auto;margin-bottom:9px;white-space:pre}
+.ff-loss{border-left:2px solid var(--coral-b);border-radius:0 var(--r-md) var(--r-md) 0;color:var(--coral-t)}
+.ff-opt{border-left:2px solid var(--amber-b);border-radius:0 var(--r-md) var(--r-md) 0;color:var(--amber-t)}
+.fn-when{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:9px}
+.fn-when strong{display:block;font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);font-weight:500;margin-bottom:2px}
+.fn-used-row{display:flex;flex-wrap:wrap;gap:2px;margin-top:8px}
+.fn-used-label{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);width:100%;margin-bottom:2px}
+/* Scrollbar */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+@media(max-width:580px){
+  .grid2,.fn-grid{grid-template-columns:1fr}
+  .pc-row{grid-template-columns:1fr}
+  .stats{display:none}
+  .tb{padding:.7rem .8rem;font-size:12px}
+}
+</style>
+</head>
+<body>
+<h2 class="sr-only">ML Reference Atlas: a tabbed reference covering 10 machine learning algorithms, 8 loss functions, and 8 optimizers with formulas and detailed explanations.</h2>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="hdr-title">
+      <h1>ML Reference Atlas</h1>
+      <p>Algorithms &times; Loss Functions &times; Optimizers — formulas, intuition, and when to use each</p>
+    </div>
+    <div class="stats">
+      <div><div class="stat-n bl">10</div><div class="stat-l">Algorithms</div></div>
+      <div><div class="stat-n co">8</div><div class="stat-l">Loss Fns</div></div>
+      <div><div class="stat-n am">8</div><div class="stat-l">Optimizers</div></div>
+    </div>
+  </div>
+  <nav class="tab-nav" role="tablist">
+    <button class="tb on" onclick="showTab('overview',this)" role="tab"><i class="ti ti-table" aria-hidden="true"></i>Overview</button>
+    <button class="tb" onclick="showTab('algos',this)" role="tab"><i class="ti ti-cpu" aria-hidden="true"></i>Algorithms</button>
+    <button class="tb" onclick="showTab('losses',this)" role="tab"><i class="ti ti-wave-sine" aria-hidden="true"></i>Loss Functions</button>
+    <button class="tb" onclick="showTab('opts',this)" role="tab"><i class="ti ti-arrows-minimize" aria-hidden="true"></i>Optimizers</button>
+  </nav>
+</div>
+
+<div id="overview" class="pane on">
+  <p class="pane-intro">Quick reference: every algorithm mapped to its primary loss function(s) and typical optimizer(s). Click <strong>Algorithms</strong> tab for deep dives.</p>
+  <div class="tbl-wrap">
+    <table id="overview-table">
+      <thead><tr>
+        <th>#</th><th>Algorithm</th><th>Category</th><th>Primary Loss</th><th>Optimizers</th><th>Complexity (train)</th><th>Best used for</th>
+      </tr></thead>
+      <tbody id="tbl-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="algos" class="pane">
+  <p class="pane-intro">Click any card to expand full details: how the algorithm works mathematically, its formula, pros &amp; cons, and complexity.</p>
+  <div class="grid2" id="algo-grid"></div>
+</div>
+
+<div id="losses" class="pane">
+  <p class="pane-intro">Loss functions measure how wrong a model's predictions are. The choice of loss shapes what the model learns to optimize. Below are the 8 most important loss functions with formulas and gradients.</p>
+  <div class="grid2 fn-grid" id="loss-grid"></div>
+</div>
+
+<div id="opts" class="pane">
+  <p class="pane-intro">Optimizers define <em>how</em> model parameters are updated using gradient information. They range from vanilla gradient descent to adaptive methods like Adam that automatically tune learning rates per-parameter.</p>
+  <div class="grid2 fn-grid" id="opt-grid"></div>
+</div>
+
+<script>
+const ALGOS=[
+{n:1,abbr:'LR',name:'Linear Regression',cat:'Regression',catClass:'c-bl',
+sum:'Models a linear relationship between input features and a continuous target by fitting a hyperplane through the data — the simplest and most interpretable regression model.',
+how:'Finds optimal weights θ that minimise residual sum of squares. Solved analytically via the Normal Equation (θ = (XᵀX)⁻¹Xᵀy) for small datasets, or iteratively via gradient descent for large ones. The model is linear in parameters — no hidden layers, just a weighted sum of features plus a bias.',
+formula:'ŷ = θ₀ + θ₁x₁ + θ₂x₂ + … + θₙxₙ\nθ* = (XᵀX)⁻¹Xᵀy  (Normal Eq.)',
+losses:['MSE','MAE','Huber'],primaryLoss:'MSE',
+opts:['OLS','SGD','Adam'],primaryOpt:'OLS / SGD',
+pros:['Highly interpretable — coefficients show feature importance','Computationally trivial to train','Well-understood statistical properties (CIs, p-values)'],
+cons:['Assumes strict linearity — fails on curves and interactions','Sensitive to outliers (MSE loss squares errors)','Multicollinearity inflates coefficient variance'],
+uc:'House price prediction, sales forecasting, trend estimation',
+train:'O(np²)',pred:'O(p)'},
+
+{n:2,abbr:'LogReg',name:'Logistic Regression',cat:'Classification',catClass:'c-pu',
+sum:'Despite its name, a classification algorithm. Applies a sigmoid to a linear score to output class probabilities. The de-facto baseline for binary classification.',
+how:'Computes linear score z = θᵀx, applies sigmoid σ(z) = 1/(1+e⁻ᶻ) to get P(y=1|x) ∈ (0,1). Decision boundary at p = 0.5 is linear in feature space. For multi-class: softmax replaces sigmoid (multinomial LR). Coefficients interpretable as log-odds ratios.',
+formula:'P(y=1|x) = σ(θᵀx) = 1 / (1 + e^(−θᵀx))\nDecision: ŷ = 1 if P > 0.5, else 0',
+losses:['Binary Cross-Entropy','Log Loss'],primaryLoss:'Binary Cross-Entropy',
+opts:['SGD','Adam','L-BFGS'],primaryOpt:'L-BFGS (sklearn default)',
+pros:['Outputs calibrated probabilities','Interpretable log-odds coefficients','Fast training even on large datasets'],
+cons:['Linear decision boundary — fails on non-separable data','Assumes feature independence (poorly handles correlations)','Underperforms on complex non-linear problems'],
+uc:'Spam detection, disease diagnosis, credit default scoring',
+train:'O(np)',pred:'O(p)'},
+
+{n:3,abbr:'DT',name:'Decision Tree',cat:'Both',catClass:'c-tl',
+sum:'Recursively partitions the feature space using a series of binary if/else rules, forming an interpretable tree from root to leaf. Works for both regression and classification.',
+how:'At each node, CART greedily selects the feature and threshold that best reduces impurity (Gini/Entropy for classification, MSE variance for regression). Splits continue until a stopping criterion: max depth, min samples per leaf, or no purity gain. Leaves hold the prediction (majority class or mean target).',
+formula:'Gini(S) = 1 − Σᵢ pᵢ²\nEntropy(S) = −Σᵢ pᵢ log₂(pᵢ)\nIG = Entropy(parent) − Σ wᵢ·Entropy(childᵢ)',
+losses:['Gini Impurity','Entropy','MSE (regression)'],primaryLoss:'Gini / Entropy',
+opts:['CART (greedy)','ID3','C4.5'],primaryOpt:'CART',
+pros:['Fully interpretable — can visualise the tree','Handles mixed types, no feature scaling needed','Captures non-linear boundaries'],
+cons:['High variance — tiny data changes yield very different trees','Prone to overfitting without pruning','Greedy splits are not globally optimal'],
+uc:'Medical diagnosis, rule extraction, customer segmentation',
+train:'O(np log n)',pred:'O(depth)'},
+
+{n:4,abbr:'RF',name:'Random Forest',cat:'Both',catClass:'c-tl',
+sum:'An ensemble of B decision trees trained on random bootstrap samples, each using a random feature subset per split. Predictions are aggregated (vote or average), dramatically reducing variance.',
+how:'Each tree trains on a bootstrap sample of n rows (with replacement). At each split, only √p features are considered (classification) or p/3 (regression). This decorrelates the trees — errors cancel out. Out-of-bag samples (unused bootstrap rows) provide a free validation estimate without a held-out set.',
+formula:'ŷ_RF = (1/B) Σᵢ₌₁ᴮ Tᵢ(x)       [regression: average]\nŷ_RF = argmax_c Σᵢ 𝟙[Tᵢ(x)=c]  [classification: vote]',
+losses:['Gini Impurity','Entropy','MSE'],primaryLoss:'Gini / MSE per tree',
+opts:['Bagging + CART','OOB estimation'],primaryOpt:'Bagging',
+pros:['State-of-the-art accuracy on many tabular datasets','Naturally provides feature importances','Robust to overfitting and noisy features','Built-in OOB validation — no separate val set needed'],
+cons:['Loses interpretability of a single tree','Slow on very large forests (B × n × depth)','Poor at extrapolation beyond training range'],
+uc:'Fraud detection, feature importance ranking, medical prognosis',
+train:'O(B·n√p·log n)',pred:'O(B·depth)'},
+
+{n:5,abbr:'SVM',name:'Support Vector Machine',cat:'Classification',catClass:'c-pu',
+sum:'Finds the maximum-margin hyperplane separating classes. Only the training points closest to the boundary (support vectors) determine the model. The kernel trick enables highly non-linear boundaries.',
+how:'Solves a constrained quadratic program: maximise 2/‖w‖ (margin) subject to yᵢ(wᵀxᵢ+b) ≥ 1. The dual form introduces Lagrange multipliers αᵢ — only support vectors have αᵢ > 0. The kernel trick K(xᵢ,xⱼ) = φ(xᵢ)·φ(xⱼ) implicitly maps data to high dimensions without computing φ explicitly. Common kernels: linear, RBF, polynomial.',
+formula:'Decision: f(x) = sign(Σᵢ αᵢ yᵢ K(xᵢ,x) + b)\nRBF kernel: K(x,z) = exp(−γ‖x−z‖²)',
+losses:['Hinge Loss','Squared Hinge'],primaryLoss:'Hinge Loss',
+opts:['SMO (Sequential Minimal Optimisation)','SGD','Interior Point'],primaryOpt:'SMO',
+pros:['Works extremely well in high-dimensional spaces (text, genomics)','Memory efficient — only stores support vectors','Versatile via kernel choice'],
+cons:['O(n²–n³) training — slow for large n','Very sensitive to feature scaling','Hard to interpret','C and kernel hyperparameters need tuning'],
+uc:'Text classification, image recognition, bioinformatics (high-dim, small n)',
+train:'O(n² to n³)',pred:'O(n_sv · p)'},
+
+{n:6,abbr:'KNN',name:'K-Nearest Neighbors',cat:'Both',catClass:'c-tl',
+sum:'A lazy learner — stores the entire training set and classifies/regresses at inference time by finding the k most similar examples. Zero training cost; all cost is at prediction.',
+how:'For query x, compute distance to every training point (Euclidean, Manhattan, Minkowski, Cosine, etc.). Return the k nearest: majority vote for classification, mean (or weighted mean) for regression. k=1 gives lowest bias/highest variance; large k smooths the boundary. Weighted KNN weights neighbours by 1/d².',
+formula:'d_Euclidean(x,q) = √(Σᵢ (xᵢ−qᵢ)²)\nŷ = majority class of {y: (x,y) ∈ top-k nearest}',
+losses:['No explicit loss — non-parametric'],primaryLoss:'Distance metric',
+opts:['None (lazy learner — no training phase)'],primaryOpt:'None',
+pros:['Trivial to implement, no training','Naturally handles multi-class','Model updates instantly with new data','Non-parametric — no distributional assumptions'],
+cons:['O(n·p) per prediction — slow on large datasets','Memory-intensive — stores all training data','Curse of dimensionality: distances become meaningless in high-d','Sensitive to irrelevant features and unscaled data'],
+uc:'Recommendation systems, anomaly detection, image classification (small n)',
+train:'O(1)',pred:'O(n·p)'},
+
+{n:7,abbr:'NB',name:'Naive Bayes',cat:'Classification',catClass:'c-pu',
+sum:'A probabilistic classifier based on Bayes\' theorem with the "naive" assumption that all features are conditionally independent given the class. Surprisingly effective for text.',
+how:'Learns prior P(y) and per-class likelihoods P(xᵢ|y) from training data via MLE. At inference, applies Bayes\' rule: P(y|x) ∝ P(y)·Π P(xᵢ|y). Takes the log to avoid numerical underflow. Variants: Gaussian NB (continuous features), Multinomial NB (word counts), Bernoulli NB (binary features). Laplace smoothing prevents zero-probability issues.',
+formula:'ŷ = argmax_y [ log P(y) + Σᵢ log P(xᵢ|y) ]\nGaussian: P(xᵢ|y) = (1/√2πσ²) exp(−(xᵢ−μ)²/2σ²)',
+losses:['Negative Log-Likelihood','Log Loss'],primaryLoss:'Negative Log-Likelihood',
+opts:['MLE (Maximum Likelihood Estimation)','MAP (Laplace smoothing)'],primaryOpt:'MLE',
+pros:['Blazing fast training and inference','Excellent for high-dimensional text data','Performs well even with small training sets','Naturally probabilistic output'],
+cons:['Feature independence assumption rarely holds in practice','Cannot learn feature interactions','Poor probability calibration','Continuous features require distributional assumptions (Gaussian NB)'],
+uc:'Spam filtering, document classification, sentiment analysis, real-time prediction',
+train:'O(np)',pred:'O(np)'},
+
+{n:8,abbr:'NN/DL',name:'Neural Network',cat:'Both',catClass:'c-bl',
+sum:'Stacked layers of interconnected neurons learn hierarchical feature representations. Deep networks (CNNs, RNNs, Transformers) achieve state-of-the-art on virtually every ML task at scale.',
+how:'Forward pass: z⁽ˡ⁾ = W⁽ˡ⁾a⁽ˡ⁻¹⁾+b⁽ˡ⁾, a⁽ˡ⁾ = σ(z⁽ˡ⁾). Backprop computes ∂L/∂W via the chain rule — flowing gradients backward through every layer. An optimizer (Adam, SGD+Momentum) updates all W and b over many mini-batch iterations. Activation functions: ReLU, Sigmoid, Tanh, GELU. Regularisation: dropout, batch norm, weight decay.',
+formula:'a⁽ˡ⁾ = σ(W⁽ˡ⁾a⁽ˡ⁻¹⁾ + b⁽ˡ⁾)\n∂L/∂W⁽ˡ⁾ = δ⁽ˡ⁾ (a⁽ˡ⁻¹⁾)ᵀ  [backprop]',
+losses:['MSE','Binary/Categorical Cross-Entropy','Huber'],primaryLoss:'Cross-Entropy (cls) / MSE (reg)',
+opts:['Adam','SGD+Momentum','RMSProp','AdaGrad'],primaryOpt:'Adam',
+pros:['Universal function approximator — can model any function','Automatically learns feature representations','State-of-the-art across vision, language, audio, tabular'],
+cons:['Requires large amounts of data and compute','Black box — low interpretability','Many hyperparameters (architecture, LR, regularisation)','Expensive to train and deploy'],
+uc:'Image recognition, NLP, speech, generative AI, large-scale tabular data',
+train:'O(E·n·L·h²)',pred:'O(L·h²)'},
+
+{n:9,abbr:'XGB',name:'XGBoost / Gradient Boosting',cat:'Both',catClass:'c-tl',
+sum:'Builds a powerful ensemble by adding weak trees sequentially, each fitting the residual errors of the current ensemble. XGBoost adds L1/L2 regularisation and second-order gradient statistics.',
+how:'At step m, a new tree h_m fits the negative gradient (pseudo-residuals) of the loss: F_m(x) = F_{m-1}(x) + η·h_m(x). XGBoost uses the second-order Taylor expansion (Hessian) for each leaf\'s optimal weight: w* = −G/( H + λ), enabling faster and more precise fitting. Tree structure is scored by Gain = G²/2(H+λ). Regularisation (γ,λ,α) prunes unnecessary leaves.',
+formula:'F_M(x) = F₀ + η·Σₘ₌₁ᴹ hₘ(x)\nLeaf weight: w* = −Σᵢ∈leaf gᵢ / (Σᵢ∈leaf hᵢ + λ)',
+losses:['MSE','Log Loss','MAE','Huber','Custom'],primaryLoss:'MSE (reg) / Log Loss (cls)',
+opts:['Gradient Boosting (functional GD)','Newton Boosting (2nd order)'],primaryOpt:'Gradient Boosting',
+pros:['Best-in-class on structured/tabular data','Handles missing values natively','Built-in regularisation prevents overfitting','Fast — parallelised column-block algorithm'],
+cons:['Many hyperparameters (n_estimators, max_depth, eta, subsample…)','Sequential nature limits parallelism across trees','Less effective on unstructured data (images, raw text)'],
+uc:'Kaggle competitions, click-through-rate, structured data at scale',
+train:'O(M·n·p·d)',pred:'O(M·d)'},
+
+{n:10,abbr:'K-Means',name:'K-Means Clustering',cat:'Clustering',catClass:'c-am',
+sum:'The canonical unsupervised clustering algorithm. Partitions n points into k clusters by iteratively assigning points to the nearest centroid and recomputing centroids until convergence.',
+how:'Expectation step: assign each point to its nearest centroid μₖ = argmin ‖x−μ‖². Maximisation step: recompute centroids as the mean of all assigned points. Repeat until centroids stop moving. K-means++ initialisation picks initial centroids with probability proportional to distance squared, dramatically improving convergence speed and result quality.',
+formula:'Objective: min Σₖ Σ_{x∈Cₖ} ‖x − μₖ‖²\nμₖ ← (1/|Cₖ|) Σ_{x∈Cₖ} x',
+losses:['Within-Cluster SSE (Inertia)','Silhouette Score'],primaryLoss:'WCSS (Inertia)',
+opts:['Lloyd\'s Algorithm','K-Means++ init','Mini-Batch K-Means'],primaryOpt:'Lloyd\'s Algorithm',
+pros:['Simple, fast, and scales to millions of points','Easy to implement and interpret','Works well for spherical, well-separated clusters'],
+cons:['Must choose k in advance (use elbow/silhouette)','Sensitive to initialisation without k-means++','Assumes spherical clusters — fails on non-convex shapes','Affected by outliers and feature scale'],
+uc:'Customer segmentation, image colour quantisation, document clustering',
+train:'O(n·k·d·iters)',pred:'O(k·d)'}
+];
+
+const LOSSES=[
+{abbr:'MSE',name:'Mean Squared Error',type:'Regression',
+desc:'The most common regression loss. Measures the average squared difference between predictions and targets. Squaring amplifies large errors disproportionately — a prediction 2× off contributes 4× the loss of one 1× off. This quadratic sensitivity is both a strength (penalises large mistakes hard) and a weakness (outliers dominate the gradient).',
+formula:'MSE = (1/n) Σᵢ₌₁ⁿ (yᵢ − ŷᵢ)²',
+grad:'∂MSE/∂ŷᵢ = (2/n)(ŷᵢ − yᵢ)',
+when:'Use when: (1) errors are roughly Gaussian, (2) you want large errors penalised more than small ones, (3) you need a smooth, everywhere-differentiable loss. Avoid if your dataset has heavy-tailed noise or outliers — switch to MAE or Huber.',
+usedBy:['Linear Regression','Neural Networks','Random Forest','XGBoost']},
+
+{abbr:'MAE',name:'Mean Absolute Error',type:'Regression',
+desc:'Measures the average absolute deviation. More robust than MSE because errors are not squared — a prediction 2× off contributes exactly 2× the loss of one 1× off. The gradient is always ±1/n (constant magnitude), which can make convergence slower and less precise near the minimum.',
+formula:'MAE = (1/n) Σᵢ₌₁ⁿ |yᵢ − ŷᵢ|',
+grad:'∂MAE/∂ŷᵢ = (1/n) · sign(ŷᵢ − yᵢ)',
+when:'Use when your data has outliers you don\'t want the model to chase. The gradient is undefined at zero — gradient-based optimizers may use a subgradient. MAE is equivalent to training the model to predict the conditional median rather than the mean.',
+usedBy:['Linear Regression','Neural Networks','XGBoost']},
+
+{abbr:'RMSE',name:'Root Mean Squared Error',type:'Regression',
+desc:'Square root of MSE. The key advantage: it returns error in the same units as the target variable, making it immediately interpretable (e.g., "predictions are off by $4,500 on average"). Mathematically equivalent to MSE for optimisation — they share the same minimum — so RMSE is primarily a reporting metric.',
+formula:'RMSE = √[ (1/n) Σᵢ₌₁ⁿ (yᵢ − ŷᵢ)² ]',
+grad:'Same minimum as MSE (monotonic transformation)',
+when:'Use RMSE when you want to communicate prediction error in interpretable units (same as the target). During training, use MSE (saves a sqrt computation). Also useful for comparing models — lower RMSE = better, with the benefit of intuitive scale.',
+usedBy:['Linear Regression','Neural Networks','Evaluation/Reporting']},
+
+{abbr:'BCE',name:'Binary Cross-Entropy',type:'Binary Classification',
+desc:'The natural loss for binary classification. Derived from maximum likelihood estimation under a Bernoulli distribution. Heavily penalises confident wrong predictions: if the model outputs p=0.99 for y=0, the loss is −log(0.01) ≈ 4.6 — extremely large. This encourages the model to be well-calibrated.',
+formula:'BCE = −(1/n) Σᵢ [yᵢ log(pᵢ) + (1−yᵢ) log(1−pᵢ)]',
+grad:'∂BCE/∂pᵢ = (1/n)(pᵢ − yᵢ) / [pᵢ(1−pᵢ)]   (before sigmoid)\n∂L/∂z = (1/n)(σ(z) − y)  (combined sigmoid+BCE — clean!)',
+when:'Standard for any binary classification. Pair with sigmoid output. Combined sigmoid+BCE gradient is beautifully simple: (p−y)/n. Use Focal Loss variant if class imbalance is extreme (weights hard examples more).',
+usedBy:['Logistic Regression','Neural Networks (binary)','XGBoost (binary)']},
+
+{abbr:'CCE',name:'Categorical Cross-Entropy',type:'Multi-class Classification',
+desc:'Generalises BCE to C classes. Compares the true one-hot distribution with the model\'s predicted probability distribution (softmax output). Measures the KL-divergence between them (up to a constant). Only the probability assigned to the correct class contributes to the loss — the rest is irrelevant.',
+formula:'CCE = − Σᵢ Σⱼ y_ij · log(p_ij)\n     = − Σᵢ log(p_{i, true_class_i})',
+grad:'∂CCE/∂z_j = p_j − y_j   (combined softmax+CCE — elegantly clean)',
+when:'Use for any multi-class classification with softmax output. If labels are integers (not one-hot), use Sparse Categorical Cross-Entropy for efficiency. For multi-label problems (each example can have multiple classes), use BCE per class instead.',
+usedBy:['Neural Networks (multi-class)','XGBoost (multi-class)','Multinomial Logistic Regression']},
+
+{abbr:'Hinge',name:'Hinge Loss',type:'SVM / Classification',
+desc:'Designed for maximum-margin classifiers. Labels must be ±1. For correct predictions with sufficient confidence (y·f(x) ≥ 1), the loss is zero — these points don\'t influence the model at all. Only violating points (inside the margin or misclassified) contribute, making the solution sparse. Squared hinge loss smooths the non-differentiable kink at 1.',
+formula:'L_hinge = max(0, 1 − y · f(x))     [y ∈ {−1, +1}]\nL_sq_hinge = max(0, 1 − y · f(x))²',
+grad:'∂L/∂f = 0           if y·f(x) ≥ 1 (on/beyond margin)\n∂L/∂f = −y          if y·f(x) < 1  (margin violation)',
+when:'Native to SVMs. Can also be used in neural networks when you want a hard-margin style classification. Unlike cross-entropy, hinge loss does not output probabilities. Use cross-entropy when calibrated probabilities matter.',
+usedBy:['SVM','Neural Networks (occasionally)']},
+
+{abbr:'Huber',name:'Huber Loss',type:'Regression (robust)',
+desc:'The best of both worlds: behaves exactly like MSE for small errors (smooth and easy to optimise) and like MAE for large errors (robust to outliers). The crossover point δ is a tunable hyperparameter. Widely used in reinforcement learning (DQN) and robust regression.',
+formula:'L_δ(y,ŷ) = { ½(y−ŷ)²            if |y−ŷ| ≤ δ\n             δ·|y−ŷ| − ½δ²   otherwise',
+grad:'∂L_δ/∂ŷ = { (ŷ−y)           if |y−ŷ| ≤ δ\n            δ·sign(ŷ−y)    otherwise',
+when:'Use when your regression targets have both normal noise and occasional large outliers. δ is the knob: small δ → MAE-like (very robust, ignores large errors), large δ → MSE-like (sensitive to all errors). Default δ=1.0 is a reasonable starting point.',
+usedBy:['Neural Networks','XGBoost','Gradient Boosting','Reinforcement Learning (DQN)']}
+];
+
+const OPTS=[
+{abbr:'Batch GD',name:'Batch Gradient Descent',
+desc:'The foundation. Computes the exact gradient using the entire training set before updating parameters. Guaranteed to converge to the global minimum for convex losses (and a local minimum otherwise). Rarely used in practice due to cost.',
+update:'θ ← θ − α · ∇_θ L(θ; X, y)\n[gradient computed over ALL n examples]',
+params:['α: learning rate (step size)'],
+pros:['Stable, smooth convergence','Exact gradient — no noise'],
+cons:['One gradient = one pass over all data (slow for large n)','Cannot escape local minima','Infeasible for datasets that don\'t fit in memory'],
+usedBy:['Linear Regression (small n)','Logistic Regression']},
+
+{abbr:'SGD',name:'Stochastic Gradient Descent',
+desc:'Updates using the gradient from a single randomly-sampled example per step. The noisy gradient is a feature, not a bug — it helps escape saddle points and local minima. Mini-batch SGD (16–512 examples) balances noise and efficiency and is what "SGD" almost always means in deep learning.',
+update:'θ ← θ − α · ∇_θ L(θ; xᵢ, yᵢ)  [1 sample]\nθ ← θ − α · (1/B) Σ ∇L             [mini-batch B]',
+params:['α: learning rate (needs schedule)','B: batch size (16–512 typical)'],
+pros:['Very fast iterations','Noise helps escape local minima and saddle points','Scales to arbitrarily large datasets'],
+cons:['Noisy gradient → oscillating loss curve','Requires learning rate schedule (decay, warmup)','Convergence not guaranteed without careful tuning'],
+usedBy:['Neural Networks','Linear Regression','Logistic Regression','SVM']},
+
+{abbr:'SGD+M',name:'SGD with Momentum',
+desc:'Adds a velocity vector v that accumulates a fraction β of past gradients. Conceptually: a ball rolling down a hill builds momentum in consistent directions, dampens oscillations in perpendicular directions. Nesterov Accelerated Gradient (NAG) computes gradient at the "look-ahead" position for slightly better convergence.',
+update:'v  ← β·v + α·∇L\nθ  ← θ − v\n\nNAG: v ← β·v + α·∇L(θ−β·v)\n     θ ← θ − v',
+params:['α: learning rate','β: momentum coefficient (~0.9)'],
+pros:['Faster convergence than vanilla SGD','Dampens oscillations in ravines','Standard in image model training (ResNets, etc.)'],
+cons:['Extra hyperparameter β','Can overshoot narrow minima','Still needs manual learning rate tuning'],
+usedBy:['Neural Networks','Deep Learning','Image Models']},
+
+{abbr:'AdaGrad',name:'Adaptive Gradient Algorithm',
+desc:'Adapts the learning rate per parameter: parameters that receive large or frequent gradients get smaller effective learning rates; rare features get larger steps. Revolutionary for NLP with sparse one-hot features. The accumulated G grows monotonically — eventually all learning rates shrink to zero, which is its fatal flaw for non-sparse problems.',
+update:'Gᵢ ← Gᵢ + (∂L/∂θᵢ)²           [accumulate]\nθᵢ ← θᵢ − (α/√(Gᵢ+ε)) · ∂L/∂θᵢ  [update]',
+params:['α: global learning rate (~0.01)','ε: numerical stability (~1e-8)'],
+pros:['Automatic per-parameter LR adaptation','Excellent for sparse gradients (word embeddings, sparse features)','No manual LR schedule needed early on'],
+cons:['G accumulates forever → LR shrinks to zero → learning stops','Poor choice for non-sparse, non-convex deep learning'],
+usedBy:['NLP (sparse features)','Logistic Regression','Shallow Neural Networks']},
+
+{abbr:'RMSProp',name:'Root Mean Square Propagation',
+desc:'Fixes AdaGrad\'s dying learning rate by replacing the accumulation with an exponentially-decaying moving average of squared gradients. Recent gradients matter more than old ones. The decay rate γ controls the effective window. Proposed by Geoff Hinton in an unpublished Coursera lecture — notable for being one of the few major algorithms never formally published in a paper.',
+update:'E[g²]_t ← γ·E[g²]_{t-1} + (1−γ)·(∂L/∂θ)²\nθ ← θ − (α / √(E[g²]+ε)) · ∂L/∂θ',
+params:['α: learning rate (~0.001)','γ: decay rate (~0.9)','ε: stability (~1e-8)'],
+pros:['Prevents AdaGrad\'s LR from decaying to zero','Works well for non-stationary objectives and RNNs','More stable on recurrent network training than SGD'],
+cons:['Still requires global α tuning','No bias correction — can be biased early in training'],
+usedBy:['RNNs','Deep Learning','Reinforcement Learning']},
+
+{abbr:'Adam',name:'Adaptive Moment Estimation',
+desc:'The dominant optimizer in deep learning. Combines SGD with Momentum (tracks 1st moment: mean of gradients) and RMSProp (tracks 2nd moment: uncentred variance of gradients). Bias-correction terms (1−β₁ᵗ) and (1−β₂ᵗ) prevent underestimation during the first few steps. Default hyperparameters (β₁=0.9, β₂=0.999, α=3e-4) work well out of the box for most architectures.',
+update:'m_t ← β₁·m_{t-1} + (1−β₁)·g_t         [1st moment]\nv_t ← β₂·v_{t-1} + (1−β₂)·g_t²        [2nd moment]\nm̂_t = m_t/(1−β₁ᵗ)   v̂_t = v_t/(1−β₂ᵗ) [bias correction]\nθ ← θ − α · m̂_t / (√v̂_t + ε)',
+params:['α: learning rate (~3e-4)','β₁: 0.9 (momentum)','β₂: 0.999 (RMS)','ε: 1e-8'],
+pros:['Works well out-of-the-box with minimal tuning','Adaptive per-parameter LR with momentum','Handles sparse gradients well','Includes bias correction for early steps'],
+cons:['Can generalise slightly worse than SGD+M on large vision models','Stores two additional gradient buffers (memory cost)','May converge to sharper minima in some settings'],
+usedBy:['Transformers','Neural Networks','Deep Learning','Fine-tuning LLMs']},
+
+{abbr:'AdaDelta',name:'AdaDelta',
+desc:'Extends RMSProp by also tracking a running average of parameter updates — eliminating the need to set a global learning rate entirely. The ratio of update RMS to gradient RMS provides a natural adaptive step size with consistent units. In practice, Adam has largely superseded it.',
+update:'E[g²]_t ← ρ·E[g²]_{t-1} + (1−ρ)·g_t²\nΔθ = −√(E[Δθ²]+ε) / √(E[g²]+ε) · g_t\nE[Δθ²]_t ← ρ·E[Δθ²]_{t-1} + (1−ρ)·Δθ²',
+params:['ρ: decay constant (~0.95)','ε: stability (~1e-6) — larger than Adam'],
+pros:['No global learning rate to tune','Robust over long training','Consistent update units (dimensionality of parameters)'],
+cons:['Slower convergence than Adam in most benchmarks','Less commonly used in modern deep learning stacks'],
+usedBy:['Neural Networks','Legacy Deep Learning']},
+
+{abbr:'L-BFGS',name:'Limited-Memory BFGS',
+desc:'A quasi-Newton second-order method. Approximates the inverse Hessian H⁻¹ using only the last m gradient difference vectors (typically m=5–20), avoiding the O(p²) storage of the full Hessian. Uses curvature information to take much larger, more informed steps than first-order methods. The default solver in scikit-learn\'s LogisticRegression for small-medium datasets.',
+update:'θ ← θ + α · H⁻¹_approx · (−∇L)\nH⁻¹_approx built from last m {Δθ, Δg} pairs\nLine search determines step size α',
+params:['m: memory (5–20 gradient vectors)','α: determined by line search'],
+pros:['Very fast convergence — orders fewer iterations than SGD','Uses curvature → smarter step directions','No learning rate schedule needed — line search handles it'],
+cons:['Expensive per-iteration for large n (must sum over dataset for gradient)','Not suitable for mini-batch/stochastic settings','Memory scales as O(m·p)'],
+usedBy:['Logistic Regression (sklearn)','Small-scale Neural Networks','Convex ML problems']}
+];
+
+function showTab(id,btn){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+
+function catChip(a){
+  const map={Regression:'c-bl',Classification:'c-pu',Both:'c-tl',Clustering:'c-am'};
+  return `<span class="chip ${map[a.cat]||'c-tl'}">${a.cat}</span>`;
+}
+
+function buildTable(){
+  const tb=document.getElementById('tbl-body');
+  tb.innerHTML=ALGOS.map(a=>`
+  <tr>
+    <td><span class="a-abbr">${a.n}</span></td>
+    <td><span class="a-name">${a.name}</span><span class="a-abbr">${a.abbr}</span></td>
+    <td>${catChip(a)}</td>
+    <td><span class="chip c-co">${a.primaryLoss}</span></td>
+    <td>${a.opts.map(o=>`<span class="chip c-am">${o}</span>`).join('')}</td>
+    <td class="cx">${a.train}</td>
+    <td class="uc">${a.uc.split(',')[0]}&hellip;</td>
+  </tr>`).join('');
+}
+
+function buildAlgos(){
+  const g=document.getElementById('algo-grid');
+  g.innerHTML=ALGOS.map((a,i)=>`
+  <div class="ac" id="ac-${i}" onclick="toggleCard(${i})">
+    <div class="ac-head">
+      <div class="ac-title">
+        <div class="ac-name">${a.name}</div>
+        <div class="ac-abbr">${a.abbr} &middot; Supervised: ${a.cat!=='Clustering'?'Yes':'No'}</div>
+      </div>
+      <div class="ac-num">0${a.n>9?'':a.n<10?'0':''}${a.n}</div>
+    </div>
+    <div class="ac-sum">${a.sum}</div>
+    <div class="ac-chips">
+      ${catChip(a)}
+      <span class="chip c-co">${a.primaryLoss}</span>
+      <span class="chip c-am">${a.primaryOpt}</span>
+    </div>
+    <button class="ac-toggle">
+      <span>Show full details &amp; formula</span>
+      <i class="ti ti-chevron-down" aria-hidden="true" style="transition:transform .2s"></i>
+    </button>
+    <div class="ac-detail">
+      <div class="dl">
+        <div class="dlabel">How it works</div>
+        <div class="dtext">${a.how}</div>
+      </div>
+      <div class="dl">
+        <div class="dlabel">Core formula / update rule</div>
+        <div class="formula">${a.formula}</div>
+      </div>
+      <div class="dl">
+        <div class="dlabel">Loss functions used</div>
+        <div>${a.losses.map(l=>`<span class="chip c-co">${l}</span>`).join(' ')}</div>
+      </div>
+      <div class="dl">
+        <div class="dlabel">Optimizers used</div>
+        <div>${a.opts.map(o=>`<span class="chip c-am">${o}</span>`).join(' ')}</div>
+      </div>
+      <div class="dl">
+        <div class="dlabel">Pros &amp; cons</div>
+        <div class="pc-row">
+          <div class="pc-box p"><div class="pc-lbl">Strengths</div>
+            <ul class="pc-ul">${a.pros.map(p=>`<li>${p}</li>`).join('')}</ul>
+          </div>
+          <div class="pc-box c"><div class="pc-lbl">Weaknesses</div>
+            <ul class="pc-ul">${a.cons.map(c=>`<li>${c}</li>`).join('')}</ul>
+          </div>
+        </div>
+      </div>
+      <div class="dl">
+        <div class="dlabel">Best used for</div>
+        <div class="dtext">${a.uc}</div>
+      </div>
+      <div class="dl">
+        <div class="dlabel">Complexity</div>
+        <div class="cx-row">
+          <div class="cx-item">Training: <span>${a.train}</span></div>
+          <div class="cx-item">Prediction: <span>${a.pred}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>`).join('');
+}
+
+function toggleCard(i){
+  const el=document.getElementById('ac-'+i);
+  el.classList.toggle('open');
+}
+
+function buildLosses(){
+  const g=document.getElementById('loss-grid');
+  g.innerHTML=LOSSES.map(l=>`
+  <div class="fn-card">
+    <div class="fn-head">
+      <div class="fn-ico ico-loss">${l.abbr.replace(/ /g,'<br>')}</div>
+      <div><div class="fn-name">${l.name}</div><div class="fn-type">${l.type}</div></div>
+    </div>
+    <div class="fn-body">
+      <div class="fn-desc">${l.desc}</div>
+      <div class="fn-formula ff-loss">${l.formula}</div>
+      <div class="fn-formula ff-loss" style="font-size:10.5px;opacity:.9">Gradient: ${l.grad}</div>
+      <div class="fn-when"><strong>When to use</strong>${l.when}</div>
+      <div class="fn-used-row">
+        <div class="fn-used-label">Used by</div>
+        ${l.usedBy.map(u=>`<span class="chip c-bl">${u}</span>`).join('')}
+      </div>
+    </div>
+  </div>`).join('');
+}
+
+function buildOpts(){
+  const g=document.getElementById('opt-grid');
+  g.innerHTML=OPTS.map(o=>`
+  <div class="fn-card">
+    <div class="fn-head">
+      <div class="fn-ico ico-opt">${o.abbr.replace(/ /g,'<br>').replace(/[+]/g,'<br>+')}</div>
+      <div><div class="fn-name">${o.name}</div><div class="fn-type">Hyperparams: ${o.params.join(' · ')}</div></div>
+    </div>
+    <div class="fn-body">
+      <div class="fn-desc">${o.desc}</div>
+      <div class="fn-formula ff-opt">${o.update}</div>
+      <div class="fn-when"><strong>Pros</strong>${o.pros.join(' · ')}</div>
+      <div class="fn-when"><strong>Cons</strong>${o.cons.join(' · ')}</div>
+      <div class="fn-used-row">
+        <div class="fn-used-label">Commonly used with</div>
+        ${o.usedBy.map(u=>`<span class="chip c-bl">${u}</span>`).join('')}
+      </div>
+    </div>
+  </div>`).join('');
+}
+
+buildTable(); buildAlgos(); buildLosses(); buildOpts();
+</script>
+</body>
+</html>

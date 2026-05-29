@@ -849,6 +849,10 @@ function showArticleDetail(articleId) {
   } else if (articleId === 'system-design') {
     iframe.removeAttribute('srcdoc');
     iframe.src = 'system_design/index.html';
+  } else if (articleId === 'ml-reference-atlas') {
+    iframe.removeAttribute('srcdoc');
+    const currentTheme = document.body.getAttribute('data-theme') || 'light';
+    iframe.src = 'ml-reference-atlas.html?theme=' + currentTheme;
   }
   
   modal.classList.add('active');
