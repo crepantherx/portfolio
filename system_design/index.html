@@ -94,6 +94,11 @@ body::before {
   transform: rotate(90deg);
 }
 
+/* Hide close button if loaded in iframe */
+html.in-iframe .close-btn {
+  display: none !important;
+}
+
 /* Container */
 .container {
   position: relative; z-index: 2;
@@ -325,6 +330,12 @@ body::before {
 </style>
 </head>
 <body>
+
+<script>
+  if (window.self !== window.top) {
+    document.documentElement.classList.add('in-iframe');
+  }
+</script>
 
 <div class="bg-glow"></div>
 

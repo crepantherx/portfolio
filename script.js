@@ -255,8 +255,8 @@ function renderProjects() {
 function copyProjectLink(id, btn, event) {
   event.stopPropagation();
 
-  // Construct URL: base URL (without hash) + # + project ID
-  const url = window.location.href.split('#')[0] + '#' + id;
+  // Construct URL: base URL (without hash) + #project= + project ID
+  const url = window.location.href.split('#')[0] + '#project=' + id;
 
   navigator.clipboard.writeText(url).then(() => {
     // Feedback
@@ -273,31 +273,47 @@ function copyProjectLink(id, btn, event) {
   });
 }
 
-// Logic to handle hash navigation (Deep linking to projects)
+// Logic to handle hash navigation (Deep linking to projects, views, modals)
 function handleHashNavigation() {
   const hash = window.location.hash.substring(1); // Remove '#'
-  if (!hash) return;
 
-  // Check if hash matches a project ID
-  const project = PROJECTS.find(p => p.id === hash);
-  if (project) {
-    // Switch to projects view
-    const projectsBtn = document.querySelector('.toggle-btn[data-view="projects"]');
-    if (projectsBtn) {
-      projectsBtn.click();
-      // Small delay to allow view to become visible
-      setTimeout(() => {
-        const projectEl = document.getElementById(hash);
-        if (projectEl) {
-          // Auto-expand the project
-          if (!projectEl.classList.contains('expanded')) {
-            projectEl.classList.add('expanded');
-          }
-          projectEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          projectEl.classList.add('highlighted');
-          setTimeout(() => projectEl.classList.remove('highlighted'), 2000);
+  if (hash.startsWith('view=')) {
+    const viewName = hash.split('=')[1];
+    _activateView(viewName);
+    _closeArticleModal();
+    _closeBookingModal();
+  } else if (hash.startsWith('article=')) {
+    const articleId = hash.split('=')[1];
+    _showArticleDetail(articleId);
+  } else if (hash.startsWith('booking=')) {
+    const planName = decodeURIComponent(hash.split('=')[1]);
+    _openBookingModal(planName);
+  } else if (hash.startsWith('project=')) {
+    const projectId = hash.split('=')[1];
+    _activateView('projects');
+    _closeArticleModal();
+    _closeBookingModal();
+    
+    setTimeout(() => {
+      const projectEl = document.getElementById(projectId);
+      if (projectEl) {
+        if (!projectEl.classList.contains('expanded')) {
+          projectEl.classList.add('expanded');
         }
-      }, 100);
+        projectEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        projectEl.classList.add('highlighted');
+        setTimeout(() => projectEl.classList.remove('highlighted'), 2000);
+      }
+    }, 100);
+  } else {
+    // Also handle legacy project hashes that don't have 'project=' prefix
+    const project = PROJECTS.find(p => p.id === hash);
+    if (project) {
+      window.location.hash = 'project=' + hash;
+    } else if (!hash) {
+      _activateView('about');
+      _closeArticleModal();
+      _closeBookingModal();
     }
   }
 }
@@ -359,43 +375,48 @@ function handleSkillClick(skillName, catIndex, event) {
 
 function goToProject(projectId, event) {
   event.stopPropagation();
-  // Simply setting hash will trigger our hash listener if we add one, or we can call handle directly
-  window.location.hash = projectId;
-  handleHashNavigation();
+  window.location.hash = 'project=' + projectId;
 }
 
 // View Toggle Logic
 function setupViewToggle() {
   const buttons = document.querySelectorAll('.toggle-btn');
-  const sections = document.querySelectorAll('.view-section');
 
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
-      // Remove active class from all buttons
-      buttons.forEach(b => b.classList.remove('active'));
-      // Add active class to clicked button
-      btn.classList.add('active');
-
-      // Hide all sections
-      sections.forEach(section => {
-        section.classList.add('hidden');
-        section.classList.remove('active');
-      });
-
-      // Show target section
       const viewName = btn.getAttribute('data-view');
-      const targetId = `view-${viewName}`;
-      const targetSection = document.getElementById(targetId);
-
-      if (targetSection) {
-        targetSection.classList.remove('hidden');
-        // Small delay to allow display:block to apply before opacity transition
-        setTimeout(() => {
-          targetSection.classList.add('active');
-        }, 10);
-      }
+      window.location.hash = 'view=' + viewName;
     });
   });
+}
+
+function _activateView(viewName) {
+  const buttons = document.querySelectorAll('.toggle-btn');
+  const sections = document.querySelectorAll('.view-section');
+
+  // Remove active class from all buttons
+  buttons.forEach(b => b.classList.remove('active'));
+  // Add active class to target button
+  const targetBtn = document.querySelector(`.toggle-btn[data-view="${viewName}"]`);
+  if (targetBtn) targetBtn.classList.add('active');
+
+  // Hide all sections
+  sections.forEach(section => {
+    section.classList.add('hidden');
+    section.classList.remove('active');
+  });
+
+  // Show target section
+  const targetId = `view-${viewName}`;
+  const targetSection = document.getElementById(targetId);
+
+  if (targetSection) {
+    targetSection.classList.remove('hidden');
+    // Small delay to allow display:block to apply before opacity transition
+    setTimeout(() => {
+      targetSection.classList.add('active');
+    }, 10);
+  }
 }
 
 // Consultation Configuration
@@ -435,6 +456,11 @@ const CONSULTATION_CONFIG = {
 let currentPlan = '';
 
 function openBookingModal(planName) {
+  playClickSound();
+  window.location.hash = 'booking=' + encodeURIComponent(planName);
+}
+
+function _openBookingModal(planName) {
   currentPlan = planName;
   const config = CONSULTATION_CONFIG[planName];
 
@@ -468,9 +494,16 @@ function openBookingModal(planName) {
 }
 
 function closeBookingModal() {
-  document.getElementById('booking-modal').classList.remove('active');
+  playClickSound();
+  window.history.back();
+}
+
+function _closeBookingModal() {
+  const modal = document.getElementById('booking-modal');
+  if (!modal || modal.classList.contains('hidden')) return;
+  modal.classList.remove('active');
   setTimeout(() => {
-    document.getElementById('booking-modal').classList.add('hidden');
+    modal.classList.add('hidden');
   }, 300);
 }
 
@@ -707,18 +740,13 @@ function toggleTheme(isDark) {
 function handleInitialRouting() {
   const urlParams = new URLSearchParams(window.location.search);
   const view = urlParams.get('view');
-
-  if (view) {
-    const btn = document.querySelector(`.toggle-btn[data-view="${view}"]`);
-    if (btn) {
-      btn.click();
-    }
+  
+  if (view && !window.location.hash) {
+    window.location.hash = 'view=' + view;
+  } else if (!window.location.hash) {
+    window.location.hash = 'view=about';
   } else {
-    // Default to 'About' view if no param is present
-    const aboutBtn = document.querySelector('.toggle-btn[data-view="about"]');
-    if (aboutBtn) {
-      aboutBtn.click();
-    }
+    handleHashNavigation();
   }
 }
 
@@ -730,10 +758,38 @@ document.addEventListener('DOMContentLoaded', () => {
   renderProjects();
   setupViewToggle();
   handleInitialRouting();
-  handleHashNavigation();
-
+  
   // Listen for hash changes
   window.addEventListener('hashchange', handleHashNavigation);
+
+  // Handle BFCache restores
+  window.addEventListener('pageshow', (event) => {
+    // If the modal is open, we always want to ensure the iframe is loaded.
+    // BFCache often unloads iframes.
+    const modal = document.getElementById('article-modal');
+    if (modal && !modal.classList.contains('hidden')) {
+      const oldIframe = document.getElementById('article-iframe');
+      if (oldIframe && oldIframe.src) {
+        // Clean the src to avoid file:// query parameter bugs
+        const currentSrc = oldIframe.src.split('?')[0].split('#')[0];
+        const container = oldIframe.parentElement;
+        
+        // Remove old iframe
+        oldIframe.remove();
+        
+        // Recreate to force a fresh load
+        const newIframe = document.createElement('iframe');
+        newIframe.id = 'article-iframe';
+        newIframe.style.width = '100%';
+        newIframe.style.height = '100%';
+        newIframe.style.border = 'none';
+        newIframe.style.background = 'transparent';
+        newIframe.src = currentSrc;
+        
+        container.appendChild(newIframe);
+      }
+    }
+  });
 
 
   // Add click sound to all interactive elements
@@ -828,7 +884,10 @@ function filterSkills(searchTerm) {
 // Articles View Logic
 function showArticleDetail(articleId) {
   playClickSound();
-  
+  window.location.hash = 'article=' + articleId;
+}
+
+function _showArticleDetail(articleId) {
   const modal = document.getElementById('article-modal');
   const iframe = document.getElementById('article-iframe');
   
@@ -861,8 +920,12 @@ function showArticleDetail(articleId) {
 
 function closeArticleModal() {
   playClickSound();
-  
+  window.history.back();
+}
+
+function _closeArticleModal() {
   const modal = document.getElementById('article-modal');
+  if (!modal || modal.classList.contains('hidden')) return;
   const iframe = document.getElementById('article-iframe');
   
   // Clear iframe to release resources
