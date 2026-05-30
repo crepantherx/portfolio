@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube — Full System Design</title>
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --bg2: #141414;
+    --bg3: #1a1a1a;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #e8e6e0;
+    --muted: #7a7870;
+    --accent: #ff0000;
+    --accent2: #ff4444;
+    --accent3: #ffaa00;
+    --blue: #3b8bd4;
+    --teal: #1d9e75;
+    --purple: #7f77dd;
+    --green: #639922;
+    --coral: #d85a30;
+    --pink: #d4537e;
+    --amber: #ba7517;
+    --red: #e24b4a;
+    --gray: #888780;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; overflow-x: hidden; }
+
+  /* HEADER */
+  .header { padding: 28px 40px 0; display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  .header-left h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+  .header-left h1 span { color: var(--accent); }
+  .header-left p { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; background: rgba(255,0,0,0.12); color: var(--accent2); border: 1px solid rgba(255,0,0,0.2); margin-right: 6px; }
+  .badge.blue { background: rgba(59,139,212,0.12); color: #5ba8f4; border-color: rgba(59,139,212,0.2); }
+  .badge.green { background: rgba(29,158,117,0.12); color: #2ec990; border-color: rgba(29,158,117,0.2); }
+  .badge.amber { background: rgba(186,117,23,0.12); color: #f5c842; border-color: rgba(186,117,23,0.2); }
+
+  /* NAV TABS */
+  .tabs { display: flex; gap: 2px; padding: 20px 40px 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tab { padding: 8px 18px; border-radius: 6px 6px 0 0; cursor: pointer; color: var(--muted); font-size: 12px; font-weight: 500; white-space: nowrap; border: 1px solid transparent; border-bottom: none; transition: all 0.15s; }
+  .tab:hover { color: var(--text); background: var(--bg3); }
+  .tab.active { color: var(--text); background: var(--bg3); border-color: var(--border2); border-bottom: 1px solid var(--bg3); margin-bottom: -1px; }
+  .tab-icon { margin-right: 5px; }
+
+  /* PANELS */
+  .panel { display: none; padding: 28px 40px; min-height: calc(100vh - 160px); }
+  .panel.active { display: block; }
+
+  /* SECTION TITLE */
+  .section-title { font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  /* ARCH GRAPH */
+  #arch-canvas { width: 100%; border-radius: 8px; border: 1px solid var(--border); background: var(--bg2); cursor: grab; }
+  #arch-canvas:active { cursor: grabbing; }
+  .canvas-wrap { position: relative; }
+  .canvas-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; }
+  .ctrl-btn { background: var(--bg3); border: 1px solid var(--border2); color: var(--text); padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
+  .ctrl-btn:hover { background: #222; }
+
+  /* INFO CARDS */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 28px; }
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .card h3 { font-size: 13px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .card h3 .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .card p { color: var(--muted); font-size: 12px; line-height: 1.6; }
+  .card .stat { font-size: 20px; font-weight: 700; color: var(--text); margin-top: 6px; }
+
+  /* FLOW TABLES */
+  .flow-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; }
+  .flow-table th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+  .flow-table td { padding: 10px 12px; font-size: 12px; border-bottom: 1px solid var(--border); line-height: 1.5; vertical-align: top; }
+  .flow-table tr:last-child td { border-bottom: none; }
+  .flow-table tr:hover td { background: var(--bg3); }
+  .tag { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-right: 3px; }
+  .tag-r { background: rgba(226,75,74,0.15); color: #f27272; }
+  .tag-b { background: rgba(59,139,212,0.15); color: #5ba8f4; }
+  .tag-g { background: rgba(29,158,117,0.15); color: #2ec990; }
+  .tag-a { background: rgba(186,117,23,0.15); color: #f5c842; }
+  .tag-p { background: rgba(127,119,221,0.15); color: #a8a3f0; }
+
+  /* DETAIL PANEL */
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 900px) { .detail-grid { grid-template-columns: 1fr; } }
+  .detail-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
+  .detail-box h4 { font-size: 12px; font-weight: 600; margin-bottom: 12px; color: var(--accent2); letter-spacing: 0.5px; }
+  .kv { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .kv:last-child { border-bottom: none; }
+  .kv-key { color: var(--muted); }
+  .kv-val { color: var(--text); font-weight: 500; text-align: right; max-width: 200px; }
+
+  /* TOOLTIP */
+  #tooltip { position: fixed; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 12px 16px; pointer-events: none; z-index: 999; max-width: 280px; opacity: 0; transition: opacity 0.15s; }
+  #tooltip h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  #tooltip p { font-size: 11px; color: var(--muted); line-height: 1.5; }
+  #tooltip .tip-tags { margin-top: 6px; }
+
+  /* LEGEND */
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 20px; }
+  .leg-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+  .leg-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+  /* PIPELINE STEPS */
+  .pipeline { display: flex; flex-direction: column; gap: 2px; margin-bottom: 24px; }
+  .pipe-step { display: flex; align-items: stretch; gap: 0; }
+  .pipe-num { width: 36px; display: flex; flex-direction: column; align-items: center; }
+  .pipe-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .pipe-line { flex: 1; width: 1px; background: var(--border); margin: 0 auto; }
+  .pipe-body { flex: 1; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin: 0 0 6px 12px; }
+  .pipe-body h4 { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+  .pipe-body p { font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .pipe-body .sub { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+
+  /* NUMBERS PANEL */
+  .num-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .num-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .num-card .label { font-size: 11px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+  .num-card .value { font-size: 22px; font-weight: 700; line-height: 1; }
+  .num-card .sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* NODE SELECTED */
+  .node-detail { background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px; padding: 16px; margin-top: 14px; display: none; }
+  .node-detail.show { display: block; }
+  .node-detail h3 { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+
+  /* Graph search */
+  .graph-toolbar { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
+  .graph-search { background: var(--bg3); border: 1px solid var(--border2); border-radius: 6px; padding: 6px 12px; color: var(--text); font-size: 12px; width: 200px; outline: none; }
+  .graph-search:focus { border-color: var(--accent); }
+  .filter-btn { padding: 5px 12px; border-radius: 5px; font-size: 11px; font-weight: 500; cursor: pointer; border: 1px solid var(--border2); background: var(--bg3); color: var(--muted); transition: all 0.15s; }
+  .filter-btn.on { background: rgba(255,0,0,0.15); color: var(--accent2); border-color: rgba(255,0,0,0.3); }
+
+  .scrollable { max-height: 60vh; overflow-y: auto; }
+  .scrollable::-webkit-scrollbar { width: 4px; }
+  .scrollable::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div id="tooltip"><h4 id="tt-title"></h4><p id="tt-desc"></p><div class="tip-tags" id="tt-tags"></div></div>
+
+<div class="header">
+  <div class="header-left">
+    <h1>▶ <span>YouTube</span> — Full System Design</h1>
+    <p>End-to-end architecture · Every component, flow, and trade-off</p>
+  </div>
+  <div>
+    <span class="badge">2B+ MAU</span>
+    <span class="badge blue">500h/min uploads</span>
+    <span class="badge green">~80PB/day served</span>
+    <span class="badge amber">1B+ hrs/day watched</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('overview')"><span class="tab-icon">🗺</span>Architecture Graph</div>
+  <div class="tab" onclick="switchTab('upload')"><span class="tab-icon">⬆</span>Upload Pipeline</div>
+  <div class="tab" onclick="switchTab('streaming')"><span class="tab-icon">▶</span>Video Streaming</div>
+  <div class="tab" onclick="switchTab('search')"><span class="tab-icon">🔍</span>Search & Recommendations</div>
+  <div class="tab" onclick="switchTab('data')"><span class="tab-icon">🗄</span>Data & Storage</div>
+  <div class="tab" onclick="switchTab('infra')"><span class="tab-icon">⚙</span>Infrastructure & Scale</div>
+  <div class="tab" onclick="switchTab('numbers')"><span class="tab-icon">📊</span>Scale Numbers</div>
+  <div class="tab" onclick="switchTab('tradeoffs')"><span class="tab-icon">⚖</span>Trade-offs & Decisions</div>
+</div>
+
+<!-- ============================== OVERVIEW ============================== -->
+<div class="panel active" id="panel-overview">
+  <div class="graph-toolbar">
+    <input class="graph-search" id="graph-search" placeholder="Filter nodes…" oninput="filterNodes(this.value)">
+    <button class="filter-btn on" onclick="toggleFilter(this,'all')">All</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'client')">Client</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'network')">Network</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'processing')">Processing</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'storage')">Storage</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'data')">Data</button>
+    <button class="filter-btn" onclick="toggleFilter(this,'ml')">ML/AI</button>
+  </div>
+  <div class="canvas-wrap">
+    <canvas id="arch-canvas" height="700"></canvas>
+    <div class="canvas-controls">
+      <button class="ctrl-btn" onclick="zoomCanvas(1.2)">＋</button>
+      <button class="ctrl-btn" onclick="zoomCanvas(0.83)">－</button>
+      <button class="ctrl-btn" onclick="resetCamera()">↺ Reset</button>
+    </div>
+  </div>
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#3b8bd4"></div>Client / CDN / Network</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#1d9e75"></div>API / Gateway</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#d85a30"></div>Processing / Encoding</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#ba7517"></div>Storage / DB</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#7f77dd"></div>ML / Recommendations</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#d4537e"></div>Messaging / Queue</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#639922"></div>Analytics / Monitoring</div>
+  </div>
+  <div class="node-detail" id="node-detail">
+    <h3 id="nd-title"></h3>
+    <div class="detail-grid">
+      <div id="nd-left"></div>
+      <div id="nd-right"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== UPLOAD ============================== -->
+<div class="panel" id="panel-upload">
+  <div class="section-title">Video Upload & Transcoding Pipeline</div>
+  <div class="pipeline" id="upload-pipeline"></div>
+  <div class="detail-grid">
+    <div>
+      <div class="section-title">Encoding Formats Produced</div>
+      <table class="flow-table">
+        <thead><tr><th>Resolution</th><th>Codec</th><th>Bitrate</th><th>Use</th></tr></thead>
+        <tbody>
+          <tr><td>144p</td><td>H.264 / VP9</td><td>80–100 kbps</td><td><span class="tag tag-b">Low bandwidth</span></td></tr>
+          <tr><td>240p</td><td>H.264 / VP9</td><td>200–300 kbps</td><td><span class="tag tag-b">Mobile fallback</span></td></tr>
+          <tr><td>360p</td><td>H.264 / VP9</td><td>400–500 kbps</td><td><span class="tag tag-g">Standard</span></td></tr>
+          <tr><td>480p</td><td>H.264 / VP9</td><td>700–900 kbps</td><td><span class="tag tag-g">SD</span></td></tr>
+          <tr><td>720p</td><td>H.264 / VP9</td><td>1.5–2.5 Mbps</td><td><span class="tag tag-a">HD</span></td></tr>
+          <tr><td>1080p</td><td>H.264 / VP9</td><td>3–5 Mbps</td><td><span class="tag tag-a">Full HD</span></td></tr>
+          <tr><td>1440p</td><td>VP9 / AV1</td><td>6–9 Mbps</td><td><span class="tag tag-p">2K</span></td></tr>
+          <tr><td>2160p</td><td>VP9 / AV1</td><td>15–35 Mbps</td><td><span class="tag tag-r">4K UHD</span></td></tr>
+          <tr><td>HDR (any)</td><td>VP9.2 / AV1</td><td>+30%</td><td><span class="tag tag-r">HDR10 / HLG</span></td></tr>
+          <tr><td>360° / VR</td><td>H.264 / VP9</td><td>Variable</td><td><span class="tag tag-p">Spatial</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="section-title">Upload Architecture Details</div>
+      <div class="detail-box">
+        <h4>Resumable Upload Protocol</h4>
+        <div class="kv"><span class="kv-key">Chunk size</span><span class="kv-val">5–256 MB per chunk</span></div>
+        <div class="kv"><span class="kv-key">Protocol</span><span class="kv-val">GCS Resumable Uploads (HTTPS)</span></div>
+        <div class="kv"><span class="kv-key">Resume window</span><span class="kv-val">1 week from last byte</span></div>
+        <div class="kv"><span class="kv-key">Checksum</span><span class="kv-val">MD5 per chunk, SHA-256 final</span></div>
+        <div class="kv"><span class="kv-key">Max file size</span><span class="kv-val">256 GB (verified accounts)</span></div>
+        <div class="kv"><span class="kv-key">Max duration</span><span class="kv-val">12 hours</span></div>
+        <div class="kv"><span class="kv-key">Raw storage</span><span class="kv-val">Google Cloud Storage (Coldline)</span></div>
+        <div class="kv"><span class="kv-key">Parallel chunks</span><span class="kv-val">Up to 32 concurrent</span></div>
+      </div>
+      <div class="detail-box" style="margin-top:14px">
+        <h4>Transcoding Infrastructure</h4>
+        <div class="kv"><span class="kv-key">System</span><span class="kv-val">Distributed FFmpeg / Zencoder-style</span></div>
+        <div class="kv"><span class="kv-key">Parallelism</span><span class="kv-val">Each resolution encoded in parallel</span></div>
+        <div class="kv"><span class="kv-key">Segment size (DASH)</span><span class="kv-val">2–4 second chunks</span></div>
+        <div class="kv"><span class="kv-key">Segment size (HLS)</span><span class="kv-val">6–10 second chunks</span></div>
+        <div class="kv"><span class="kv-key">Thumbnails</span><span class="kv-val">Auto-selected + creator choices</span></div>
+        <div class="kv"><span class="kv-key">Storyboard sprites</span><span class="kv-val">1 frame/10s → mosaic JPEG</span></div>
+        <div class="kv"><span class="kv-key">Audio tracks</span><span class="kv-val">Multiple bitrates + Spatial Audio</span></div>
+        <div class="kv"><span class="kv-key">Caption gen</span><span class="kv-val">ASR (Whisper-class) → VTT/SRT</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== STREAMING ============================== -->
+<div class="panel" id="panel-streaming">
+  <div class="section-title">Video Playback & Adaptive Streaming</div>
+  <div class="detail-grid">
+    <div>
+      <div class="section-title">Adaptive Bitrate Logic (ABR)</div>
+      <div class="pipeline">
+        <div class="pipe-step">
+          <div class="pipe-num"><div class="pipe-circle" style="background:rgba(59,139,212,0.25);color:#5ba8f4">1</div><div class="pipe-line"></div></div>
+          <div class="pipe-body"><h4>Initial Quality Estimation</h4><p>Client measures RTT, available bandwidth, buffer level. Selects starting quality (typically 360p). Device type detection: mobile → cap 1080p, TV → allow 4K.</p></div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num"><div class="pipe-circle" style="background:rgba(59,139,212,0.25);color:#5ba8f4">2</div><div class="pipe-line"></div></div>
+          <div class="pipe-body"><h4>DASH / HLS Manifest Fetch</h4><p>Player fetches MPD (DASH) or m3u8 (HLS) manifest listing all quality levels and segment URLs. Signed URLs with ~30min expiry for DRM-protected content.</p><div class="sub"><span class="tag tag-b">MPEG-DASH</span><span class="tag tag-g">HLS (Apple)</span><span class="tag tag-a">CMAF</span></div></div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num"><div class="pipe-circle" style="background:rgba(59,139,212,0.25);color:#5ba8f4">3</div><div class="pipe-line"></div></div>
+          <div class="pipe-body"><h4>Segment Download Loop</h4><p>Downloads 2–4s video segments. Keeps 30s buffer ahead. Switches quality on segment boundary when BW changes ≥15%.</p></div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num"><div class="pipe-circle" style="background:rgba(59,139,212,0.25);color:#5ba8f4">4</div><div class="pipe-line"></div></div>
+          <div class="pipe-body"><h4>CDN Edge Selection</h4><p>Anycast DNS + GeoDNS routes to nearest PoP. If miss → origin shield → GCS. Cache TTL ~24h per segment. Edge cache hit rate: ~97%+.</p></div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num"><div class="pipe-circle" style="background:rgba(59,139,212,0.25);color:#5ba8f4">5</div><div class="pipe-line"></div></div>
+          <div class="pipe-body"><h4>DRM & License</h4><p>Widevine (Android/Chrome), FairPlay (Apple), PlayReady (Windows/Xbox). License token issued at stream start, content key decrypted in secure enclave.</p><div class="sub"><span class="tag tag-r">Widevine L1</span><span class="tag tag-r">FairPlay</span><span class="tag tag-a">PlayReady</span></div></div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num"><div class="pipe-circle" style="background:rgba(59,139,212,0.25);color:#5ba8f4">6</div><div class="pipe-line"></div></div>
+          <div class="pipe-body"><h4>Playback Telemetry</h4><p>Client reports: rebuffer events, quality switches, TTFF, dropped frames, geo, ISP. Feeds into QoE dashboard and ABR model training.</p></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">CDN & Edge Architecture</div>
+      <div class="detail-box">
+        <h4>Global CDN Setup</h4>
+        <div class="kv"><span class="kv-key">Primary CDN</span><span class="kv-val">Google Global CDN (GFE)</span></div>
+        <div class="kv"><span class="kv-key">Partner CDNs</span><span class="kv-val">Akamai, CloudFront, Fastly</span></div>
+        <div class="kv"><span class="kv-key">PoP count</span><span class="kv-val">200+ locations worldwide</span></div>
+        <div class="kv"><span class="kv-key">ISP agreements</span><span class="kv-val">On-premise caches at major ISPs</span></div>
+        <div class="kv"><span class="kv-key">Protocol</span><span class="kv-val">HTTP/2 + QUIC (HTTP/3)</span></div>
+        <div class="kv"><span class="kv-key">TLS version</span><span class="kv-val">TLS 1.3 preferred</span></div>
+        <div class="kv"><span class="kv-key">Compression</span><span class="kv-val">Brotli (manifests), raw (video)</span></div>
+        <div class="kv"><span class="kv-key">Origin shield</span><span class="kv-val">Regional aggregation layer</span></div>
+        <div class="kv"><span class="kv-key">Cache hit rate</span><span class="kv-val">~97% (popular), ~40% (long-tail)</span></div>
+        <div class="kv"><span class="kv-key">Byte-range</span><span class="kv-val">Range request support for seeking</span></div>
+      </div>
+      <div class="detail-box" style="margin-top:14px">
+        <h4>Live Streaming (YouTube Live)</h4>
+        <div class="kv"><span class="kv-key">Ingest protocol</span><span class="kv-val">RTMP / RTMPS / DASH-IF</span></div>
+        <div class="kv"><span class="kv-key">Latency modes</span><span class="kv-val">Normal (~30s), Low (5–15s), Ultra (< 2s)</span></div>
+        <div class="kv"><span class="kv-key">DVR window</span><span class="kv-val">Up to 12 hours replay buffer</span></div>
+        <div class="kv"><span class="kv-key">Concurrent peak</span><span class="kv-val">~15M+ concurrent streams</span></div>
+        <div class="kv"><span class="kv-key">Chat infra</span><span class="kv-val">Pub/Sub; sharded by channel</span></div>
+        <div class="kv"><span class="kv-key">Transcode (live)</span><span class="kv-val">Real-time ≤ 200ms processing</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== SEARCH ============================== -->
+<div class="panel" id="panel-search">
+  <div class="section-title">Search Architecture</div>
+  <div class="detail-grid">
+    <div>
+      <table class="flow-table">
+        <thead><tr><th>Layer</th><th>Component</th><th>Detail</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag tag-b">Query</span></td><td>Query Understanding</td><td>Tokenization, NER, intent classification, query expansion, spell correction, language detection</td></tr>
+          <tr><td><span class="tag tag-b">Retrieval</span></td><td>Inverted Index</td><td>Title, description, tags, auto-captions indexed. BM25 + dense retrieval hybrid. Sharded by video ID.</td></tr>
+          <tr><td><span class="tag tag-b">Retrieval</span></td><td>Semantic Search</td><td>Dual-encoder model, query → embedding, ANN search (ScaNN) over video embeddings. ~100M+ index.</td></tr>
+          <tr><td><span class="tag tag-g">Rank</span></td><td>Candidate Generation</td><td>Top-k from BM25 + ANN merged, ~1000 candidates per query</td></tr>
+          <tr><td><span class="tag tag-g">Rank</span></td><td>Ranking Model</td><td>Multi-objective: relevance, quality, engagement, freshness, personalization. Deep neural ranking (DNN). 600+ features.</td></tr>
+          <tr><td><span class="tag tag-a">Filter</span></td><td>Policy Filters</td><td>Age-restriction, Safe Search, COPPA compliance, region blocks, copyright claims removed</td></tr>
+          <tr><td><span class="tag tag-a">Filter</span></td><td>Quality Signals</td><td>Watch time, like ratio, click-through, authority, spam score from ML classifier</td></tr>
+          <tr><td><span class="tag tag-p">UI</span></td><td>Autocomplete</td><td>Prefix trie + ML-ranked suggestions, updated hourly. Personalized blend with trending.</td></tr>
+          <tr><td><span class="tag tag-p">UI</span></td><td>Result Assembly</td><td>Videos + playlists + channels + Shorts mixed. Ad slots inserted. Rich snippets: duration, views, chapters.</td></tr>
+          <tr><td><span class="tag tag-r">Freshness</span></td><td>Index Update Latency</td><td>~60s for breaking news / trending. ~15 min general. ~1h long-tail crawl re-index.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="section-title">Recommendation Engine</div>
+      <div class="pipeline">
+        <div class="pipe-step">
+          <div class="pipe-num"><div class="pipe-circle" style="background:rgba(127,119,221,0.25);color:#a8a3f0">1</div><div class="pipe-line"></div></div>
+          <div class="pipe-body"><h4>User State Collection</h4><p>Watch history (last 30 days), search history, liked/disliked, subscriptions, explicit not-interested signals, co-views, dwell time per session.</p></div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num"><div class="pipe-circle" style="background:rgba(127,119,221,0.25);color:#a8a3f0">2</div><div class="pipe-line"></div></div>
+          <div class="pipe-body"><h4>Candidate Generation (Two-Tower)</h4><p>User tower + video tower → dot product → approximate nearest-neighbor. Generates ~100–500 candidates from billions. GPU accelerated.</p><div class="sub"><span class="tag tag-p">Two-Tower DNN</span><span class="tag tag-p">ScaNN ANN</span></div></div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num"><div class="pipe-circle" style="background:rgba(127,119,221,0.25);color:#a8a3f0">3</div><div class="pipe-line"></div></div>
+          <div class="pipe-body"><h4>Multi-Stage Ranking</h4><p>Stage 1: Wide & Deep model on ~500 candidates → ~50. Stage 2: Deep neural ranking with 600+ features → final 20. Objectives: satisfaction, watch time, CTR.</p></div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num"><div class="pipe-circle" style="background:rgba(127,119,221,0.25);color:#a8a3f0">4</div><div class="pipe-line"></div></div>
+          <div class="pipe-body"><h4>Diversity & Freshness Injection</h4><p>Diversity constraint: no 2+ videos same channel consecutively. Fresh content (< 24h) boosted. "New to you" exploration bucket.</p></div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num"><div class="pipe-circle" style="background:rgba(127,119,221,0.25);color:#a8a3f0">5</div><div class="pipe-line"></div></div>
+          <div class="pipe-body"><h4>Policy / Safety Post-filter</h4><p>Remove borderline content, apply COPPA safe mode for kids, country-specific content restrictions, advertiser-friendly checks.</p></div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-num"><div class="pipe-circle" style="background:rgba(127,119,221,0.25);color:#a8a3f0">6</div><div class="pipe-line"></div></div>
+          <div class="pipe-body"><h4>Response Cache & Serve</h4><p>Pre-computed feed cached 60–120s per user. Incremental update on new activity. Real-time override for breaking news / trending.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== DATA ============================== -->
+<div class="panel" id="panel-data">
+  <div class="section-title">Data Storage Architecture</div>
+  <table class="flow-table">
+    <thead><tr><th>System</th><th>Technology</th><th>Data Stored</th><th>Scale</th><th>Consistency</th></tr></thead>
+    <tbody>
+      <tr><td><b>Video Blobs</b></td><td><span class="tag tag-b">Google Cloud Storage</span></td><td>Encoded video segments, raw originals, thumbnails, captions, manifests</td><td>Exabytes; geo-replicated</td><td>Eventual</td></tr>
+      <tr><td><b>Video Metadata</b></td><td><span class="tag tag-g">Cloud Spanner / Bigtable</span></td><td>title, description, tags, status, channel_id, created_at, analytics counters</td><td>Billions of rows</td><td>Strong (Spanner)</td></tr>
+      <tr><td><b>User Accounts</b></td><td><span class="tag tag-g">Cloud Spanner</span></td><td>Auth tokens, profile, preferences, payment, subscription tier</td><td>Billions</td><td>Strong</td></tr>
+      <tr><td><b>Watch History</b></td><td><span class="tag tag-a">Bigtable</span></td><td>Per-user watch events: video_id, timestamp, watch_pct, device</td><td>100B+ rows</td><td>Eventual</td></tr>
+      <tr><td><b>Comments</b></td><td><span class="tag tag-a">Spanner + Bigtable</span></td><td>Comment text, votes, moderation status, reply threads</td><td>Tens of billions</td><td>Eventual</td></tr>
+      <tr><td><b>Like/Dislike counts</b></td><td><span class="tag tag-r">Redis Cluster</span></td><td>Approximate counters, refreshed from primary on write</td><td>In-memory; sharded</td><td>Eventual</td></tr>
+      <tr><td><b>Session / Auth Cache</b></td><td><span class="tag tag-r">Redis / Memcached</span></td><td>OAuth tokens, rate-limit state, session data</td><td>Millions of keys</td><td>Eventual</td></tr>
+      <tr><td><b>Search Index</b></td><td><span class="tag tag-p">Custom Inverted Index</span></td><td>Title, description, captions, tags; term→postings lists</td><td>Petabyte-scale</td><td>Near-real-time</td></tr>
+      <tr><td><b>Embedding Store</b></td><td><span class="tag tag-p">ScaNN / Vertex AI</span></td><td>Video & user dense embeddings (256–1024 dim)</td><td>100M+ vectors</td><td>Batch updated</td></tr>
+      <tr><td><b>Analytics / Events</b></td><td><span class="tag tag-g">BigQuery + Pub/Sub</span></td><td>Clickstream, view events, ads impressions, error logs, QoE telemetry</td><td>Petabytes; append-only</td><td>Eventual</td></tr>
+      <tr><td><b>Subscriptions Graph</b></td><td><span class="tag tag-b">Custom Graph DB</span></td><td>channel→subscriber edges; used for notification fan-out</td><td>Billions of edges</td><td>Eventual</td></tr>
+      <tr><td><b>Ads Targeting</b></td><td><span class="tag tag-a">Bigtable + Spanner</span></td><td>User segments, interests, demographic inferences, ad frequency caps</td><td>Billions</td><td>Eventually consistent</td></tr>
+      <tr><td><b>Content ID Index</b></td><td><span class="tag tag-r">Custom audio/video fingerprint DB</span></td><td>Audio fingerprints, video hash perceptual hashes for copyright detection</td><td>100M+ reference works</td><td>Strong (hash lookup)</td></tr>
+      <tr><td><b>Notification Queue</b></td><td><span class="tag tag-r">Pub/Sub + Dataflow</span></td><td>Upload notifications, subscription alerts, policy alerts</td><td>Billions/day</td><td>At-least-once</td></tr>
+    </tbody>
+  </table>
+  <div class="detail-grid">
+    <div>
+      <div class="section-title">Caching Strategy</div>
+      <div class="detail-box">
+        <h4>Multi-tier Cache</h4>
+        <div class="kv"><span class="kv-key">L1: Client browser</span><span class="kv-val">Segment cache, manifest TTL ~5min</span></div>
+        <div class="kv"><span class="kv-key">L2: CDN Edge</span><span class="kv-val">Video segments, ~24h TTL</span></div>
+        <div class="kv"><span class="kv-key">L3: Origin shield</span><span class="kv-val">Regional aggregation, ~12h</span></div>
+        <div class="kv"><span class="kv-key">L4: App Redis</span><span class="kv-val">Video metadata, ~60s TTL, hot-key sharding</span></div>
+        <div class="kv"><span class="kv-key">L5: In-process</span><span class="kv-val">LRU cache in each pod, 30s TTL</span></div>
+        <div class="kv"><span class="kv-key">Popular threshold</span><span class="kv-val">Top 0.1% videos = ~80% of traffic</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">Sharding Strategy</div>
+      <div class="detail-box">
+        <h4>Key Distribution</h4>
+        <div class="kv"><span class="kv-key">Video ID</span><span class="kv-val">Random 11-char base64 (no hash hotspot)</span></div>
+        <div class="kv"><span class="kv-key">User DB shard</span><span class="kv-val">Consistent hash on user_id</span></div>
+        <div class="kv"><span class="kv-key">Comment shard</span><span class="kv-val">By video_id (parent first)</span></div>
+        <div class="kv"><span class="kv-key">Watch events</span><span class="kv-val">By user_id + date bucket</span></div>
+        <div class="kv"><span class="kv-key">Analytics</span><span class="kv-val">Time-partitioned Bigtable row key</span></div>
+        <div class="kv"><span class="kv-key">Counter sharding</span><span class="kv-val">Write to N shards, read SUM(shards)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== INFRA ============================== -->
+<div class="panel" id="panel-infra">
+  <div class="section-title">Infrastructure & Services</div>
+  <div class="detail-grid">
+    <div>
+      <table class="flow-table scrollable">
+        <thead><tr><th>Service</th><th>Responsibility</th><th>Key Tech</th></tr></thead>
+        <tbody>
+          <tr><td><b>API Gateway</b></td><td>Rate limiting, auth, routing, SSL termination, versioning</td><td><span class="tag tag-g">GFE / Envoy / Cloud Armor</span></td></tr>
+          <tr><td><b>Auth Service</b></td><td>OAuth 2.0 + OIDC, Google SSO, token issuance, session mgmt</td><td><span class="tag tag-b">Google Identity Platform</span></td></tr>
+          <tr><td><b>Video Service</b></td><td>Video CRUD, metadata management, publish/unpublish</td><td><span class="tag tag-g">gRPC microservice</span></td></tr>
+          <tr><td><b>Upload Service</b></td><td>Resumable chunk handler, GCS coordinator, job dispatch</td><td><span class="tag tag-a">Go + GCS SDK</span></td></tr>
+          <tr><td><b>Transcoding Service</b></td><td>Parallel encoding workers, quality ladder producer</td><td><span class="tag tag-r">FFmpeg + GPU VMs</span></td></tr>
+          <tr><td><b>Search Service</b></td><td>Query parse, index scatter-gather, ranking, autocomplete</td><td><span class="tag tag-p">Custom C++/Java</span></td></tr>
+          <tr><td><b>Recommendation Svc</b></td><td>Feed generation, candidate retrieval, ranking, serving</td><td><span class="tag tag-p">TensorFlow Serving</span></td></tr>
+          <tr><td><b>Playback Service</b></td><td>Stream URL signing, DRM token, manifest assembly, QoE</td><td><span class="tag tag-b">Go microservice</span></td></tr>
+          <tr><td><b>Comment Service</b></td><td>CRUD, thread management, moderation queue feed</td><td><span class="tag tag-g">Java + Spanner</span></td></tr>
+          <tr><td><b>Notification Svc</b></td><td>Subscription fan-out, push notification, email digest</td><td><span class="tag tag-r">Pub/Sub + Dataflow</span></td></tr>
+          <tr><td><b>Analytics Svc</b></td><td>Clickstream ingestion, Studio dashboard, creator reports</td><td><span class="tag tag-g">Pub/Sub → BigQuery</span></td></tr>
+          <tr><td><b>Ads Service</b></td><td>Auction, targeting, insertion, billing, fraud detection</td><td><span class="tag tag-a">DFP / GAM integration</span></td></tr>
+          <tr><td><b>Content ID Svc</b></td><td>Audio/video fingerprint match, claim filing, takedowns</td><td><span class="tag tag-r">Custom fingerprint engine</span></td></tr>
+          <tr><td><b>Moderation Svc</b></td><td>Policy violation detection, human review queue, appeals</td><td><span class="tag tag-r">ML classifiers + humans</span></td></tr>
+          <tr><td><b>Channel Service</b></td><td>Channel profile, subscriber count, community posts</td><td><span class="tag tag-b">Java + Spanner</span></td></tr>
+          <tr><td><b>Shorts Service</b></td><td>Short-form vertical video, dedicated feed, swiping UX</td><td><span class="tag tag-p">Separate ranking model</span></td></tr>
+          <tr><td><b>Super Chat Svc</b></td><td>Live donations, pinning, payment processing integration</td><td><span class="tag tag-a">Google Pay backend</span></td></tr>
+          <tr><td><b>Membership Svc</b></td><td>Channel memberships, perks, payment, access control</td><td><span class="tag tag-a">Billing microservice</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="section-title">Deployment & Reliability</div>
+      <div class="detail-box">
+        <h4>Compute Infrastructure</h4>
+        <div class="kv"><span class="kv-key">Container platform</span><span class="kv-val">Kubernetes (GKE)</span></div>
+        <div class="kv"><span class="kv-key">Service mesh</span><span class="kv-val">Istio / Traffic Director</span></div>
+        <div class="kv"><span class="kv-key">IaC</span><span class="kv-val">Terraform + internal tooling</span></div>
+        <div class="kv"><span class="kv-key">Regions</span><span class="kv-val">Multi-region, all major GCP zones</span></div>
+        <div class="kv"><span class="kv-key">Deployment</span><span class="kv-val">Blue/green + canary (1% → 10% → 100%)</span></div>
+        <div class="kv"><span class="kv-key">Rollback</span><span class="kv-val">Automated on error rate spike</span></div>
+        <div class="kv"><span class="kv-key">Transcoding VMs</span><span class="kv-val">N2 + A100 GPU for AV1</span></div>
+      </div>
+      <div class="detail-box" style="margin-top:14px">
+        <h4>Reliability & SLOs</h4>
+        <div class="kv"><span class="kv-key">Availability SLO</span><span class="kv-val">99.9% (≈ 8.7h/year downtime)</span></div>
+        <div class="kv"><span class="kv-key">Video serve latency</span><span class="kv-val">p50 &lt; 300ms, p99 &lt; 2s TTFF</span></div>
+        <div class="kv"><span class="kv-key">Circuit breakers</span><span class="kv-val">Per-service; fallback to cached data</span></div>
+        <div class="kv"><span class="kv-key">Rate limiting</span><span class="kv-val">Token bucket per user + API key</span></div>
+        <div class="kv"><span class="kv-key">Load shedding</span><span class="kv-val">Priority queue; shed search before serve</span></div>
+        <div class="kv"><span class="kv-key">Chaos engineering</span><span class="kv-val">DiRT (Disaster Recovery Testing)</span></div>
+        <div class="kv"><span class="kv-key">Observability</span><span class="kv-val">Cloud Trace, Monitoring, custom dashboards</span></div>
+      </div>
+      <div class="detail-box" style="margin-top:14px">
+        <h4>Security</h4>
+        <div class="kv"><span class="kv-key">DDoS</span><span class="kv-val">Cloud Armor + Anycast absorption</span></div>
+        <div class="kv"><span class="kv-key">Auth</span><span class="kv-val">OAuth 2.0, PKCE, short-lived tokens</span></div>
+        <div class="kv"><span class="kv-key">Encryption in transit</span><span class="kv-val">TLS 1.3 everywhere</span></div>
+        <div class="kv"><span class="kv-key">Encryption at rest</span><span class="kv-val">AES-256, CMEK for premium content</span></div>
+        <div class="kv"><span class="kv-key">Signed URLs</span><span class="kv-val">All video segments, 30min expiry</span></div>
+        <div class="kv"><span class="kv-key">BotNet protection</span><span class="kv-val">reCAPTCHA Enterprise + ML heuristics</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== NUMBERS ============================== -->
+<div class="panel" id="panel-numbers">
+  <div class="section-title">Scale Numbers & Back-of-Envelope</div>
+  <div class="num-grid">
+    <div class="num-card"><div class="label">Monthly Active Users</div><div class="value" style="color:#5ba8f4">2.5B+</div><div class="sub">~33% global internet users</div></div>
+    <div class="num-card"><div class="label">Daily Active Users</div><div class="value" style="color:#5ba8f4">800M+</div></div>
+    <div class="num-card"><div class="label">Videos Uploaded / min</div><div class="value" style="color:#2ec990">500h</div><div class="sub">30,000 seconds of footage/min</div></div>
+    <div class="num-card"><div class="label">Hours Watched / Day</div><div class="value" style="color:#2ec990">1B+</div></div>
+    <div class="num-card"><div class="label">Avg Session Duration</div><div class="value" style="color:#f5c842">40min</div><div class="sub">Mobile average</div></div>
+    <div class="num-card"><div class="label">Total Videos</div><div class="value" style="color:#a8a3f0">800M+</div></div>
+    <div class="num-card"><div class="label">Video Storage (est.)</div><div class="value" style="color:#f27272">1+ EB</div><div class="sub">All resolutions, all history</div></div>
+    <div class="num-card"><div class="label">Bandwidth / Day</div><div class="value" style="color:#f27272">~80PB</div><div class="sub">Served globally</div></div>
+    <div class="num-card"><div class="label">Peak Concurrent Viewers</div><div class="value" style="color:#5ba8f4">100M+</div></div>
+    <div class="num-card"><div class="label">Search Queries / Day</div><div class="value" style="color:#a8a3f0">3B+</div></div>
+    <div class="num-card"><div class="label">API calls / sec (peak)</div><div class="value" style="color:#2ec990">~10M</div></div>
+    <div class="num-card"><div class="label">Channels</div><div class="value" style="color:#f5c842">50M+</div></div>
+    <div class="num-card"><div class="label">Ads Revenue / Year</div><div class="value" style="color:#2ec990">$31B</div><div class="sub">2023 estimate</div></div>
+    <div class="num-card"><div class="label">Countries served</div><div class="value" style="color:#5ba8f4">100+</div></div>
+    <div class="num-card"><div class="label">Languages supported</div><div class="value" style="color:#2ec990">80+</div></div>
+    <div class="num-card"><div class="label">CDN PoPs</div><div class="value" style="color:#a8a3f0">200+</div></div>
+  </div>
+  <div class="section-title">Back-of-Envelope Estimates</div>
+  <table class="flow-table">
+    <thead><tr><th>Metric</th><th>Calculation</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td><b>New video storage / day</b></td><td>500h/min × 60 min × (avg 5 quality ladders @ ~1 GB/h each) ≈ 500×60×5 GB = 150 TB/day raw, ×1.3 overhead</td><td>~200 TB/day new storage</td></tr>
+      <tr><td><b>Video serve bandwidth</b></td><td>800M DAU × 40 min session × (avg 2 Mbps) / 86400s ≈ 800M × 2400s × 2Mbps</td><td>~740 Tbps average</td></tr>
+      <tr><td><b>View events / sec</b></td><td>800M DAU × ~10 events/session / 86400s</td><td>~93k events/sec</td></tr>
+      <tr><td><b>Upload workers needed</b></td><td>500h × 60 min × 10 quality variants, each ~15 min encode = 500×60×10/15 = 20,000 parallel encode jobs</td><td>~20k transcoding workers peak</td></tr>
+      <tr><td><b>Metadata DB size</b></td><td>800M videos × 10 KB metadata avg = 8 TB metadata; with indexes ×5</td><td>~40 TB metadata DB</td></tr>
+      <tr><td><b>Watch history rows</b></td><td>800M DAU × 10 watches/day × 365 days × 2 years retained</td><td>~5.8 trillion rows</td></tr>
+      <tr><td><b>Like counter ops/sec</b></td><td>800M DAU × ~2 likes/day / 86400s</td><td>~18.5k writes/sec</td></tr>
+      <tr><td><b>Comment volume</b></td><td>500M comments/day (estimated) → ~6000/sec</td><td>~6k writes/sec</td></tr>
+      <tr><td><b>Recommendation latency budget</b></td><td>Candidate gen 10ms + ranking 30ms + assembly 10ms + network 50ms</td><td>target &lt; 100ms p99</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============================== TRADEOFFS ============================== -->
+<div class="panel" id="panel-tradeoffs">
+  <div class="section-title">Key Trade-offs & Design Decisions</div>
+  <table class="flow-table">
+    <thead><tr><th>Decision</th><th>Chosen Approach</th><th>Alternative</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr><td><b>Video Storage</b></td><td><span class="tag tag-b">Object store (GCS)</span></td><td>HDFS, distributed FS</td><td>Infinite scale, geo-replication, cost-efficient cold storage, managed service</td></tr>
+      <tr><td><b>Counter Accuracy</b></td><td><span class="tag tag-a">Approximate (HyperLogLog)</span></td><td>Exact counts</td><td>Exact view counts at scale require distributed transactions; ~2% error acceptable for UI</td></tr>
+      <tr><td><b>Metadata DB</b></td><td><span class="tag tag-b">Spanner (globally consistent)</span></td><td>Eventual-consistent NoSQL</td><td>Creator operations (publish, visibility) need strong consistency; Spanner provides this globally</td></tr>
+      <tr><td><b>Encoding codec</b></td><td><span class="tag tag-g">AV1 for new 4K+</span></td><td>H.265 (HEVC)</td><td>AV1 royalty-free, 50% better compression vs H.264, Google-backed. H.265 licensing costs at scale.</td></tr>
+      <tr><td><b>Recommendation latency</b></td><td><span class="tag tag-p">Pre-computed feed + real-time rerank</span></td><td>Fully real-time generation</td><td>Full real-time at 800M DAU infeasible; pre-compute saves 10×, rerank adds freshness/context</td></tr>
+      <tr><td><b>Search ranking</b></td><td><span class="tag tag-p">Hybrid BM25 + dense embeddings</span></td><td>BM25 only / dense only</td><td>BM25 handles exact match / rare terms; dense handles semantic; hybrid beats either alone</td></tr>
+      <tr><td><b>View count timing</b></td><td><span class="tag tag-a">Buffered → batch write</span></td><td>Write-through per view</td><td>At 800M DAU × 10 views = 8B writes/day → must batch. Accept ~minutes delay in count display.</td></tr>
+      <tr><td><b>CDN strategy</b></td><td><span class="tag tag-b">Google CDN + ISP caches</span></td><td>Third-party CDN only</td><td>Owning infra reduces cost at YouTube scale. ISP on-premise caches cut peering cost dramatically.</td></tr>
+      <tr><td><b>Live latency mode</b></td><td><span class="tag tag-g">User-selectable (normal/low/ultra)</span></td><td>One fixed latency</td><td>Normal (30s) maximizes quality for most; ultra (&lt;2s) for real-time interaction (gaming). CPU/CDN cost differs significantly.</td></tr>
+      <tr><td><b>Notification fan-out</b></td><td><span class="tag tag-r">Async Pub/Sub with batching</span></td><td>Synchronous at upload time</td><td>A channel with 100M subs sending 100M push notifications synchronously is infeasible. Async queue handles burst.</td></tr>
+      <tr><td><b>Dislike count</b></td><td><span class="tag tag-r">Hidden from public (2021)</span></td><td>Show exact count</td><td>Dislike campaigns harmed creator mental health; ratio still fed to recommendation model internally</td></tr>
+      <tr><td><b>Comments sort</b></td><td><span class="tag tag-p">Top-comments-first (ML ranked)</span></td><td>Chronological</td><td>Most relevant comments surface faster; improves engagement metrics; creator-configurable</td></tr>
+      <tr><td><b>Auto-captions</b></td><td><span class="tag tag-g">ASR at processing time</span></td><td>On-demand / no captions</td><td>Pre-generating captions improves accessibility, boosts search indexing, and reduces real-time compute load</td></tr>
+      <tr><td><b>Shorts vs long-form feed</b></td><td><span class="tag tag-p">Separate ranking models</span></td><td>Unified model</td><td>User intent and engagement signals differ; shorts model optimizes swipe-through; long-form optimizes session depth</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+// =================== TAB SWITCHING ===================
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.panel');
+  const names = ['overview','upload','streaming','search','data','infra','numbers','tradeoffs'];
+  const idx = names.indexOf(name);
+  if(idx>=0){ tabs[idx].classList.add('active'); panels[idx].classList.add('active'); }
+}
+
+// =================== UPLOAD PIPELINE ===================
+const uploadSteps = [
+  { num: 1, color: '#5ba8f4', title: 'Client Upload', desc: 'Web/App initiates resumable upload. File split into 5–256 MB chunks. Each chunk uploaded independently with exponential backoff retry. MD5 checksum verified per chunk.', tags: ['Resumable API','Chunked','Retry-safe'] },
+  { num: 2, color: '#2ec990', title: 'Ingest Service', desc: 'Validates auth token, enforces file size/duration limits, checks account standing. Logs upload_started event. Creates video record in DB with status=PROCESSING. Returns upload URI.', tags: ['Auth check','DB record','Status=PROCESSING'] },
+  { num: 3, color: '#f5c842', title: 'Raw Storage (GCS)', desc: 'Chunks assembled into raw original file in Google Cloud Storage. Stored in Nearline/Coldline storage class. Video ID assigned. SHA-256 hash of complete file computed.', tags: ['GCS Nearline','SHA-256','Video ID assign'] },
+  { num: 4, color: '#f27272', title: 'Job Dispatch', desc: 'Upload completion event published to Pub/Sub topic. Transcoding orchestrator picks up event and spawns parallel encoding jobs — one per quality/format combination. Priority queue: verified creators get higher priority.', tags: ['Pub/Sub','Priority queue','Parallel spawn'] },
+  { num: 5, color: '#a8a3f0', title: 'Parallel Transcoding', desc: 'GPU/CPU worker fleet runs FFmpeg. Each resolution encoded independently. VP9, H.264, AV1 codecs. Audio normalized (R128 loudness). Segments cut every 2–4s for DASH. Thumbnails extracted at regular intervals (1 per 10s storyboard). Captions generated via ASR model.', tags: ['FFmpeg','GPU workers','DASH segments','ASR captions'] },
+  { num: 6, color: '#f5c842', title: 'Quality Validation', desc: 'Each output segment verified: SSIM/VMAF quality score computed, bitrate check, duration match. Failed segments re-encoded. Manifest (MPD/m3u8) generated listing all quality levels. Thumbnail candidates scored by ML model (click-through prediction).', tags: ['VMAF','Quality gate','Manifest gen'] },
+  { num: 7, color: '#2ec990', title: 'CDN Distribution', desc: 'Encoded segments pushed to origin storage. Warm popular CDN edges by pre-fetching segments for viral content. Signed URLs generated. Content ID check fires fingerprint matching against reference database.', tags: ['CDN push','Signed URLs','Content ID check'] },
+  { num: 8, color: '#5ba8f4', title: 'Publish & Index', desc: 'Video status updated to PUBLIC/PRIVATE per creator setting. Metadata indexed in search (title, tags, description, auto-captions). Recommendation model embedding computed. Notification fan-out triggered to subscribers. Creator notified. Analytics tracking begins.', tags: ['Search index','Embedding gen','Notify subscribers','Status=LIVE'] },
+];
+
+const ul = document.getElementById('upload-pipeline');
+uploadSteps.forEach((s,i) => {
+  const isLast = i === uploadSteps.length - 1;
+  ul.innerHTML += `<div class="pipe-step">
+    <div class="pipe-num">
+      <div class="pipe-circle" style="background:${s.color}22;color:${s.color}">${s.num}</div>
+      ${!isLast ? '<div class="pipe-line"></div>' : ''}
+    </div>
+    <div class="pipe-body" style="margin-bottom:${isLast?0:6}px">
+      <h4>${s.title}</h4>
+      <p>${s.desc}</p>
+      <div class="sub">${s.tags.map(t=>`<span class="tag tag-b">${t}</span>`).join('')}</div>
+    </div>
+  </div>`;
+});
+
+// =================== GRAPH ===================
+const canvas = document.getElementById('arch-canvas');
+const ctx = canvas.getContext('2d');
+
+let camX = 0, camY = 0, camZoom = 1;
+let dragging = false, lastMX = 0, lastMY = 0;
+let hoveredNode = null, activeFilter = 'all', searchTerm = '';
+
+const COLORS = {
+  client: '#3b8bd4',
+  network: '#3b8bd4',
+  gateway: '#1d9e75',
+  processing: '#d85a30',
+  storage: '#ba7517',
+  ml: '#7f77dd',
+  queue: '#d4537e',
+  analytics: '#639922',
+};
+
+const nodes = [
+  // Clients
+  { id:'web', label:'Web Browser', sub:'React/HTML5', x:80, y:60, cat:'client', color:COLORS.client, w:130, h:48, detail:{ desc:'YouTube.com served as SPA. MSE + DASH.js for adaptive streaming. Service workers for offline cache. WebAssembly VP9 decoder fallback.', tech:'React, MSE API, DASH.js, WebAssembly, Service Worker' }},
+  { id:'android', label:'Android App', sub:'YouTube APK', x:80, y:140, cat:'client', color:COLORS.client, w:130, h:48, detail:{ desc:'Native Android app. ExoPlayer for adaptive streaming. Widevine L1 DRM in TEE. Background play (Premium). PiP mode.', tech:'Kotlin, ExoPlayer, Widevine L1, WorkManager' }},
+  { id:'ios', label:'iOS App', sub:'AVFoundation', x:80, y:220, cat:'client', color:COLORS.client, w:130, h:48, detail:{ desc:'Native iOS app. AVPlayer with HLS adaptive streaming. FairPlay DRM. Offline download (Premium). SharePlay integration.', tech:'Swift, AVFoundation, FairPlay DRM, NSURLSession' }},
+  { id:'tv', label:'Smart TV / CTV', sub:'DIAL / HDCP', x:80, y:300, cat:'client', color:COLORS.client, w:130, h:48, detail:{ desc:'YouTube TV app on Samsung, LG, Roku, Fire TV, Chromecast. DIAL for cast. HDCP 2.2 for 4K content. AV1 hardware decode on modern TVs.', tech:'JavaScript SDK, DIAL protocol, HDCP 2.2, AV1 HW decode' }},
+  { id:'api_consumer', label:'API Consumers', sub:'Data v3 API', x:80, y:380, cat:'client', color:COLORS.client, w:130, h:48, detail:{ desc:'Third-party apps, developers, integrations via YouTube Data API v3. OAuth 2.0 auth. Quota-limited. Used by CMS platforms, analytics tools, embeds.', tech:'YouTube Data API v3, OAuth 2.0, JSON REST, gRPC-web' }},
+
+  // Edge / CDN
+  { id:'cdn', label:'Global CDN', sub:'200+ PoPs', x:280, y:60, cat:'network', color:COLORS.network, w:140, h:48, detail:{ desc:'Google Global CDN + partner CDNs (Akamai, CloudFront). Video segments cached at edge. GeoDNS + Anycast routing. HTTP/3 QUIC for low-latency. 97%+ cache hit rate for popular content. ISP on-premise caches for Tier-1 ISPs.', tech:'Google CDN, Akamai, QUIC/HTTP3, Anycast, GeoDNS' }},
+  { id:'dns', label:'GeoDNS / Anycast', sub:'Traffic steering', x:280, y:140, cat:'network', color:COLORS.network, w:140, h:48, detail:{ desc:'Routes users to nearest CDN PoP or origin region. Considers latency, capacity, health. Anycast IP advertised from all regions simultaneously.', tech:'Google Cloud DNS, Anycast BGP, Latency-based routing' }},
+
+  // API Gateway layer
+  { id:'gfe', label:'GFE / Load Balancer', sub:'Global Frontend', x:490, y:100, cat:'gateway', color:COLORS.gateway, w:160, h:48, detail:{ desc:'Google Frontend — global L7 load balancer. SSL/TLS termination. HTTP/2 multiplexing. DDoS absorption with Cloud Armor. Routes to correct microservice cluster.', tech:'GFE, Cloud Armor, Cloud Load Balancing, TLS 1.3' }},
+  { id:'api_gw', label:'API Gateway', sub:'Rate limit · Auth', x:490, y:180, cat:'gateway', color:COLORS.gateway, w:160, h:48, detail:{ desc:'Validates OAuth tokens, enforces per-user rate limits (token bucket), API versioning, request transformation. Envoy-based service mesh integration.', tech:'Envoy, Istio, Cloud Endpoints, JWT validation' }},
+
+  // Core Microservices
+  { id:'auth', label:'Auth Service', sub:'OAuth 2.0 / OIDC', x:720, y:40, cat:'gateway', color:COLORS.gateway, w:150, h:48, detail:{ desc:'Handles login, token issuance (access + refresh), Google SSO, 2FA. Session management. Token introspection. Rate-limits login attempts.', tech:'Google Identity Platform, OAuth2, PKCE, OIDC, TOTP 2FA' }},
+  { id:'video_svc', label:'Video Service', sub:'Metadata CRUD', x:720, y:120, cat:'gateway', color:COLORS.gateway, w:150, h:48, detail:{ desc:'Manages video lifecycle: create, read, update, delete, publish/unpublish. Enforces access control (public/private/unlisted). Owns video metadata schema.', tech:'Java, gRPC, Cloud Spanner, Redis cache' }},
+  { id:'upload_svc', label:'Upload Service', sub:'Resumable chunks', x:720, y:200, cat:'processing', color:COLORS.processing, w:150, h:48, detail:{ desc:'Handles resumable upload protocol. Coordinates chunk assembly to GCS. Validates file integrity. Creates transcoding job. Returns upload URI and video ID.', tech:'Go, GCS Resumable API, Pub/Sub, Cloud Tasks' }},
+  { id:'playback_svc', label:'Playback Service', sub:'Stream URLs · DRM', x:720, y:280, cat:'gateway', color:COLORS.gateway, w:150, h:48, detail:{ desc:'Signs streaming URLs per session. Assembles DASH/HLS manifests. Validates DRM license. Reports QoE telemetry. Handles seek, speed change, quality override.', tech:'Go, Widevine License Server, DASH/HLS manifest builder' }},
+  { id:'search_svc', label:'Search Service', sub:'BM25 + Semantic', x:720, y:360, cat:'gateway', color:COLORS.gateway, w:150, h:48, detail:{ desc:'Query parsing, spelling correction, NER intent classification. Scatter-gather across sharded index. Hybrid BM25 + dense retrieval merge. Multi-objective ranking. 3B queries/day.', tech:'Custom C++ index, ScaNN, TensorFlow ranking, Pub/Sub updates' }},
+  { id:'comment_svc', label:'Comment Service', sub:'Threads · Votes', x:720, y:440, cat:'gateway', color:COLORS.gateway, w:150, h:48, detail:{ desc:'CRUD for comments and replies. Vote tallying. Pinning, heart, moderation status. Top-comment ML ranking. Pagination via cursor. Auto-moderation pre-screen.', tech:'Java, Spanner, Redis (hot comment cache), Pub/Sub for notifications' }},
+  { id:'channel_svc', label:'Channel Service', sub:'Profiles · Subs', x:720, y:520, cat:'gateway', color:COLORS.gateway, w:150, h:48, detail:{ desc:'Channel profile management, subscriber count, community posts, membership tiers. Subscription fan-out on new upload via notification service.', tech:'Java, Spanner, custom graph store for sub edges' }},
+  { id:'ads_svc', label:'Ads Service', sub:'Auction · Targeting', x:720, y:600, cat:'gateway', color:COLORS.gateway, w:150, h:48, detail:{ desc:'Real-time ad auction (< 20ms). User segment targeting. Ad insertion into manifest (server-side). Fraud detection ML. Billing reconciliation. Google Ad Manager integration.', tech:'C++ auction engine, GAM, TensorFlow targeting, Bigtable frequency caps' }},
+
+  // Transcoding
+  { id:'transcode', label:'Transcoding Farm', sub:'GPU + CPU workers', x:490, y:300, cat:'processing', color:COLORS.processing, w:160, h:48, detail:{ desc:'Distributed FFmpeg workers. Each video split by time segments, encoded in parallel. Quality ladder: 10 variants (144p–4K). AV1 on GPU (A100) for 4K+. VMAF quality validation per segment. ~20k workers peak.', tech:'FFmpeg, GPU A100, VP9, AV1, H.264, VMAF quality gate' }},
+  { id:'content_id', label:'Content ID', sub:'Fingerprint match', x:490, y:380, cat:'processing', color:COLORS.processing, w:160, h:48, detail:{ desc:'Generates audio + visual perceptual fingerprints. Matches against 100M+ reference works database. Files claims automatically. Handles takedown, monetize, or track policies.', tech:'Custom audio fingerprint, visual hash, reference DB, policy engine' }},
+  { id:'moderation', label:'Moderation', sub:'ML + Human review', x:490, y:460, cat:'processing', color:COLORS.processing, w:160, h:48, detail:{ desc:'Multi-stage: ML pre-classifier (hate, violence, CSAM, spam) → confidence threshold → human review queue. Appeals pipeline. Age-restriction auto-apply. COPPA child detection.', tech:'TensorFlow classifiers, human review UI, appeals workflow engine' }},
+
+  // ML
+  { id:'rec_model', label:'Recommendation ML', sub:'Two-Tower + Ranking', x:490, y:540, cat:'ml', color:COLORS.ml, w:160, h:48, detail:{ desc:'Two-tower DNN for candidate generation (user + item embeddings). Multi-stage ranking (Wide&Deep → DNN). Objectives: watch time, satisfaction, CTR. 600+ features. Served via TensorFlow Serving. Pre-computed feeds refreshed every 60–120s.', tech:'TensorFlow, TF-Serving, ScaNN ANN, Feature Store, Vertex AI' }},
+  { id:'search_ml', label:'Search ML / NLU', sub:'Semantic retrieval', x:490, y:620, cat:'ml', color:COLORS.ml, w:160, h:48, detail:{ desc:'Query understanding: BERT-class NLU for intent, NER, query expansion. Dual-encoder for semantic search. Cross-encoder for re-ranking. Spell correction neural model. Autocomplete prefix model.', tech:'BERT, dual-encoder, ScaNN, TF-Serving' }},
+
+  // Storage
+  { id:'gcs', label:'Google Cloud Storage', sub:'Video blobs (EB scale)', x:920, y:40, cat:'storage', color:COLORS.storage, w:180, h:48, detail:{ desc:'Stores: raw originals (Coldline), encoded segments (Standard/Nearline), thumbnails, captions, manifests, storyboard sprites. Geo-replicated. Object versioning. Lifecycle policies for cold archival.', tech:'GCS Standard/Nearline/Coldline, multi-region replication, signed URLs' }},
+  { id:'spanner', label:'Cloud Spanner', sub:'Global SQL DB', x:920, y:120, cat:'storage', color:COLORS.storage, w:180, h:48, detail:{ desc:'Stores video metadata, user accounts, channel data, subscription relationships. Global strong consistency. Horizontal scale. External consistency. Used where correctness matters most.', tech:'Cloud Spanner, TrueTime, MVCC, read-write transactions' }},
+  { id:'bigtable', label:'Bigtable / NoSQL', sub:'Watch history · events', x:920, y:200, cat:'storage', color:COLORS.storage, w:180, h:48, detail:{ desc:'Watch history, view events, recommendation signals, comment moderation metadata. Wide-column. Row key: user_id#date for watch history. 100B+ rows. Low latency read (<5ms p99).', tech:'Cloud Bigtable, row-key design, column families, TTL' }},
+  { id:'redis', label:'Redis Cluster', sub:'Cache · counters', x:920, y:280, cat:'storage', color:COLORS.storage, w:180, h:48, detail:{ desc:'Hot metadata cache (video info, channel info). Approximate view/like counters (counter sharding). Session state. Rate limit state. Recommendation feed cache. Hot-key mitigation via local replica.', tech:'Redis Cluster, Lua scripts, EXPIRE, counter sharding pattern' }},
+  { id:'search_index', label:'Search Index', sub:'Inverted + Dense', x:920, y:360, cat:'storage', color:COLORS.storage, w:180, h:48, detail:{ desc:'Inverted index (BM25) for keyword search. Dense vector index (ScaNN) for semantic search. Updated within 60s for trending content, 15min general. Sharded by video ID range.', tech:'Custom inverted index (C++), ScaNN, Vertex Matching Engine' }},
+  { id:'bq', label:'BigQuery', sub:'Analytics warehouse', x:920, y:440, cat:'analytics', color:COLORS.analytics, w:180, h:48, detail:{ desc:'Stores all clickstream events, ad impressions, error logs, QoE metrics. Petabyte-scale. Creator Studio analytics powered by BQ. A/B test analysis. ML training data pipeline.', tech:'BigQuery, partitioned tables, Dataflow ingestion, Looker dashboards' }},
+
+  // Queue
+  { id:'pubsub', label:'Pub/Sub', sub:'Event backbone', x:720, y:680, cat:'queue', color:COLORS.queue, w:150, h:48, detail:{ desc:'Decouples upload, transcoding, indexing, notification, analytics. Topics: video_uploaded, transcode_done, video_published, user_action_events, notification_triggers. At-least-once delivery. 1M+ msgs/sec throughput.', tech:'Google Pub/Sub, Dataflow subscribers, Dead-letter queues' }},
+  { id:'notification', label:'Notification Service', sub:'Push · Email · In-app', x:490, y:700, cat:'queue', color:COLORS.queue, w:160, h:48, detail:{ desc:'Subscription fan-out: new video → push to all subscribers (up to 100M per channel). Batched via Pub/Sub + Dataflow. Delivery: FCM push, APNs, email digest, in-app bell. Rate-limited to avoid spam.', tech:'FCM, APNs, SendGrid, Pub/Sub, Dataflow, user pref filtering' }},
+
+  // Analytics
+  { id:'monitoring', label:'Monitoring / Alerting', sub:'SLO · SLI · traces', x:920, y:520, cat:'analytics', color:COLORS.analytics, w:180, h:48, detail:{ desc:'Cloud Monitoring for SLI/SLO tracking. Distributed tracing (Cloud Trace). Log-based metrics. Alerting on error rate, latency p99, cache hit rate drops. Oncall rotation. DiRT (Disaster Recovery Testing).', tech:'Cloud Monitoring, Cloud Trace, Cloud Logging, PagerDuty' }},
+];
+
+const edges = [
+  // Client → CDN/DNS
+  ['web','cdn'], ['android','cdn'], ['ios','cdn'], ['tv','cdn'], ['api_consumer','gfe'],
+  // CDN → GFE
+  ['cdn','gfe'], ['dns','gfe'],
+  // GFE → Gateway
+  ['gfe','api_gw'],
+  // Gateway → Services
+  ['api_gw','auth'], ['api_gw','video_svc'], ['api_gw','upload_svc'], ['api_gw','playback_svc'],
+  ['api_gw','search_svc'], ['api_gw','comment_svc'], ['api_gw','channel_svc'], ['api_gw','ads_svc'],
+  // Upload → processing
+  ['upload_svc','transcode'], ['transcode','content_id'], ['transcode','moderation'],
+  // Services → Storage
+  ['video_svc','spanner'], ['upload_svc','gcs'], ['transcode','gcs'],
+  ['playback_svc','gcs'], ['playback_svc','redis'],
+  ['search_svc','search_index'], ['search_svc','search_ml'],
+  ['comment_svc','spanner'], ['channel_svc','spanner'],
+  ['ads_svc','bigtable'], ['ads_svc','redis'],
+  // ML
+  ['rec_model','redis'], ['rec_model','bigtable'],
+  // Queue
+  ['upload_svc','pubsub'], ['video_svc','pubsub'], ['pubsub','notification'],
+  ['pubsub','transcode'], ['pubsub','bq'],
+  // Analytics
+  ['api_gw','bq'], ['bq','monitoring'], ['bq','rec_model'],
+  // CDN serves from GCS
+  ['gcs','cdn'],
+  // Auth feeds everything
+  ['auth','redis'],
+];
+
+function nodeById(id){ return nodes.find(n=>n.id===id); }
+
+function getNodeCenter(n){ return { x: n.x + n.w/2, y: n.y + n.h/2 }; }
+
+function drawRoundRect(x,y,w,h,r,fill,stroke,alpha=1){
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+  if(fill){ ctx.fillStyle=fill; ctx.fill(); }
+  if(stroke){ ctx.strokeStyle=stroke; ctx.lineWidth=1; ctx.stroke(); }
+  ctx.restore();
+}
+
+function hexAlpha(hex,a){
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+let filteredIds = null;
+
+function render(){
+  const W = canvas.offsetWidth; const H = canvas.offsetHeight;
+  canvas.width = W; canvas.height = H;
+  ctx.clearRect(0,0,W,H);
+  ctx.save();
+  ctx.translate(W/2+camX, H/2+camY);
+  ctx.scale(camZoom, camZoom);
+
+  // Bounding box center offset
+  const allX = nodes.map(n=>n.x+n.w/2); const allY = nodes.map(n=>n.y+n.h/2);
+  const cx = (Math.min(...allX)+Math.max(...allX))/2;
+  const cy = (Math.min(...allY)+Math.max(...allY))/2;
+  ctx.translate(-cx,-cy);
+
+  // Draw edges
+  edges.forEach(([a,b])=>{
+    const na=nodeById(a), nb=nodeById(b);
+    if(!na||!nb) return;
+    const visible = !filteredIds || (filteredIds.has(a) && filteredIds.has(b));
+    const ca=getNodeCenter(na), cb=getNodeCenter(nb);
+    const alpha = visible ? 0.35 : 0.05;
+    ctx.beginPath();
+    ctx.moveTo(ca.x, ca.y);
+    const mx=(ca.x+cb.x)/2, my=(ca.y+cb.y)/2;
+    ctx.quadraticCurveTo(mx, ca.y, cb.x, cb.y);
+    ctx.strokeStyle = hexAlpha(na.color, alpha);
+    ctx.lineWidth = visible ? 1.5 : 0.5;
+    ctx.stroke();
+    // arrowhead
+    const angle = Math.atan2(cb.y-my, cb.x-mx);
+    const ax=cb.x-na.w*0.05, ay=cb.y;
+    ctx.beginPath();
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(ax-8*Math.cos(angle-0.4), ay-8*Math.sin(angle-0.4));
+    ctx.moveTo(ax,ay);
+    ctx.lineTo(ax-8*Math.cos(angle+0.4), ay-8*Math.sin(angle+0.4));
+    ctx.strokeStyle = hexAlpha(na.color, alpha*1.5);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // Draw nodes
+  nodes.forEach(n=>{
+    const isHovered = hoveredNode && hoveredNode.id===n.id;
+    const visible = !filteredIds || filteredIds.has(n.id);
+    const alpha = visible ? 1 : 0.15;
+    const bg = hexAlpha(n.color, isHovered ? 0.3 : 0.12);
+    const border = hexAlpha(n.color, isHovered ? 0.9 : 0.45);
+    drawRoundRect(n.x, n.y, n.w, n.h, 6, bg, border, alpha);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = n.color;
+    ctx.font = `500 12px system-ui, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(n.label, n.x+n.w/2, n.y+16);
+    ctx.fillStyle = hexAlpha(n.color, 0.65);
+    ctx.font = `10px system-ui, sans-serif`;
+    ctx.fillText(n.sub, n.x+n.w/2, n.y+30);
+    ctx.restore();
+    if(isHovered){
+      drawRoundRect(n.x-2, n.y-2, n.w+4, n.h+4, 7, null, hexAlpha(n.color,0.6), 1);
+    }
+  });
+
+  ctx.restore();
+}
+
+function canvasToWorld(mx,my){
+  const W=canvas.offsetWidth, H=canvas.offsetHeight;
+  const allX=nodes.map(n=>n.x+n.w/2); const allY=nodes.map(n=>n.y+n.h/2);
+  const cx=(Math.min(...allX)+Math.max(...allX))/2;
+  const cy=(Math.min(...allY)+Math.max(...allY))/2;
+  return { x:(mx-W/2-camX)/camZoom+cx, y:(my-H/2-camY)/camZoom+cy };
+}
+
+function hitTest(mx,my){
+  const {x,y}=canvasToWorld(mx,my);
+  return nodes.find(n=>x>=n.x&&x<=n.x+n.w&&y>=n.y&&y<=n.y+n.h) || null;
+}
+
+canvas.addEventListener('mousedown',e=>{ dragging=true; lastMX=e.clientX; lastMY=e.clientY; });
+window.addEventListener('mouseup',()=>{ dragging=false; });
+window.addEventListener('mousemove',e=>{
+  const rect=canvas.getBoundingClientRect();
+  const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+  if(dragging){ camX+=e.clientX-lastMX; camY+=e.clientY-lastMY; lastMX=e.clientX; lastMY=e.clientY; render(); return; }
+  const hit=hitTest(mx,my);
+  if(hit!==hoveredNode){ hoveredNode=hit; render(); }
+  const tt=document.getElementById('tooltip');
+  if(hit){
+    document.getElementById('tt-title').textContent=hit.label;
+    document.getElementById('tt-desc').textContent=hit.detail?.desc||'';
+    document.getElementById('tt-tags').innerHTML=`<span style="font-size:10px;color:${hit.color};margin-top:4px;display:block">Tech: ${hit.detail?.tech||''}</span>`;
+    tt.style.left=(e.clientX+14)+'px'; tt.style.top=(e.clientY-10)+'px'; tt.style.opacity='1';
+  } else { tt.style.opacity='0'; }
+});
+canvas.addEventListener('click',e=>{
+  const rect=canvas.getBoundingClientRect();
+  const hit=hitTest(e.clientX-rect.left, e.clientY-rect.top);
+  if(!hit) return;
+  const nd=document.getElementById('node-detail');
+  document.getElementById('nd-title').textContent=hit.label+' — '+hit.sub;
+  document.getElementById('nd-left').innerHTML=`<div class="detail-box"><h4 style="color:${hit.color}">Description</h4><p style="font-size:12px;color:var(--muted);line-height:1.6">${hit.detail?.desc||''}</p></div>`;
+  document.getElementById('nd-right').innerHTML=`<div class="detail-box"><h4 style="color:${hit.color}">Technology Stack</h4><p style="font-size:12px;color:var(--muted);line-height:1.6">${hit.detail?.tech||''}</p>
+  <div style="margin-top:10px"><span class="tag tag-b" style="border-color:${hit.color}55;background:${hit.color}15;color:${hit.color}">${hit.cat.toUpperCase()}</span></div></div>`;
+  nd.classList.add('show');
+});
+canvas.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const factor = e.deltaY < 0 ? 1.1 : 0.91;
+  camZoom = Math.max(0.2, Math.min(4, camZoom*factor));
+  render();
+},{passive:false});
+
+function zoomCanvas(f){ camZoom=Math.max(0.2,Math.min(4,camZoom*f)); render(); }
+function resetCamera(){ camX=0; camY=0; camZoom=1; render(); document.getElementById('node-detail').classList.remove('show'); }
+
+function filterNodes(term){
+  searchTerm = term.toLowerCase();
+  applyFilter();
+}
+
+function toggleFilter(btn, cat){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  activeFilter = cat;
+  applyFilter();
+}
+
+function applyFilter(){
+  if(activeFilter==='all' && !searchTerm){ filteredIds=null; render(); return; }
+  filteredIds = new Set();
+  nodes.forEach(n=>{
+    const catMatch = activeFilter==='all' || n.cat===activeFilter;
+    const termMatch = !searchTerm || n.label.toLowerCase().includes(searchTerm) || n.sub.toLowerCase().includes(searchTerm);
+    if(catMatch && termMatch) filteredIds.add(n.id);
+  });
+  render();
+}
+
+// Init canvas size
+function resizeCanvas(){
+  canvas.style.height = '700px';
+  render();
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+</script>
+</body>
+</html>

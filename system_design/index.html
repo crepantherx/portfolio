@@ -212,6 +212,7 @@ body::before {
 .card:nth-child(4)::before { background: linear-gradient(90deg, var(--green), var(--accent)); }
 .card:nth-child(5)::before { background: linear-gradient(90deg, var(--blue), var(--purple)); }
 .card:nth-child(6)::before { background: linear-gradient(90deg, var(--pink), var(--orange)); }
+.card:nth-child(7)::before { background: linear-gradient(90deg, var(--red), var(--purple)); }
 
 .card-icon {
   font-size: 28px;
@@ -308,6 +309,7 @@ body::before {
 .card:nth-child(4) { animation-delay: 0.2s; }
 .card:nth-child(5) { animation-delay: 0.25s; }
 .card:nth-child(6) { animation-delay: 0.3s; }
+.card:nth-child(7) { animation-delay: 0.35s; }
 @keyframes cardIn {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
@@ -339,7 +341,7 @@ body::before {
       Real tradeoffs, real numbers, real architecture.
     </p>
     <div class="header-stats">
-      <div class="stat"><div class="stat-num">6</div><div class="stat-label">Guides</div></div>
+      <div class="stat"><div class="stat-num">7</div><div class="stat-label">Guides</div></div>
       <div class="stat"><div class="stat-num">75+</div><div class="stat-label">Questions</div></div>
       <div class="stat"><div class="stat-num">15+</div><div class="stat-label">Systems</div></div>
       <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Tradeoffs</div></div>
@@ -447,6 +449,23 @@ body::before {
         <span class="card-meta-item">🗂️ Frameworks</span>
         <span class="card-meta-item">⚖️ Tradeoffs</span>
         <span class="card-meta-item">🚀 Concise</span>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <!-- 7. YouTube System Design -->
+    <a class="card" href="youtube_system_design.html" target="_top">
+      <span class="card-icon">▶️</span>
+      <div class="card-badge badge-deep">Deep Dive</div>
+      <div class="card-title">YouTube System Design</div>
+      <p class="card-desc">
+        Deep dive into designing a global video streaming platform like YouTube.
+        Video encoding, CDN, storage, and streaming protocols.
+      </p>
+      <div class="card-meta">
+        <span class="card-meta-item">🎥 Streaming</span>
+        <span class="card-meta-item">🌍 CDN</span>
+        <span class="card-meta-item">💾 Storage</span>
       </div>
       <span class="card-arrow">→</span>
     </a>
