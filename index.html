@@ -55,6 +55,7 @@
         <button class="toggle-btn" data-view="projects">Projects</button>
         <button class="toggle-btn" data-view="mentorship">Contact</button>
         <button class="toggle-btn" data-view="articles">Articles</button>
+        <button class="toggle-btn" data-view="products">Products</button>
       </div>
 
 
@@ -71,7 +72,8 @@
           <div class="about-text">
             <h2 id="profile-role">Behind the Code</h2>
             <p>
-              I'm a <span id="age-years">26</span>-year-old Machine Learning Engineer from New Delhi with a passion for
+              I'm a <span id="age-years">26</span>Y software engineer specialized in AI/ML domain from New Delhi
+              with a passion for
               finding patterns in data by
               code and mathematics.<br><br>
               I've worked on everything from taking inputs from frontend, doing best to serve user, and all the way
@@ -117,7 +119,7 @@
 
         <!-- Header & Stats -->
         <div style="margin-bottom: 60px;">
-          <h2 id="profile-role">Full Stack Machine Learning Engineer
+          <h2 id="profile-role">AI/ML Engineer
           </h2>
           <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 24px;">
             With <span id="exp-years">5</span> YoE, strong mathematical mindset, extensive Python development
@@ -382,6 +384,37 @@
           </div>
 
 
+        </div>
+
+        <footer style="margin-top: 60px; padding: 20px 0; border-top: 1px solid var(--divider);">
+          <div>&copy; <span class="year-span"></span> Sudhir Singh</div>
+        </footer>
+      </div>
+
+      <!-- PRODUCTS VIEW -->
+      <div id="view-products" class="view-section hidden">
+        <div class="page-header">
+          <h2 id="profile-role">Products</h2>
+          <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 24px;">
+            Tools and applications.
+          </p>
+        </div>
+
+        <div class="articles-grid">
+          <div class="article-card" onclick="window.location.href='https://cal.sudhir-singh.com'">
+            <div class="article-card-header">
+              <h3 class="article-card-title">GoalTracker</h3>
+              <div class="article-card-tag">Product</div>
+            </div>
+            <p class="article-card-desc">
+              Track your goals and schedule activities.
+            </p>
+            <div class="article-card-meta">
+              <span>📅 Tracking</span>
+              <span>📈 Productivity</span>
+            </div>
+            <div class="article-card-arrow">Take me there →</div>
+          </div>
         </div>
 
         <footer style="margin-top: 60px; padding: 20px 0; border-top: 1px solid var(--divider);">
@@ -2136,7 +2169,7 @@
 
         // ─── Hash Routing ────────────────────────────────────
         window.addEventListener('hashchange', handleHash);
-        
+
         function handleHash() {
           const hash = window.location.hash.substring(1);
           if (hash.startsWith('section=')) {
@@ -2149,7 +2182,7 @@
         }
 
         selectModel(0);
-        
+
         if (window.location.hash) {
           handleHash();
         } else {
