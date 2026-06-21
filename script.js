@@ -103,7 +103,7 @@ const EXPERIENCE = [
     company: "@ Tech Mahindra",
     role: "Machine Learning Engineer",
     period: "2021 - 2023",
-    desc: "Build engine for a platform that automates claim review & risk analysis by combining image classification, document NLP, & financial forecasting."
+    desc: "A platform for AI-powered network monitoring, computer vision–based infrastructure analysis, and time- series outage prediction."
   }
 ];
 
@@ -293,7 +293,7 @@ function handleHashNavigation() {
     _activateView('projects');
     _closeArticleModal();
     _closeBookingModal();
-    
+
     setTimeout(() => {
       const projectEl = document.getElementById(projectId);
       if (projectEl) {
@@ -732,7 +732,7 @@ function toggleTheme(isDark) {
       if (iframe.contentDocument && iframe.contentDocument.documentElement) {
         iframe.contentDocument.documentElement.setAttribute("data-theme", theme);
       }
-    } catch(e) {}
+    } catch (e) { }
   }
 }
 
@@ -740,7 +740,7 @@ function toggleTheme(isDark) {
 function handleInitialRouting() {
   const urlParams = new URLSearchParams(window.location.search);
   const view = urlParams.get('view');
-  
+
   if (view && !window.location.hash) {
     window.location.hash = 'view=' + view;
   } else if (!window.location.hash) {
@@ -758,7 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderProjects();
   setupViewToggle();
   handleInitialRouting();
-  
+
   // Listen for hash changes
   window.addEventListener('hashchange', handleHashNavigation);
 
@@ -773,10 +773,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clean the src to avoid file:// query parameter bugs
         const currentSrc = oldIframe.src.split('?')[0].split('#')[0];
         const container = oldIframe.parentElement;
-        
+
         // Remove old iframe
         oldIframe.remove();
-        
+
         // Recreate to force a fresh load
         const newIframe = document.createElement('iframe');
         newIframe.id = 'article-iframe';
@@ -785,7 +785,7 @@ document.addEventListener('DOMContentLoaded', () => {
         newIframe.style.border = 'none';
         newIframe.style.background = 'transparent';
         newIframe.src = currentSrc;
-        
+
         container.appendChild(newIframe);
       }
     }
@@ -890,7 +890,7 @@ function showArticleDetail(articleId) {
 function _showArticleDetail(articleId) {
   const modal = document.getElementById('article-modal');
   const iframe = document.getElementById('article-iframe');
-  
+
   if (articleId === 'roc-pr-explorer') {
     iframe.src = '';
     const template = document.getElementById('article-content-template');
@@ -913,7 +913,7 @@ function _showArticleDetail(articleId) {
     const currentTheme = document.body.getAttribute('data-theme') || 'light';
     iframe.src = 'ml-reference-atlas.html?theme=' + currentTheme;
   }
-  
+
   modal.classList.add('active');
   modal.classList.remove('hidden');
 }
@@ -927,11 +927,11 @@ function _closeArticleModal() {
   const modal = document.getElementById('article-modal');
   if (!modal || modal.classList.contains('hidden')) return;
   const iframe = document.getElementById('article-iframe');
-  
+
   // Clear iframe to release resources
   iframe.srcdoc = '';
   iframe.removeAttribute('src');
-  
+
   modal.classList.remove('active');
   setTimeout(() => {
     modal.classList.add('hidden');
