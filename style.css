@@ -233,6 +233,30 @@ header {
     margin: 32px 0;
 }
 
+.social-links {
+    margin-top: auto;
+    display: flex;
+    gap: 16px;
+    padding-top: 24px;
+    justify-content: center;
+}
+
+.social-links a {
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: none;
+}
+
+.social-links a:hover {
+    color: var(--accent);
+    transform: translateY(-2px);
+    background: transparent;
+    border-color: transparent;
+}
+
 .toggle-btn {
     background: var(--card-bg);
     border: none;
